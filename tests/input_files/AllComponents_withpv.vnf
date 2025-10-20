@@ -1,0 +1,127 @@
+V9.7
+NETWORK
+
+[PROPERTIES]
+#System Currency:'€' 
+#General 
+#Invisible 
+#History 
+#HistoryItems 
+#Users 
+[]
+
+[SHEET]
+#General GUID:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' Name:'Blad 1' Color:$00C0C0C0 
+[]
+
+[NODE]
+#General GUID:'{E0E2BC23-850E-490F-85CC-7F1CC321F480}' CreationTime:45783,4032763079 Name:'Knooppunt1' Unom:10 
+#Railtype 
+#Installation Kb:0,5 Kt:1 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15000 Y:15000 Symbol:1 Size:4 Width:4 UpstringsY:-50 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 IconY:50 
+#General GUID:'{848B288A-B1B4-4800-8AA0-BA855CCF2710}' CreationTime:45783,4034519907 Name:'Knooppunt2' Unom:10 
+#Railtype 
+#Installation Kb:0,5 Kt:1 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15260 Y:15000 Symbol:1 Size:4 Width:4 UpstringsY:-50 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 IconY:50 
+#General GUID:'{6415434B-BE1E-4781-B2E0-469110C51C27}' CreationTime:45783,4040260185 Name:'Knooppunt3' Unom:10 
+#Railtype 
+#Installation Kb:0,5 Kt:1 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15000 Y:15180 Symbol:1 Size:4 Width:4 UpstringsY:-50 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 IconY:50 
+#General GUID:'{699DB406-4798-4382-B680-3CBC62AD813A}' CreationTime:45783,404508044 Name:'Knooppunt4' Unom:0,4 
+#Railtype 
+#Installation Kb:0,5 Kt:1 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15260 Y:15180 Symbol:1 Size:4 Width:4 UpstringsY:-50 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 IconY:50 
+[]
+
+[LINK]
+#General GUID:'{4894F8A1-9095-4252-93A3-D09EF93B102E}' CreationTime:45783,4041004977 Node1:'{E0E2BC23-850E-490F-85CC-7F1CC321F480}' Node2:'{6415434B-BE1E-4781-B2E0-469110C51C27}' SwitchState1:1 SwitchState2:1 RailConnectivity:1 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' Strings1X:12 Strings1Y:6 Strings2X:12 Strings2Y:6 MidStringsX:4 FaultStringsX:-20 FaultStringsY:20 NoteX:5 FirstCorners:'{(15000 15040) (15060 15040) }' SecondCorners:'{(15000 15140) (15060 15140) }' 
+[]
+
+[CABLE]
+#General GUID:'{F40AEAC2-EDB3-4831-81D7-1DC385CF43F7}' CreationTime:45783,4035219097 Node1:'{E0E2BC23-850E-490F-85CC-7F1CC321F480}' Node2:'{848B288A-B1B4-4800-8AA0-BA855CCF2710}' SwitchState1:1 SwitchState2:1 DynModel:'P' DynSection:1 
+#CablePart Length:10 ParallelCableCount:1 CableType:'3*120 CU GPLK   8/10' GroundResistivityIndex:1 AmpacityFactor:1 
+#CableType ShortName:'120 Cu' Unom:10 R:0,154 X:0,08 C:0,38 TanDelta:0,003 R0:2,54 X0:0,13 C0:0,23 Inom0:190 G1:0,5 Inom1:305 G2:0,75 Inom2:275 G3:1 Inom3:255 Ik1s:15,5 TR:20 TInom:50 TIk1s:160 Frequency:50 PulseVelocity:167 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' Strings1X:12 Strings1Y:6 Strings2X:-15 Strings2Y:6 MidStringsY:4 FaultStringsX:-20 FaultStringsY:20 NoteY:5 FirstCorners:'{(15000 15000) }' SecondCorners:'{(15260 15000) }' 
+[]
+
+[TRANSFORMER]
+#General GUID:'{C71A2F68-47EF-44C6-B53E-332A2762CD73}' CreationTime:45783,4046713773 Node1:'{848B288A-B1B4-4800-8AA0-BA855CCF2710}' Node2:'{699DB406-4798-4382-B680-3CBC62AD813A}' SwitchState1:1 SwitchState2:1 TransformerType:'11750|10000|380|1600|8' Earthing1:0 Earthing2:1 TapPosition:4 
+#TransformerType ShortName:'1600 kVA' Snom:1,6 Unom1:11 Unom2:0,38 Uk:6 Pk:14 Po:1,2 R0:0,001 Z0:0,0066 Ik2s:36,7 WindingConnection1:'D' WindingConnection2:'YN' ClockNumber:5 TapSide:1 TapSize:0,25 TapMin:8 TapNom:4 TapMax:1 Ki:10 Tau:0,4 
+#Dynamics KneeFluxLeg1:1,04 KneeFluxLeg2:1,04 KneeFluxLeg3:1,04 MagnetizingInductanceRatioLeg1:1000 MagnetizingInductanceRatioLeg2:1000 MagnetizingInductanceRatioLeg3:1000 RemanentFluxLeg1:0,7 RemanentFluxLeg2:0,7 RemanentFluxLeg3:0,7 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' Strings1X:-15 Strings1Y:6 Strings2X:-15 Strings2Y:6 MidStringsX:24 FaultStringsX:-20 FaultStringsY:20 NoteX:5 FirstCorners:'{(15260 15020) (15180 15020) }' SecondCorners:'{(15260 15140) (15180 15140) }' 
+[]
+
+[SOURCE]
+#General Node:'{E0E2BC23-850E-490F-85CC-7F1CC321F480}' GUID:'{CDF54A1F-1937-4638-B41B-2303519E80AF}' CreationTime:45783,403618588 SwitchState:1 Uref:1 Sk2nom:1000 Sk2min:900 Sk2max:1000 R/X:0,1 Z0/Z1:3 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:14920 Y:14960 Strings1X:-15 Strings1Y:6 SymbolStringsX:-125 NoteX:5 NoteY:5 
+[]
+
+[SYNCHRONOUS GENERATOR]
+#General Node:'{848B288A-B1B4-4800-8AA0-BA855CCF2710}' GUID:'{CDEC5630-B087-46FE-ADD1-503BA692F34C}' CreationTime:45783,4037011227 SwitchState:1 ControlSort:'C' CosRef:0,95 Uref:1 UQDroop:1 QlimitingType:1 Earthing:0 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' SynchronousGeneratorType:'Leroy Somer 3,6 MVA 10,5 kV' 
+#SynchronousGeneratorType Unom:10,5 Snom:3,6 CosNom:0,8 Qmin:-1,368 Qmax:2,628 rg:0,00834 Xd2sat:0,146 IkP:0,594 UfMax:1,3 Xdsat:2,273 Xl:0,069 Xd:2,45 Xq:1,47 X0:0,096 Xds:0,254 Xqs:0,254 Xdss:0,137 Xqss:0,172 Tds:0,272 Tqs:0,08 Tdss:0,028 Tqss:0,025 Inertia:True J:363 Nnom:1500 Tdc:0,052 TdcUnknown:True 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15380 Y:15040 Strings1X:12 Strings1Y:6 SymbolStringsX:165 NoteX:-5 NoteY:5 
+[]
+
+[SYNCHRONOUS MOTOR]
+#General Node:'{848B288A-B1B4-4800-8AA0-BA855CCF2710}' GUID:'{F08B2DB7-2F8D-4F39-9552-2A03C64A0AAD}' CreationTime:45783,4038398148 SwitchState:1 ControlSort:'C' CosRef:0,85 Earthing:0 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' 
+#SynchronousMotorType Unom:10 Snom:10 CosNom:0,85 Rg:0,014 Xd2:0,2 R/X:0,15 Istart/Inom:5 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15340 Y:14960 Strings1X:12 Strings1Y:6 SymbolStringsX:125 NoteX:-5 NoteY:5 
+[]
+
+[ASYNCHRONOUS GENERATOR]
+#General Node:'{6415434B-BE1E-4781-B2E0-469110C51C27}' GUID:'{5C0C5439-9C96-40B0-849C-4DBB829F23F4}' CreationTime:45783,4041579167 SwitchState:1 Earthing:False Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' 
+#AsynchronousGeneratorType Unom:10 Pnom:10 R/X:0,1 Istart/Inom:5 Poles:2 CosNom:0,85 p2:1,25 cos2:0,86 p3:0,75 cos3:0,81 p4:0,5 cos4:0,72 p5:0,25 cos5:0,5 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:14920 Y:15140 Strings1X:-15 Strings1Y:6 SymbolStringsX:-125 NoteX:5 NoteY:5 
+[]
+
+[ASYNCHRONOUS MOTOR]
+#General Node:'{6415434B-BE1E-4781-B2E0-469110C51C27}' GUID:'{3397D493-73D2-40B7-A34E-B65E9E47EE8A}' CreationTime:45783,4042802431 SwitchState:1 NumberOf:1 Earthing:False CosInverter:1 Istart/Inom:6,1 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' AsynchronousMotorType:'WEG  1 MW 10 kV 2p' 
+#AsynchronousMotorType Unom:10 Pnom:1 R/X:0,299 Istart/Inom:6,1 Poles:2 CosNom:0,92 Efficiency:95,5 p2:0,75 cos2:0,92 n2:95,6 p3:0,5 cos3:0,9 n3:95,1 p4:0,25 cos4:0,75 n4:92,5 p5:0,1 cos5:0,49 n5:85 StartingTorque:50 NomSpeed:2982 CriticalTorque:250 CriticalSpeed:2850 j:74,6 k2:0,0111 k1:-0,46 k0:8,455 DoubleCage:True OwnParameters:True Rs:0,03609658 Xsl:0,134375 Xm:1,75195313 Rr:0,0050625 Xrl:0,04 Rr2:0,060375 Xr2l:0,0375 MechanicalTorqueSpeedCharacteristic:False ElectricalTorqueSpeedCharacteristic:False 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:14920 Y:15220 Strings1X:-15 Strings1Y:6 SymbolStringsX:-125 NoteX:5 NoteY:5 
+[]
+
+[LOAD]
+#General Node:'{699DB406-4798-4382-B680-3CBC62AD813A}' GUID:'{EB2660BB-BBD5-48AA-A52A-2755BF9E4299}' CreationTime:45783,40485875 SwitchState:1 Fp1:1 Fq1:1 Fp2:1 Fq2:1 Fp3:1 Fq3:1 LoadBehaviour:'{0993B8C8-033F-4345-AF80-FDB160F0427D}' LoadGrowth:'{EC874317-80BD-4714-AC1C-F611E2BDAF50}' Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' Earthing:0 HarmonicImpedance:True 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15360 Y:15220 Strings1X:12 Strings1Y:6 SymbolStringsX:145 NoteX:-5 NoteY:5 
+[]
+
+[SHUNTCOIL]
+#General Node:'{6415434B-BE1E-4781-B2E0-469110C51C27}' GUID:'{D9007F27-C356-4C71-AC2A-B40375830D9C}' CreationTime:45783,4044194097 SwitchState:1 Unom:10 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' Earthing:0 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15080 Y:15220 Strings1X:12 Strings1Y:6 SymbolStringsX:125 NoteX:-5 NoteY:5 
+[]
+
+[WINDTURBINE]
+#General Node:'{6415434B-BE1E-4781-B2E0-469110C51C27}' GUID:'{61DAB30E-4017-4CBE-B49C-809BFF4A7013}' CreationTime:45832,5696783796 SwitchState:1 NumberOf:1 WindSpeedOrPref:0 WindSpeed:14 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' AxisHeight:30 
+#WindTurbineType Pnom:1 Unom:10 Ik/Inom:1 R/X:0,1 WindSpeedCutIn:3 WindSpeedNom:14 WindSpeedCuttingOut:25 WindSpeedCuttedOut:30 
+#QControl CosRef:1 NoPNoQ:True Input1:0,95 Output1:0,5 Input2:1 Output2:0 Input3:1 Output3:0 Input4:1,03 Output4:-0,5 Input5:1,05 Output5:-0,5 
+#P(U)Control Input1:0,95 Output1:1 Input2:1 Output2:1 Input3:1 Output3:1 Input4:1,047 Output4:1 Input5:1,057 Output5:0 
+#P(f)Control Input1:50 Output1:1 Input2:50,2 Output2:1 Input3:51,5 Output3:0,48 Input4:0 Output4:0 Input5:0 Output5:0 
+#P(I)Control Input1:0 Output1:1 Input2:0,95 Output2:1 Input3:1,05 Output3:0 Input4:0 Output4:0 Input5:0 Output5:0 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15040 Y:15200 Strings1X:12 Strings1Y:6 SymbolStringsX:85 NoteX:-5 NoteY:5 
+[]
+
+[BATTERY]
+#General Node:'{699DB406-4798-4382-B680-3CBC62AD813A}' GUID:'{282EA14E-370F-43DB-9837-B30076DC63E8}' CreationTime:45783,4047880556 SwitchState:1 StateOfCharge:50 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' Crate:0,5 
+#Inverter Unom:0,4 Ik/Inom:1 ChargeEfficiencyType:'0,1..1 pu: 95 %' DischargeEfficiencyType:'0,1..1 pu: 95 %' 
+#QControl CosRef:1 NoPNoQ:True Input1:1 Output1:0 Input2:0 Output2:0 Input3:0 Output3:0 Input4:0 Output4:0 Input5:0 Output5:0 
+#ChargeEfficiencyType Input1:0 Output1:10 Input2:0,1 Output2:95 Input3:1 Output3:95 Input4:0 Output4:0 Input5:0 Output5:0 
+#DischargeEfficiencyType Input1:0 Output1:10 Input2:0,1 Output2:95 Input3:1 Output3:95 Input4:0 Output4:0 Input5:0 Output5:0 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15340 Y:15160 Strings1X:12 Strings1Y:6 SymbolStringsX:145 NoteX:-5 NoteY:5 
+[]
+
+[PV]
+#General Node:'{6415434B-BE1E-4781-B2E0-469110C51C27}' GUID:'{DD1282DE-32BC-4987-83ED-351FABCCAC57}' CreationTime:45832,4775634838 SwitchState:1 Scaling:1000 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' Longitude:52 Latitude:5 Panel1Orientation:180 Panel1Slope:30 Panel2Orientation:180 Panel2Slope:30 Panel3Orientation:180 Panel3Slope:30 HarmonicsType:'Rectifier single phase' 
+#Inverter Unom:10 Ik/Inom:1 EfficiencyType:'0,1 pu: 93 %; 1 pu: 97 %' 
+#QControl CosRef:1 NoPNoQ:True Input1:0,95 Output1:0,5 Input2:1 Output2:0 Input3:1 Output3:0 Input4:1,03 Output4:-0,5 Input5:1,05 Output5:-0,5 
+#EfficiencyType Input1:0,05 Output1:0 Input2:0,1 Output2:93 Input3:0,2 Output3:95 Input4:0,3 Output4:96 Input5:1 Output5:97 
+#HarmonicsType h3:33,33 h5:20 h7:14,29 h9:11,11 h11:9,09 h13:7,69 h15:6,67 h17:5,88 h19:5,26 h21:4,76 h23:4,35 h25:4 h27:3,7 h29:3,45 h31:3,23 h33:3,03 h35:2,86 h37:2,7 h39:2,56 h41:2,44 h43:2,33 h45:2,22 h47:2,13 h49:2,04 h51:1,96 h53:1,9 h55:1,82 h57:1,75 h59:1,7 h61:1,64 h63:1,59 h65:1,55 h67:1,49 h69:1,45 h71:1,42 h73:1,37 h75:1,33 h77:1,31 h79:1,26 h81:1,23 h83:1,21 h85:1,17 h87:1,15 h89:1,13 h91:1,09 h93:1,08 h95:1,06 h97:1,03 h99:1,01 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:15080 Y:15180 Strings1X:12 Strings1Y:6 SymbolStringsX:185 NoteX:-5 NoteY:5 
+#General Node:'{6415434B-BE1E-4781-B2E0-469110C51C27}' GUID:'{54D85794-BA47-4D8F-A1CF-B58FDB622E82}' CreationTime:45832,4790565856 SwitchState:1 Scaling:1000 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' Longitude:52 Latitude:5 Panel1Orientation:180 Panel1Slope:30 Panel2Orientation:180 Panel2Slope:30 Panel3Orientation:180 Panel3Slope:30 HarmonicsType:'Rectifier 6-pulse (diode)' 
+#Inverter Unom:10 Ik/Inom:1 EfficiencyType:'0,1 pu: 93 %; 1 pu: 97 %' 
+#QControl CosRef:1 NoPNoQ:True Input1:0,95 Output1:0,5 Input2:1 Output2:0 Input3:1 Output3:0 Input4:1,03 Output4:-0,5 Input5:1,05 Output5:-0,5 
+#EfficiencyType Input1:0,05 Output1:0 Input2:0,1 Output2:93 Input3:0,2 Output3:95 Input4:0,3 Output4:96 Input5:1 Output5:97 
+#HarmonicsType h5:20 h7:14,29 h11:9,09 h13:7,69 h17:5,88 h19:5,26 h23:4,35 h25:4 h29:3,45 h31:3,23 h35:2,86 h37:2,7 h41:2,44 h43:2,33 h47:2,13 h49:2,04 h53:1,9 h55:1,82 h59:1,7 h61:1,64 h65:1,55 h67:1,49 h71:1,42 h73:1,37 h77:1,31 h79:1,26 h83:1,21 h85:1,17 h89:1,13 h91:1,09 h95:1,06 h97:1,03 Angle5:180 Angle7:180 Angle17:180 Angle19:180 Angle29:180 Angle31:180 Angle41:180 Angle43:180 Angle53:180 Angle55:180 Angle65:180 Angle67:180 Angle77:180 Angle79:180 Angle89:180 Angle91:180 
+#Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' X:14920 Y:15180 Strings1X:-15 Strings1Y:6 SymbolStringsX:-185 NoteX:5 NoteY:5 
+[]
+

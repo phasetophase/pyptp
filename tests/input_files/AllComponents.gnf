@@ -1,0 +1,132 @@
+G8.9
+NETWORK
+
+[PROPERTIES]
+#System Currency:'EUR' 
+#Network GUID:'{70E76896-C2E6-3D55-B69A-71041851DAC0}' PreviousState:'{5D4C4356-A24A-3EB4-AEED-44417C9A3675}' State:'{0B7C0C8D-A124-319B-AFCF-5CFE49C2456B}' SaveDateTime:0 
+#General  
+[]
+
+[GM TYPE]
+[]
+
+[SHEET]
+#General GUID:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Name:'Sheet 1' Color:$ff00ff 
+[]
+
+[NODE]
+#General GUID:'{B52309AB-B77A-3135-A4B1-B84F2E21BB13}' CreationTime:0 Name:'Node1' Unom:0.4 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Symbol:11 Font:'' 
+#General GUID:'{D44E7EA7-B4BF-363B-8A74-5B2D7D3AA750}' CreationTime:0 Name:'Node2' Unom:0.4 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:400 Symbol:11 Font:'' 
+#General GUID:'{158A5123-DA5E-3F14-8DF9-87E6A9E084B5}' CreationTime:0 Name:'Node3' Unom:0.4 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:800 Symbol:11 Font:'' 
+#General GUID:'{56FF597F-8EFA-3730-B884-92940F0FBFDB}' CreationTime:0 Name:'Node4' Unom:10 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Y:400 Symbol:11 Font:'' 
+#General GUID:'{172BAF58-3BA3-389C-B0F3-2B39E9914E21}' CreationTime:0 Name:'Node5' Unom:10 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:400 Y:400 Symbol:11 Font:'' 
+#General GUID:'{7796663B-4610-3B8C-A1B1-175162FD61BC}' CreationTime:0 Name:'Node6' Unom:0.4 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:800 Y:400 Symbol:11 Font:'' 
+[]
+
+[LINK]
+#General GUID:'{1FB1AE9C-F101-3B4E-8E4A-0DBB763037D6}' CreationTime:0 Node1:'{D44E7EA7-B4BF-363B-8A74-5B2D7D3AA750}' Node2:'{158A5123-DA5E-3F14-8DF9-87E6A9E084B5}' SwitchState1_L1:True SwitchState1_L2:True SwitchState1_L3:True SwitchState1_N:True SwitchState1_PE:True SwitchState2_L1:True SwitchState2_L2:True SwitchState2_L3:True SwitchState2_N:True SwitchState2_PE:True SwitchState1_h1:True SwitchState1_h2:True SwitchState1_h3:True SwitchState1_h4:True SwitchState2_h1:True SwitchState2_h2:True SwitchState2_h3:True SwitchState2_h4:True 
+#Note Text:Link 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' FirstCorners:'{(0 0) }' SecondCorners:'{(0 0) }' 
+[]
+
+[CABLE]
+#General GUID:'{850719C5-7538-30C7-9055-5FE2C7462D41}' CreationTime:0 Node1:'{B52309AB-B77A-3135-A4B1-B84F2E21BB13}' Node2:'{D44E7EA7-B4BF-363B-8A74-5B2D7D3AA750}' SwitchState1_L1:True SwitchState1_L2:True SwitchState1_L3:True SwitchState1_N:True SwitchState1_PE:True SwitchState2_L1:True SwitchState2_L2:True SwitchState2_L3:True SwitchState2_N:True SwitchState2_PE:True k1_L1:1 k1_L2:2 k1_L3:3 k1_h1:6 k1_h2:7 k1_h3:8 k1_h4:9 k2_L1:1 k2_L2:2 k2_L3:3 k2_h1:6 k2_h2:7 k2_h3:8 k2_h4:9 SwitchState1_h1:True SwitchState1_h2:True SwitchState1_h3:True SwitchState1_h4:True SwitchState2_h1:True SwitchState2_h2:True SwitchState2_h3:True SwitchState2_h4:True 
+#CablePart Length:100 CableType:'4x16 YMvK/Cur' 
+#CableType ShortName:'16 Cu' Unom:1.0 Price:0 C:0.212 Inom0:100 G1:0.0 G2:0.0 Ik1s:2.24 TR:20 TInom:90 TIk1s:250 Frequency:50 R_c:0.0 X_c:0.0 R_cc_o:0.0 X_cc_o:0.0 R_e:0.0 X_e:0.0 R_ce:0.0 X_ce:0.0 R_h:0.0 X_h:0.0 R_ch_o:0.0 X_ch_o:0.0 R_hh_o:0.0 X_hh_o:0.0 R_he:0.0 X_he:0.0 
+#GeoCablePart Coordinates:'{(0 0) }' 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' FirstCorners:'{(0 0) }' SecondCorners:'{(0 0) }' 
+[]
+
+[TRANSFORMER]
+#General GUID:'{87602328-ED88-36C5-9442-CFEBC9378537}' CreationTime:0 Node1:'{56FF597F-8EFA-3730-B884-92940F0FBFDB}' Node2:'{B52309AB-B77A-3135-A4B1-B84F2E21BB13}' SwitchState1_L1:True SwitchState1_L2:True SwitchState1_L3:True SwitchState1_N:True SwitchState1_PE:True SwitchState2_L1:True SwitchState2_L2:True SwitchState2_L3:True SwitchState2_N:True SwitchState2_PE:True TransformerType:'10500/420 V 1250 kVA' SwitchState_N_PE:False SwitchState_PE_e:False TapPosition:0 
+#TransformerType ShortName:'1250 kVA' Snom:1.25 Unom1:10.5 Unom2:0.42 Uk:6 Pk:9 Po:1.15 Io:0.0 R0:0.0011 Z0:0.009 Ik2s:28.5 WindingConnection1:'D' WindingConnection2:'yn' ClockNumber:5 TapSide:1 TapSize:0.25 TapMin:-2 TapNom:0 TapMax:2 Ki:10.0 Tau:0.35 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' FirstCorners:'{(0 0) }' SecondCorners:'{(0 0) }' 
+[]
+
+[SPECIAL TRANSFORMER]
+#General GUID:'{263CE850-6CD0-308A-A881-993D24AD5FE3}' CreationTime:0 Node1:'{158A5123-DA5E-3F14-8DF9-87E6A9E084B5}' Node2:'{7796663B-4610-3B8C-A1B1-175162FD61BC}' SwitchState1_L1:True SwitchState1_L2:True SwitchState1_L3:True SwitchState1_N:True SwitchState1_PE:True SwitchState2_L1:True SwitchState2_L2:True SwitchState2_L3:True SwitchState2_N:True SwitchState2_PE:True SpecialTransformerType:'LVRSys 70 kVA 400 V' TapPosition:0 
+#SpecialTransformerType Sort:4 ShortName:'LVRSys 70 kVA' Snom:0.07 Unom1:0.4 Unom2:0.4 Ukmin:0.3 Uknom:0.3 Ukmax:0.3 Pkmin:0.0 Pknom:0.0 Pkmax:0.0 Po:0.0 Io:0.0 Z0:0.0 Ik2s:10.6 TapSide:2 TapSize:0.006 TapMin:-4 TapNom:0 TapMax:4 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' FirstCorners:'{(0 0) }' SecondCorners:'{(0 0) }' 
+[]
+
+[REACTANCECOIL]
+#General GUID:'{0783B7FC-E27C-30E8-B9C2-EC98ADE36BAE}' CreationTime:0 Node1:'{56FF597F-8EFA-3730-B884-92940F0FBFDB}' Node2:'{172BAF58-3BA3-389C-B0F3-2B39E9914E21}' SwitchState1_L1:True SwitchState1_L2:True SwitchState1_L3:True SwitchState1_N:True SwitchState1_PE:True SwitchState2_L1:True SwitchState2_L2:True SwitchState2_L3:True SwitchState2_N:True SwitchState2_PE:True ReactanceCoilType:'Voorbeeld 300 A' 
+#ReactanceCoilType ShortName:'300 A' Unom:10 Inom:300 X:0.3 X0:0.3 X2:0.3 Ik2s:13.0 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' FirstCorners:'{(0 0) }' SecondCorners:'{(0 0) }' 
+[]
+
+[SOURCE]
+#General Node:'{B52309AB-B77A-3135-A4B1-B84F2E21BB13}' GUID:'{6EEF518B-E161-3EB5-A048-C2AA831BB1AF}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True Umin:0.4 Umax:0.4 Uref:0.4 Sk2nom:40 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:-40 TextSize:7 Font:'' 
+[]
+
+[SYNCHRONOUS GENERATOR]
+#General Node:'{D44E7EA7-B4BF-363B-8A74-5B2D7D3AA750}' GUID:'{48F2870F-3D10-3FBF-9E79-EFB52F0EB304}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True Pref:0.4 CosRef:0.4 Uref:0.4 SynchronousGeneratorType:'500 kVA en 400 V' 
+#SynchronousGeneratorType Unom:0.4 Snom:0.5 CosNom:0 Qmin:-0.19 Qmax:0.3125 Rg:0.03 Xd2sat:0 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:400 Y:-40 TextSize:7 Font:'' 
+[]
+
+[ASYNCHRONOUS GENERATOR]
+#General Node:'{D44E7EA7-B4BF-363B-8A74-5B2D7D3AA750}' GUID:'{35CDE1DB-1DAC-36D5-B53B-AB9B2EFA671A}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True Pref:0.01 AsynchronousGeneratorType:'10 kW en 400 V' 
+#AsynchronousGeneratorType Unom:0.4 Pnom:0.01 R/X:0.42 Istart/Inom:7.0 Poles:2 Rpm:3090.0 CriticalTorque:300.0 CosNom:0.85 p2:1.25 cos2:0.86 p3:0.75 cos3:0.81 p4:0.5 cos4:0.72 p5:0.25 cos5:0.5 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:400 Y:40 TextSize:7 Font:'' 
+[]
+
+[ASYNCHRONOUS MOTOR]
+#General Node:'{158A5123-DA5E-3F14-8DF9-87E6A9E084B5}' GUID:'{2CFA4D43-1E81-3DEA-98CE-A9886B5A14F7}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True Phase:0 Pmechanic:0.4 Istart/Inom:6 AsynchronousMotorType:'WEG 400 kW 400 V 2p' 
+#AsynchronousMotorType Unom:0.4 Pmnom:0.4 R/X:0.388 Istart/Inom:6.0 Poles:2 Rpm:2971.0 CriticalTorque:240.0 Cosnom:0.92 Efficiency:95.4 p2:0.75 cos2:0.91 n2:95.6 p3:0.5 cos3:0.89 n3:95.4 p4:0.25 cos4:0.74 n4:93.0 p5:0.1 cos5:0.48 n5:88.0 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:800 Y:-40 TextSize:7 Font:'' 
+[]
+
+[LOAD]
+#General Node:'{158A5123-DA5E-3F14-8DF9-87E6A9E084B5}' GUID:'{6B543A93-071A-3B39-A542-0DE65F8F7374}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:840 TextSize:7 Font:'' 
+[]
+
+[SHUNTCAPACITOR]
+#General Node:'{56FF597F-8EFA-3730-B884-92940F0FBFDB}' GUID:'{2C0249F0-4C36-3A22-B7BD-748D36D52633}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True Q:100 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Y:440 TextSize:7 Font:'' 
+[]
+
+[EARTHINGTRANSFORMER]
+#General Node:'{56FF597F-8EFA-3730-B884-92940F0FBFDB}' GUID:'{203ED03F-0DA2-3E77-8883-01D38CA68B50}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True EarthingTransformerType:'Nulpuntstrafo 7 Ohm' 
+#EarthingTransformerType R0:0.0 X0:7.0 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:-40 Y:400 TextSize:7 Font:'' 
+[]
+
+[HOME]
+#General Node:'{7796663B-4610-3B8C-A1B1-175162FD61BC}' GUID:'{99FBA99E-3A50-35A7-AA3B-58EB459C4540}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True s_PE:True k_L1:1 k_L2:2 k_L3:3 CableType:'4x1*150 YMvK/CurST flat' s_Nh_PEh:True s_PEh_PEh:True s_Hh:True ProtectionType:'Jean Muller 35 A gL/gG' Phases:4 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:840 Y:400 TextSize:7 Font:'' 
+[]
+
+[BATTERY]
+#General Node:'{B52309AB-B77A-3135-A4B1-B84F2E21BB13}' GUID:'{09F0BA87-0294-3C44-AAF6-08941093D34E}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True Phase:0 StateOfCharge:0 Capacity:100 Crate:0.5 
+#Inverter Snom:12.5 ChargeEfficiencyType:'100 %' DischargeEfficiencyType:'0,1..1 pu: 95 %' Cosref:1 
+#ChargeEfficiencyType Input1:0.0 Output1:100 Input2:1.0 Output2:100 Input3:0.0 Output3:0.0 Input4:0.0 Output4:0.0 Input5:0.0 Output5:0.0 
+#DischargeEfficiencyType Input1:0.0 Output1:10 Input2:0.1 Output2:95 Input3:1.0 Output3:95.0 Input4:0.0 Output4:0.0 Input5:0.0 Output5:0.0 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Y:-40 TextSize:7 Font:'' 
+[]
+
+[PV]
+#General Node:'{7796663B-4610-3B8C-A1B1-175162FD61BC}' GUID:'{56BECC15-4D13-3177-8467-7C19F6E2A5E7}' CreationTime:0 s_L1:True s_L2:True s_L3:True s_N:True Phase:0 Scaling:1000 Panel1Orientation:0 Panel1Slope:0 Panel2Orientation:0 Panel2Slope:0 Panel3Orientation:0 Panel3Slope:0 
+#Inverter Snom:12.5 EfficiencyType:'0,1 pu: 93 %; 1 pu: 97 %' 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:800 Y:440 TextSize:7 Font:'' 
+[]
+
+[FUSE]
+#General GUID:'{851DDE78-9064-30A1-830D-E7DEAB295402}' CreationTime:0 InObject:'{850719C5-7538-30C7-9055-5FE2C7462D41}' Side:1 Standardizable:True FuseType:'Jean Muller 224 A gL/gG' 
+#FuseType ShortName:'JMu 224 A' Unom:0.5 Inom:224.0 I1:441.2 T1:1000.0 I2:497.7 T2:500.0 I3:589.9 T3:200.0 I4:672.8 T4:100.0 I5:767.5 T5:50.0 I6:903.0 T6:20.0 I7:1031.2 T7:10.0 I8:1206.3 T8:5.0 I9:1460.1 T9:2.0 I10:1694.2 T10:1.0 I11:1968.4 T11:0.5 I12:2493.5 T12:0.2 I13:3115.1 T13:0.1 I14:4002.1 T14:0.05 I15:6242.5 T15:0.02 I16:9347.1 T16:0.01 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' 
+[]
+
+[CIRCUIT BREAKER]
+#General GUID:'{896705FA-C74F-337A-B1D0-D569442DB90A}' CreationTime:0 InObject:'{0783B7FC-E27C-30E8-B9C2-EC98ADE36BAE}' Side:2 Standardizable:True CircuitBreakerType:'Voorbeeld 300 A' CurrentProtection1Present:False CurrentProtection1Type:'Voorbeeld long time inverse 200 A' VoltageProtectionPresent:False VoltageProtectionType:'vs 300 A' EarthFaultProtection1Present:False 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' 
+[]
+

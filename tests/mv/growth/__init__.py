@@ -1,0 +1,1 @@
+"""Growth tests module."""

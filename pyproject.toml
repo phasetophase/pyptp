@@ -1,0 +1,62 @@
+[project]
+name = "pyptp"
+version = "0.0.4"
+description = "Open-source Python SDK for electrical grid calculations and modelling"
+authors = [{ name = "Phase to Phase", email = "pyptp@phasetophase.com" }]
+license = { text = "GPL-3.0-or-later" }
+requires-python = ">=3.11"
+readme = "README.md"
+keywords = [
+    "electrical-engineering",
+    "power-systems",
+    "network-modeling",
+    "gaia",
+    "vision",
+    "dso",
+    "distribution-networks",
+    "low-voltage",
+    "medium-voltage",
+    "grid-calculations",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "type_enforced==1.8.1",
+    "pandas==2.2.3",
+    "openpyxl==3.1.5",
+    "dataclasses-json>=0.6.7,<0.7",
+    "networkx>=3.4.2,<4",
+    "ipysigma>=0.24.4,<0.25",
+    "orjson>=3.10.0,<4",
+    "requests>=2.31.0,<3",
+    "pydantic-settings>=2.0,<3",
+    "loguru>=0.7,<1",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.8.0,<8",
+]
+
+[tool.hatch.build.targets.sdist]
+include = ["pyptp"]
+
+[tool.hatch.build.targets.wheel]
+include = ["pyptp"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

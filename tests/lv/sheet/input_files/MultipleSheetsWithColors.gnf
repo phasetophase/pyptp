@@ -1,0 +1,13 @@
+G8.9
+NETWORK
+
+[PROPERTIES]
+#System Currency:'EUR'[]
+
+[SHEET]
+#General GUID:'{CCF32C78-BC1D-47E0-9F50-C05A19A43907}' Name:'MainSheet' Color:$ff00ff
+#General GUID:'{4160640B-635D-471F-87FA-C16BA9008040}' Name:'RedSheet' Color:$0000FF
+#General GUID:'{B3FD8A3D-6AFE-40D6-A2F3-057B63840BB6}' Name:'GreenSheet' Color:$008000
+#General GUID:'{E34B3C3D-98E7-4F83-A5C3-A6FE29F9D1A1}' Name:'BlueSheet' Color:$0000FF
+[]
+

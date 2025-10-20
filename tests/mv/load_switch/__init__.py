@@ -1,0 +1,1 @@
+"""Load switch tests module."""

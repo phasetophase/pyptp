@@ -1,0 +1,27 @@
+﻿G8.9
+NETWORK
+
+[PROPERTIES]
+#System Currency:EUR
+[]
+
+[COMMENTS]
+[]
+
+[SHEET]
+#General GUID:'{59A01667-5F31-425B-A1DA-13E91C73FA63}' Name:'RoundTripSheet' Color:$ff00ff
+[]
+
+[NODE]
+#General GUID:'{F463CC81-B708-4948-8EA2-406A800CE15E}' CreationTime:0 Name:'Node1' Unom:0.4 s_N_PE:False s_PE_e:False s_h1:False s_h2:False s_h3:False s_h4:False Risk:False
+#Presentation Sheet:'{59A01667-5F31-425B-A1DA-13E91C73FA63}' X:10 Y:10 Symbol:11 Color:$000000 TextColor:$000000 Font:Arial NoText:False UpsideDownText:False
+#Note Text:Note for Node1
+#General GUID:'{0DA060B5-1000-4C98-96F2-B8B53FEF12B8}' CreationTime:0 Name:'Node2' Unom:0.7 Function:'Load' s_N_PE:False s_PE_e:False s_h1:False s_h2:True s_h3:False s_h4:False Risk:False
+#Fields Name0:'val1' Name1:'val2'
+#Presentation Sheet:'{59A01667-5F31-425B-A1DA-13E91C73FA63}' X:30 Y:40 Symbol:11 Color:$0000FF TextColor:$000000 Font:Arial NoText:False UpsideDownText:False
+#Extra Text:eKey=eVal
+#Note Text:Node2 note
+#General GUID:'{B8B53FEF-12B8-4C98-96F2-0DA060B51000}' CreationTime:0 Name:'Node3' Unom:0.4 s_N_PE:False s_PE_e:False s_h1:False s_h2:False s_h3:False s_h4:False Risk:False
+#Presentation Sheet:'{59A01667-5F31-425B-A1DA-13E91C73FA63}' X:50 Y:50 Symbol:11 Color:$000000 TextColor:$000000 Font:Arial NoText:False UpsideDownText:False
+[]
+

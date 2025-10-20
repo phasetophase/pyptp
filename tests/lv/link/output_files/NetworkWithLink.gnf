@@ -1,0 +1,22 @@
+﻿G8.9
+NETWORK
+
+[PROPERTIES]
+#System Currency:EUR[]
+
+[SHEET]
+#General GUID:'{53BB10C9-ACB7-432B-BFC3-45CB281F3AB6}' Name:'TestSheet' Color:$ff00ff
+[]
+
+[NODE]
+#General GUID:'{C1F4A830-6DE9-4E52-9F19-7AFE78D75C8C}' CreationTime:0 Name:'Node1' Unom:0.4 s_N_PE:False s_PE_e:False s_h1:False s_h2:False s_h3:False s_h4:False Risk:False
+#Presentation Sheet:'{53BB10C9-ACB7-432B-BFC3-45CB281F3AB6}' X:10 Y:0 Symbol:11 Color:$000000 TextColor:$000000 Font:Arial NoText:False UpsideDownText:False
+#General GUID:'{6B76A8EE-E661-467C-8C39-E4F9FADA84F4}' CreationTime:0 Name:'Node2' Unom:0.4 s_N_PE:False s_PE_e:False s_h1:False s_h2:False s_h3:False s_h4:False Risk:False
+#Presentation Sheet:'{53BB10C9-ACB7-432B-BFC3-45CB281F3AB6}' X:20 Y:0 Symbol:11 Color:$000000 TextColor:$000000 Font:Arial NoText:False UpsideDownText:False
+[]
+
+[LINK]
+#General GUID:'{6301D096-5F64-46F3-B50C-B6717A4EA14C}' CreationTime:0 Node1:'{C1F4A830-6DE9-4E52-9F19-7AFE78D75C8C}' Node2:'{6B76A8EE-E661-467C-8C39-E4F9FADA84F4}' Name:'Link_Node1_Node2' SwitchState1_L1:True SwitchState1_L2:True SwitchState1_L3:True SwitchState1_N:True SwitchState1_PE:True SwitchState2_L1:True SwitchState2_L2:True SwitchState2_L3:True SwitchState2_N:True SwitchState2_PE:True FailureFrequency:0.0 SwitchState1_h1:True SwitchState1_h2:True SwitchState1_h3:True SwitchState1_h4:True SwitchState2_h1:True SwitchState2_h2:True SwitchState2_h3:True SwitchState2_h4:True
+#Presentation Sheet:'{53BB10C9-ACB7-432B-BFC3-45CB281F3AB6}' Color:$000000 Size:1 Width:1 TextColor:$000000 TextSize:7 Font:Arial NoText:False UpsideDownText:False FlagFlipped1:False FlagFlipped2:False FirstCorners:'' SecondCorners:''
+[]
+
