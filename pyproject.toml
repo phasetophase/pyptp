@@ -35,8 +35,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "pandas==2.2.3",
-    "openpyxl==3.1.5",
+    "pandas>=2.2.3<3",
+    "openpyxl>=3.1.5<4",
     "dataclasses-json>=0.6.7,<1",
     "networkx>=3.4.2,<4",
     "requests>=2.31.0,<3",
