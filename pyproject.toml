@@ -60,3 +60,47 @@ include = ["pyptp"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+# Ruff configuration
+[tool.ruff]
+line-length = 120
+include = ["*.py"]
+output-format = "concise"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "E402",   # Module level import not at top of file
+    "S101",   # Use of assert detected
+    "PT027",  # Use of pytest raises without match
+    "PT009",  # Use of unittest-style assertions
+    "D203",   # 1 blank line required before class docstring (conflicts with D211)
+    "D213",   # Multi-line docstring summary should start at the second line (conflicts with D212)
+    "TRY300", # Consider moving this statement to an else block
+    "COM812", # Trailing comma missing (conflicts with formatter)
+]
+
+[tool.ruff.lint.pylint]
+max-args = 10
+max-returns = 12
+max-branches = 20
+max-statements = 100
+
+[tool.ruff.lint.mccabe]
+max-complexity = 24
+
+# Pyright configuration
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+include = ["pyptp", "tests"]
+exclude = [
+    "**/__pycache__",
+    "**/.venv",
+    "**/node_modules",
+    "build",
+    "dist",
+]
+typeCheckingMode = "basic"
+reportMissingImports = true
+reportMissingTypeStubs = false
