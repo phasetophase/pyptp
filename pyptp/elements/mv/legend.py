@@ -43,15 +43,12 @@ class LegendCell(DataClassJsonMixin):
     def serialize_cell(self) -> list[str]:
         """Serialize cell and its text lines."""
         lines = []
-        lines.append(
-            f"#Cell {
-                serialize_properties(
-                    write_integer_no_skip('Row', self.row),
-                    write_integer_no_skip('Column', self.column),
-                    write_integer_no_skip('TextSize', self.text_size),
-                )
-            }",
+        cell_properties = serialize_properties(
+            write_integer_no_skip('Row', self.row),
+            write_integer_no_skip('Column', self.column),
+            write_integer_no_skip('TextSize', self.text_size),
         )
+        lines.append(f"#Cell {cell_properties}")
 
         # Add text lines
         lines.extend(f"#Text {text_line}" for text_line in self.text_lines)
