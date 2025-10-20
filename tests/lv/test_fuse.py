@@ -326,6 +326,8 @@ class TestTFuseLS(unittest.TestCase):
 
         # Verify fuse type properties
         if deserialized.type and original_fuse.general.type:
+            assert deserialized.type is not None
+            assert original_fuse.type is not None
             self.assertEqual(
                 deserialized.type.short_name, original_fuse.type.short_name
             )

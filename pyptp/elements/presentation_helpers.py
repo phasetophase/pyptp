@@ -9,7 +9,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from pyptp.elements.element_utils import Guid, IntCoords
+    from collections.abc import Sequence
+
+    from pyptp.elements.element_utils import Guid
 
 
 class HasPresentation(Protocol):
@@ -32,7 +34,7 @@ class HasPresentation(Protocol):
 
 
 def compute_presentation_bounds(
-    presentations: list[HasPresentation],
+    presentations: Sequence[HasPresentation],
     sheet_guid: Guid,
 ) -> tuple[float, float, float, float]:
     """Calculate bounding box for all presentations on specified sheet.
@@ -137,18 +139,18 @@ def transform_point(
 
 
 def transform_corners(
-    corners: IntCoords,
+    corners: Sequence[tuple[float, float]],
     min_x: float,
     min_y: float,
     scale: float,
     grid_size: int = 0,
     *,
     invert_y: bool = True,
-) -> IntCoords:
+) -> list[tuple[int, int]]:
     """Transform list of corner coordinates for cable/branch presentations.
 
     Args:
-        corners: List of (x, y) coordinate tuples.
+        corners: Sequence of (x, y) coordinate tuples (accepts float coordinates).
         min_x: X offset for normalization.
         min_y: Y offset for normalization.
         scale: Scale factor for transformation.
@@ -156,7 +158,7 @@ def transform_corners(
         invert_y: Whether to invert Y-axis (default True).
 
     Returns:
-        List of transformed (x, y) coordinate tuples.
+        List of transformed (x, y) coordinate tuples as integers.
 
     """
     return [transform_point(x, y, min_x, min_y, scale, grid_size, invert_y=invert_y) for x, y in corners]

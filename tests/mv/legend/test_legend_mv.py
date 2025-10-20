@@ -62,6 +62,7 @@ class TestLegendParsing(unittest.TestCase):
         self.assertIsNotNone(
             cell_with_multiple_texts, "Cell at Row:5 Column:2 should exist"
         )
+        assert cell_with_multiple_texts is not None
         self.assertEqual(len(cell_with_multiple_texts.text_lines), 3)
         self.assertEqual(cell_with_multiple_texts.text_lines[0], "Phase to Phase B.V.")
         self.assertEqual(cell_with_multiple_texts.text_lines[1], "Blabla")
@@ -70,6 +71,7 @@ class TestLegendParsing(unittest.TestCase):
         # Verify other cells have single text lines
         cell_1_1 = next((c for c in legend.cells if c.row == 1 and c.column == 1), None)
         self.assertIsNotNone(cell_1_1)
+        assert cell_1_1 is not None
         self.assertEqual(len(cell_1_1.text_lines), 1)
         self.assertEqual(cell_1_1.text_lines[0], "Netwerk:")
 

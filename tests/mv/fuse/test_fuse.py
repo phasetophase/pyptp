@@ -4,7 +4,7 @@ import unittest
 from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
-from pyptp.elements.element_utils import Guid
+from pyptp.elements.element_utils import NIL_GUID, Guid
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.fuse import FuseMV
 from pyptp.elements.mv.presentations import SecondaryPresentation
@@ -340,7 +340,7 @@ class TestFuseRegistration(unittest.TestCase):
         general = FuseMV.General(
             guid=self.fuse_guid,
             name="NoInObjectFuse",
-            in_object=None,
+            in_object=NIL_GUID,
         )
         fuse_type = FuseMV.FuseType()
         presentation = SecondaryPresentation(sheet=self.sheet_guid)
