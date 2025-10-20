@@ -4,7 +4,7 @@ version = "0.0.4"
 description = "Open-source Python SDK for electrical grid calculations and modelling"
 authors = [{ name = "Phase to Phase", email = "pyptp@phasetophase.com" }]
 license = { text = "GPL-3.0-or-later" }
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 readme = "README.md"
 keywords = [
     "electrical-engineering",
@@ -39,7 +39,6 @@ dependencies = [
     "openpyxl==3.1.5",
     "dataclasses-json>=0.6.7,<1",
     "networkx>=3.4.2,<4",
-    "ipysigma>=0.24.4,<1",
     "requests>=2.31.0,<3",
     "pydantic-settings>=2.0,<3",
     "loguru>=0.7,<1",
@@ -64,6 +63,7 @@ build-backend = "hatchling.build"
 [tool.ruff]
 line-length = 120
 include = ["*.py"]
+exclude = ["docs"]
 output-format = "concise"
 
 [tool.ruff.lint]
@@ -99,6 +99,7 @@ exclude = [
     "**/node_modules",
     "build",
     "dist",
+    "docs",
 ]
 typeCheckingMode = "basic"
 reportMissingImports = true

@@ -43,6 +43,10 @@ T = TypeVar("T")
 
 NIL_GUID = Guid(UUID(int=0))
 
+# Branch side identifiers for electrical elements connected to branches
+SIDE_NODE1 = 1
+SIDE_NODE2 = 2
+
 
 def optional_field(default_value: T = None) -> T:
     """Create dataclass field that excludes default values from serialization.

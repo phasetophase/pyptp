@@ -10,9 +10,8 @@ if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
 
 
-# TODO: ugly comments
 class PropertiesHandler:
-    """Custom handler for VNF properties that handles mixed property lines."""
+    """Parses VNF Properties using a declarative recipe."""
 
     def handle(self, network: "NetworkMV", chunk: str) -> None:
         """Parse and register properties from a PROPERTIES section chunk.
@@ -22,7 +21,6 @@ class PropertiesHandler:
             chunk: Raw text content from PROPERTIES section
 
         """
-        # Parse all property lines
         system_data = {}
         network_data = {}
         general_data = {}
@@ -35,7 +33,6 @@ class PropertiesHandler:
         property_lines = re.findall(r"^#(\w+)\s+(.*)$", chunk, re.MULTILINE)
 
         for section_name, properties_text in property_lines:
-            # Parse key:value pairs from the properties text
             key_value_pattern = re.compile(r"(\w+):(?:'([^']*)'|(\S+))")
             parsed_properties = {}
 
@@ -75,7 +72,6 @@ class PropertiesHandler:
             elif section_name == "Users":
                 users_data = parsed_properties
 
-        # Create the nested data structure expected by deserialize
         data = {
             "system": [system_data] if system_data else [],
             "network": [network_data] if network_data else [],
@@ -92,7 +88,6 @@ class PropertiesHandler:
             properties.register(network)
         except (KeyError, ValueError, TypeError):
             logger.exception("Failed to deserialize properties")
-            # Create minimal properties as fallback
             system = PropertiesMV.System()
             properties = PropertiesMV(system=system)
             properties.register(network)

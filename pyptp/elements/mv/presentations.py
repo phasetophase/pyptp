@@ -9,6 +9,7 @@ from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
 from pyptp.elements.color_utils import CL_BLACK, CL_GRAY, DelphiColor
 from pyptp.elements.element_utils import (
+    NIL_GUID,
     Guid,
     IntCoords,
     decode_guid,
@@ -34,10 +35,7 @@ from pyptp.elements.serialization_helpers import (
 class NodePresentation(DataClassJsonMixin):
     """Presentation properties for a node (MV)."""
 
-    sheet: Guid = field(
-        default_factory=lambda: Guid(uuid4()),
-        metadata=config(encoder=encode_guid, decoder=decode_guid),
-    )  # TODO, NIL GUID
+    sheet: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
     x: int = optional_field(0)
     y: int = optional_field(0)
     symbol: int = 11
@@ -124,10 +122,7 @@ class NodePresentation(DataClassJsonMixin):
 class BranchPresentation(DataClassJsonMixin):
     """Presentation properties for a branch (object between two nodes) (MV)."""
 
-    sheet: Guid = field(
-        default_factory=lambda: Guid(uuid4()),
-        metadata=config(encoder=encode_guid, decoder=decode_guid),
-    )
+    sheet: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
     color: DelphiColor = field(default=CL_BLACK)
     size: int = 1
     width: int = 1
@@ -469,7 +464,7 @@ class ElementPresentation(DataClassJsonMixin):
 class SecondaryPresentation(DataClassJsonMixin):
     """Presentation properties for a secundairy (modelled on top of a branch or element) (MV)."""
 
-    sheet: Guid
+    sheet: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
     distance: int = 0
     otherside: bool = False
     color: DelphiColor = field(default=CL_GRAY)

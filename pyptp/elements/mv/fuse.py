@@ -74,8 +74,6 @@ class FuseMV(ExtrasNotesMixin, HasPresentationsMixin):
         @classmethod
         def deserialize(cls, data: dict) -> FuseMV.General:
             """Deserialize General properties."""
-            in_object = data.get("InObject")
-
             return cls(
                 guid=decode_guid(data.get("GUID", str(uuid4()))),
                 creation_time=data.get("CreationTime", 0.0),

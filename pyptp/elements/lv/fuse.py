@@ -64,7 +64,7 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
         in_object: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         side: int = 1
         standardizable: bool = True
-        fuse_type: str = string_field()
+        type: str = string_field()
 
         def serialize(self) -> str:
             """Serialize General properties."""
@@ -81,7 +81,7 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
                 ),
                 write_integer("Side", self.side),
                 write_boolean("Standardizable", value=self.standardizable),
-                write_quote_string("FuseType", self.fuse_type),
+                write_quote_string("FuseType", self.type),
             )
 
         @classmethod
@@ -96,11 +96,11 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
                 in_object=decode_guid(data.get("InObject", str(NIL_GUID))),
                 side=data.get("Side", 1),
                 standardizable=data.get("Standardizable", True),
-                fuse_type=data.get("FuseType", ""),
+                type=data.get("FuseType", ""),
             )
 
     general: General
-    fuse_type: FuseType | None = None
+    type: FuseType | None = None
     presentations: list[SecundairPresentation] = field(default_factory=list)
 
     def __post_init__(self) -> None:
@@ -112,7 +112,7 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
         """Set `fuse_type` from the Excel-backed types provider by name."""
         obj = default_types.get_lv_fuse(fusetype)
         if isinstance(obj, FuseType):
-            self.fuse_type = obj
+            self.type = obj
 
     def register(self, network: NetworkLV) -> None:
         """Will add fuse to the network."""
@@ -130,12 +130,12 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
         lines = []
 
         general_line = f"#General {self.general.serialize()}"
-        if self.fuse_type:
-            general_line += f" {write_quote_string('FuseType', self.fuse_type.short_name)}"
+        if self.type:
+            general_line += f" {write_quote_string('FuseType', self.type.short_name)}"
         lines.append(general_line)
 
-        if self.fuse_type:
-            lines.append(f"#FuseType {self.fuse_type.serialize()}")
+        if self.type:
+            lines.append(f"#FuseType {self.type.serialize()}")
 
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
@@ -157,7 +157,6 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
         """
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
         general = cls.General.deserialize(general_data)
-
         fuse_type = None
         if data.get("fuse_type"):
             fuse_type_data = data["fuse_type"]
@@ -176,6 +175,6 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         return cls(
             general=general,
-            fuse_type=fuse_type,
+            type=fuse_type,
             presentations=presentations,
         )

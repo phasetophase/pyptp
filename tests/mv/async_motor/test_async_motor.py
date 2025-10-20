@@ -174,7 +174,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
         # Verify general properties
         self.assertIn("Name:'FullMotor'", serialized)
         self.assertIn("Variant:True", serialized)
-        self.assertIn("SwitchState:1", serialized)
+        self.assertIn("SwitchState:True", serialized)
         self.assertIn("FieldName:'TestField'", serialized)
         self.assertIn("NotPreferred:True", serialized)
         self.assertIn("FailureFrequency:0.01", serialized)
@@ -192,7 +192,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
         self.assertIn("Istart/Inom:5", serialized)
         self.assertIn("ta:0.5", serialized)
         self.assertIn("NoShortCircuitContribution:True", serialized)
-        self.assertIn("AsynchronousGeneratorType:'TestGenType'", serialized)
+        self.assertIn("AsynchronousMotorType:'TestGenType'", serialized)
         self.assertIn("HarmonicsType:'TestHarmonics'", serialized)
 
         # Verify node reference
@@ -204,7 +204,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
         self.assertIn("R/X:0.1", serialized)
         self.assertIn("Istart/Inom:5", serialized)
         self.assertIn("Poles:4", serialized)
-        self.assertIn("Cosnom:0.85", serialized)
+        self.assertIn("CosNom:0.85", serialized)
         self.assertIn("Efficiency:0.95", serialized)
         self.assertIn("p2:0.8", serialized)
         self.assertIn("cos2:0.9", serialized)
@@ -386,7 +386,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
         self.assertIn("R/X:0.1", serialized)
         self.assertIn("Istart/Inom:5", serialized)
         self.assertIn("Poles:4", serialized)
-        self.assertIn("Cosnom:0.85", serialized)
+        self.assertIn("CosNom:0.85", serialized)
         self.assertIn("Efficiency:0.95", serialized)
 
     def test_async_motor_with_maintenance_properties_serializes_correctly(self) -> None:
@@ -429,7 +429,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
         motor.register(self.network)
 
         serialized = motor.serialize()
-        self.assertIn("SwitchState:1", serialized)
+        self.assertIn("SwitchState:True", serialized)
 
     def test_async_motor_with_connection_type_serializes_correctly(self) -> None:
         """Test that asynchronous motors with connection type serialize correctly."""

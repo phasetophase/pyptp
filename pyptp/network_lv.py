@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from pyptp.elements.lv.frame import FrameLV
     from pyptp.elements.lv.fuse import FuseLV
     from pyptp.elements.lv.gm_type import GMTypeLV
+    from pyptp.elements.lv.legend import LegendLV
     from pyptp.elements.lv.link import LinkLV
     from pyptp.elements.lv.load import LoadLV
     from pyptp.elements.lv.load_switch import LoadSwitchLV
@@ -67,6 +68,7 @@ class NetworkLV:
         self.cables: dict[Guid, CableLV] = {}
         self.links: dict[Guid, LinkLV] = {}
         self.homes: dict[Guid, ConnectionLV] = {}
+        self.legends: dict[Guid, LegendLV] = {}
         self.sources: dict[Guid, SourceLV] = {}
         self.fuses: dict[Guid, FuseLV] = {}
         self.transformers: dict[Guid, TransformerLV] = {}

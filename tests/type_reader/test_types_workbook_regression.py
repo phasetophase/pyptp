@@ -74,16 +74,16 @@ class TestTypesWorkbookRegression(unittest.TestCase):
             self._assert_lv_cable_type_filled(ct_typed)
 
         # Fuse: starts without type, then apply (use Name-only)
-        fuse = FuseLV(general=FuseLV.General(name="F", fuse_type=str(fuse_key)))
-        self.assertIsNone(fuse.fuse_type)
+        fuse = FuseLV(general=FuseLV.General(name="F", type=str(fuse_key)))
+        self.assertIsNone(fuse.type)
 
         fuse.set_fuse_type(types, str(fuse_key))
-        self.assertIsNotNone(fuse.fuse_type)
+        self.assertIsNotNone(fuse.type)
         expected_fuse = types.get_lv_fuse(str(fuse_key))
         self.assertIsNotNone(expected_fuse)
-        self.assertIs(fuse.fuse_type, expected_fuse)
-        if fuse.fuse_type:
-            ft_typed = cast("LVFuseType", fuse.fuse_type)
+        self.assertIs(fuse.type, expected_fuse)
+        if fuse.type:
+            ft_typed = cast("LVFuseType", fuse.type)
             self._assert_lv_fuse_type_filled(ft_typed)
 
     def test_lv_cable_exact_values_match_excel_row(self) -> None:

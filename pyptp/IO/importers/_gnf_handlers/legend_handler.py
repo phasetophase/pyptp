@@ -1,24 +1,24 @@
-"""Handler for parsing VNF Legend sections using a declarative recipe."""
+"""Handler for parsing GNF Legend sections using a declarative recipe."""
 
 from __future__ import annotations
 
 import contextlib
 from typing import Any, ClassVar
 
-from pyptp.elements.mv.legend import LegendCell, LegendMV, LegendPresentation
+from pyptp.elements.lv.legend import LegendCell, LegendLV, LegendPresentation
 from pyptp.IO.importers._base_handler import DeclarativeHandler, SectionConfig
-from pyptp.network_mv import NetworkMV as TNetworkMSType
+from pyptp.network_lv import NetworkLV as TNetworkLSType
 from pyptp.ptp_log import logger
 
 
-class LegendHandler(DeclarativeHandler[TNetworkMSType]):
-    """Parses VNF Legend components using a declarative recipe.
+class LegendHandler(DeclarativeHandler[TNetworkLSType]):
+    """Parses GNF Legend components using a declarative recipe.
 
     Handles legends with general properties, merge specifications, cells with text,
     and presentation properties for network documentation.
     """
 
-    COMPONENT_CLS = LegendMV
+    COMPONENT_CLS = LegendLV
 
     COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
         SectionConfig("general", "#General ", required=True),
@@ -46,7 +46,7 @@ class LegendHandler(DeclarativeHandler[TNetworkMSType]):
 
         """
         if kwarg_name == "general":
-            return LegendMV.General
+            return LegendLV.General
         if kwarg_name == "cells":
             return LegendCell
         if kwarg_name == "presentations":
@@ -153,7 +153,7 @@ class LegendHandler(DeclarativeHandler[TNetworkMSType]):
 
         return properties
 
-    def handle(self, model: TNetworkMSType, raw: str) -> None:
+    def handle(self, model: TNetworkLSType, raw: str) -> None:
         """Filter out special parameters during legend processing."""
         handler_name = type(self).__name__
         if not self.COMPONENT_CLS:

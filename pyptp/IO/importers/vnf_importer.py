@@ -61,12 +61,11 @@ from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from re import Pattern
-    from typing import Any, Union
+    from typing import Any
 
     from pyptp.IO.importers._base_handler import DeclarativeHandler
 
-    # Type alias for handlers that can process VNF sections
-    VnfHandler = Union[DeclarativeHandler[NetworkMV], Any]
+    VnfHandler = DeclarativeHandler[NetworkMV] | Any
 
 
 def make_section_pattern(name: str) -> re.Pattern[str]:

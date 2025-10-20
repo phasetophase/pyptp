@@ -23,6 +23,7 @@ from pyptp.IO.importers._gnf_handlers.frame_handler import FrameHandler
 from pyptp.IO.importers._gnf_handlers.fuse_handler import FuseHandler
 from pyptp.IO.importers._gnf_handlers.gm_type_handler import GMTypeHandler
 from pyptp.IO.importers._gnf_handlers.home_handler import HomeHandler
+from pyptp.IO.importers._gnf_handlers.legend_handler import LegendHandler
 from pyptp.IO.importers._gnf_handlers.link_handler import LinkHandler
 from pyptp.IO.importers._gnf_handlers.load_handler import LoadHandler
 from pyptp.IO.importers._gnf_handlers.load_switch_handler import LoadSwitchHandler
@@ -85,6 +86,7 @@ class GnfImporter:
         "CABLE": CableHandler(),
         "FUSE": FuseHandler(),
         "HOME": HomeHandler(),
+        "LEGEND": LegendHandler(),
         "TRANSFORMER": TransformerHandler(),
         "SPECIAL TRANSFORMER": SpecialTransformerHandler(),
         "REACTANCECOIL": ReactanceCoilHandler(),

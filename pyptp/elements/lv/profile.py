@@ -78,13 +78,7 @@ class ProfileLV:
             i = 1
             while f"f{i}" in data:
                 value = data[f"f{i}"]
-                # Handle both string and numeric types (base handler may pre-convert)
-                if isinstance(value, str):
-                    # Convert comma to dot for float parsing
-                    value = float(value.replace(",", "."))
-                else:
-                    # Already a numeric type
-                    value = float(value)
+                value = float(value.replace(",", ".")) if isinstance(value, str) else float(value)
                 f_values.append(value)
                 i += 1
 

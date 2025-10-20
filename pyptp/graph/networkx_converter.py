@@ -2,7 +2,7 @@
 
 from networkx import Graph
 
-from pyptp.elements.element_utils import NIL_GUID
+from pyptp.elements.element_utils import NIL_GUID, SIDE_NODE1, SIDE_NODE2
 from pyptp.elements.lv.async_generator import AsynchronousGeneratorLV
 from pyptp.elements.lv.async_motor import AsynchronousMotorLV
 from pyptp.elements.lv.battery import BatteryLV
@@ -141,9 +141,9 @@ class NetworkxConverter:
             return
 
         side = secundair.general.side
-        if side == 1:
+        if side == SIDE_NODE1:
             v = str(branch.general.node1)
-        elif side == 2:
+        elif side == SIDE_NODE2:
             v = str(branch.general.node2)
         else:
             return
@@ -224,6 +224,62 @@ class NetworkxConverter:
         return graph
 
     @classmethod
+    def __add_mv_branches(cls, graph: Graph, network: NetworkMV) -> None:
+        """Add all branch elements to the graph."""
+        for cable in network.cables.values():
+            cls.__inject_branch(graph, cable)
+        for link in network.links.values():
+            cls.__inject_branch(graph, link)
+        for tranformer in network.transformers.values():
+            cls.__inject_branch(graph, tranformer)
+        for special_transformer in network.special_transformers.values():
+            cls.__inject_branch(graph, special_transformer)
+        for reactance_coils in network.reactance_coils.values():
+            cls.__inject_branch(graph, reactance_coils)
+
+    @classmethod
+    def __add_mv_elements(cls, graph: Graph, network: NetworkMV) -> None:
+        """Add all node-connected elements to the graph."""
+        for load in network.loads.values():
+            cls.__inject_element(graph, load)
+        for earthing_transformer in network.earthing_transformers.values():
+            cls.__inject_element(graph, earthing_transformer)
+        for asynchronous_generator in network.asynchronous_generators.values():
+            cls.__inject_element(graph, asynchronous_generator)
+        for asynchronous_motor in network.asynchronous_motors.values():
+            cls.__inject_element(graph, asynchronous_motor)
+        for synchronous_generator in network.synchronous_generators.values():
+            cls.__inject_element(graph, synchronous_generator)
+        for synchronous_motor in network.synchronous_motors.values():
+            cls.__inject_element(graph, synchronous_motor)
+        for battery in network.batteries.values():
+            cls.__inject_element(graph, battery)
+        for pv in network.pvs.values():
+            cls.__inject_element(graph, pv)
+        for source in network.sources.values():
+            cls.__inject_element(graph, source)
+        for windturbine in network.windturbines.values():
+            cls.__inject_element(graph, windturbine)
+        for shunt_coil in network.shunt_coils.values():
+            cls.__inject_element(graph, shunt_coil)
+        for shunt_capacitor in network.shunt_capacitors.values():
+            cls.__inject_element(graph, shunt_capacitor)
+        for transformer_load in network.transformer_loads.values():
+            cls.__inject_element(graph, transformer_load)
+
+    @classmethod
+    def __add_mv_secundair(cls, graph: Graph, network: NetworkMV) -> None:
+        """Add all secundair elements to the graph."""
+        for fuse in network.fuses.values():
+            cls.__inject_secundair(graph, network, fuse)
+        for load_switch in network.load_switches.values():
+            cls.__inject_secundair(graph, network, load_switch)
+        for circuit_breaker in network.circuit_breakers.values():
+            cls.__inject_secundair(graph, network, circuit_breaker)
+        for measure_field in network.measure_fields.values():
+            cls.__inject_secundair(graph, network, measure_field)
+
+    @classmethod
     def graph_mv(cls, network: NetworkMV) -> Graph:
         """Export a Medium Voltage (MV) network to a NetworkX Graph.
 
@@ -235,51 +291,8 @@ class NetworkxConverter:
         for node in network.nodes.values():
             graph.add_node(str(node.general.guid), type=type(node).__name__)
 
-        for cable in network.cables.values():
-            NetworkxConverter.__inject_branch(graph, cable)
-        for link in network.links.values():
-            NetworkxConverter.__inject_branch(graph, link)
-        for tranformer in network.transformers.values():
-            NetworkxConverter.__inject_branch(graph, tranformer)
-        for special_transformer in network.special_transformers.values():
-            NetworkxConverter.__inject_branch(graph, special_transformer)
-        for reactance_coils in network.reactance_coils.values():
-            NetworkxConverter.__inject_branch(graph, reactance_coils)
-
-        for load in network.loads.values():
-            NetworkxConverter.__inject_element(graph, load)
-        for earthing_transformer in network.earthing_transformers.values():
-            NetworkxConverter.__inject_element(graph, earthing_transformer)
-        for asynchronous_generator in network.asynchronous_generators.values():
-            NetworkxConverter.__inject_element(graph, asynchronous_generator)
-        for asynchronous_motor in network.asynchronous_motors.values():
-            NetworkxConverter.__inject_element(graph, asynchronous_motor)
-        for synchronous_generator in network.synchronous_generators.values():
-            NetworkxConverter.__inject_element(graph, synchronous_generator)
-        for synchronous_motor in network.synchronous_motors.values():
-            NetworkxConverter.__inject_element(graph, synchronous_motor)
-        for battery in network.batteries.values():
-            NetworkxConverter.__inject_element(graph, battery)
-        for pv in network.pvs.values():
-            NetworkxConverter.__inject_element(graph, pv)
-        for source in network.sources.values():
-            NetworkxConverter.__inject_element(graph, source)
-        for windturbine in network.windturbines.values():
-            NetworkxConverter.__inject_element(graph, windturbine)
-        for shunt_coil in network.shunt_coils.values():
-            NetworkxConverter.__inject_element(graph, shunt_coil)
-        for shunt_capacitor in network.shunt_capacitors.values():
-            NetworkxConverter.__inject_element(graph, shunt_capacitor)
-        for transformer_load in network.transformer_loads.values():
-            NetworkxConverter.__inject_element(graph, transformer_load)
-
-        for fuse in network.fuses.values():
-            NetworkxConverter.__inject_secundair(graph, network, fuse)
-        for load_switch in network.load_switches.values():
-            NetworkxConverter.__inject_secundair(graph, network, load_switch)
-        for circuit_breaker in network.circuit_breakers.values():
-            NetworkxConverter.__inject_secundair(graph, network, circuit_breaker)
-        for measure_field in network.measure_fields.values():
-            NetworkxConverter.__inject_secundair(graph, network, measure_field)
+        cls.__add_mv_branches(graph, network)
+        cls.__add_mv_elements(graph, network)
+        cls.__add_mv_secundair(graph, network)
 
         return graph

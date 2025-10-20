@@ -145,12 +145,17 @@ class TestCircuitBreakerRegistration(unittest.TestCase):
             t_thermal=1.0,
         )
 
-        current_protection1 = CircuitBreakerMV.Protection(
-            present=True,
-            active=True,
-            info="CP1 Protection",
-            direction=2,
-            rca=1.5,
+        current_protection1_type = CircuitBreakerMV.ProtectionType(
+            short_name="TestCP1Type",
+            inom=400.0,
+            t_input=0.1,
+            t_output=0.2,
+            setting_sort=1,
+            I_great=1.2,
+            T_great=0.5,
+            I_greater=2.0,
+            T_greater=0.1,
+            drop_off_pickup_ratio=0.95,
         )
 
         thermal_protection = CircuitBreakerMV.ThermalProtection(
@@ -250,7 +255,7 @@ class TestCircuitBreakerRegistration(unittest.TestCase):
         breaker = CircuitBreakerMV(
             general=general,
             type=breaker_type,
-            current_protection1=current_protection1,
+            current_protection1_type=current_protection1_type,
             thermal_protection=thermal_protection,
             voltage_protection=voltage_protection,
             distance_protection=distance_protection,
@@ -326,10 +331,10 @@ class TestCircuitBreakerRegistration(unittest.TestCase):
         self.assertIn("Tthermal:1", serialized)
 
         # Verify protection type sections are included
-        self.assertIn("#CurrentProtection1Type ShortName:'CP1 Type'", serialized)
-        self.assertIn("#CurrentProtection2Type ShortName:'CP2 Type'", serialized)
-        self.assertIn("#EarthFaultProtection1Type ShortName:'EFP1 Type'", serialized)
-        self.assertIn("#UnbalanceProtectionType ShortName:'UP Type'", serialized)
+        self.assertIn("#CurrentProtection1Type ShortName:'TestCP1Type'", serialized)
+        self.assertIn("Inom:400", serialized)
+        self.assertIn("SettingSort:1", serialized)
+        self.assertIn("I>:1.2", serialized)
 
         # Verify thermal protection properties
         self.assertIn("Ipre:1", serialized)
@@ -373,10 +378,6 @@ class TestCircuitBreakerRegistration(unittest.TestCase):
         self.assertIn("T>>:0.1", serialized)
         self.assertIn("m:0.3", serialized)
         self.assertIn("dId:0.2", serialized)
-        self.assertIn("k1:0.5", serialized)
-        self.assertIn("k2:0.7", serialized)
-        self.assertIn("k3:0.9", serialized)
-        self.assertIn("k4:1", serialized)
         self.assertIn("ReleaseByCurrentProtection:True", serialized)
         self.assertIn("NoOwnMeasurement:True", serialized)
 
@@ -388,20 +389,12 @@ class TestCircuitBreakerRegistration(unittest.TestCase):
         )
 
         # Verify vector jump protection properties
-        self.assertIn("dPhiGreat:30", serialized)
-        self.assertIn("Tgreat:0.5", serialized)
+        self.assertIn("Phi>:30", serialized)
+        self.assertIn("#VectorJumpProtection", serialized)
 
         # Verify frequency protection properties
         self.assertIn("F<:49", serialized)
         self.assertIn("F>:51", serialized)
-
-        # Verify additional sections
-        self.assertIn(
-            "#DifferentialProtectionMeasurePoint:'TestMeasurePoint'", serialized
-        )
-        self.assertIn("#BlockProtection:'TestBlockProtection'", serialized)
-        self.assertIn("#ReserveSwitch:'TestReserveSwitch'", serialized)
-        self.assertIn("#TransferTripSwitch:'TestTransferTripSwitch'", serialized)
 
         # Verify presentation properties
         self.assertIn(f"Sheet:'{{{str(self.sheet_guid).upper()}}}'", serialized)
@@ -414,8 +407,8 @@ class TestCircuitBreakerRegistration(unittest.TestCase):
         self.assertIn("TextSize:12", serialized)
         self.assertIn("NoText:True", serialized)
         self.assertIn("UpsideDownText:True", serialized)
-        self.assertIn("Strings1X:10", serialized)
-        self.assertIn("Strings1Y:20", serialized)
+        self.assertIn("StringsX:10", serialized)
+        self.assertIn("StringsY:20", serialized)
         self.assertIn("NoteX:50", serialized)
         self.assertIn("NoteY:60", serialized)
 

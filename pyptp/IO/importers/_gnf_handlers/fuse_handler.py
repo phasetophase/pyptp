@@ -17,7 +17,7 @@ class FuseHandler(DeclarativeHandler[NetworkLV]):
     COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation ", required=True),
-        SectionConfig("fuse_type", "#FuseType "),  # TODO: type not fuse_type
+        SectionConfig("type", "#FuseType "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]
@@ -28,7 +28,7 @@ class FuseHandler(DeclarativeHandler[NetworkLV]):
             from pyptp.elements.lv.presentations import SecundairPresentation
 
             return SecundairPresentation
-        if kwarg_name == "fuse_type":
+        if kwarg_name == "type":
             from pyptp.elements.lv.shared import FuseType
 
             return FuseType

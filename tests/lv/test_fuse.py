@@ -29,7 +29,7 @@ class TestTFuseLS(unittest.TestCase):
 
     def test_fuse_registration_works(self) -> None:
         """Verify basic fuse registration in network."""
-        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", fuse_type="16A")
+        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", type="16A")
         fuse = FuseLV(general=general)
 
         # Verify network starts empty
@@ -44,9 +44,7 @@ class TestTFuseLS(unittest.TestCase):
 
     def test_fuse_with_minimal_properties_serializes_correctly(self) -> None:
         """Test serialization with minimal properties."""
-        general = FuseLV.General(
-            guid=self.test_guid, name="Minimal Fuse", fuse_type="16A"
-        )
+        general = FuseLV.General(guid=self.test_guid, name="Minimal Fuse", type="16A")
         fuse = FuseLV(general=general)
 
         result = fuse.serialize()
@@ -75,18 +73,16 @@ class TestTFuseLS(unittest.TestCase):
             in_object=self.in_object_guid,
             side=2,
             standardizable=False,
-            fuse_type="25A",
+            type="25A",
         )
 
-        fuse_type = FuseType(short_name="25A", unom=230.0, inom=25.0)
+        type = FuseType(short_name="25A", unom=230.0, inom=25.0)
 
         presentation = SecundairPresentation(
             sheet=self.test_guid, distance=100, otherside=False
         )
 
-        fuse = FuseLV(
-            general=general, fuse_type=fuse_type, presentations=[presentation]
-        )
+        fuse = FuseLV(general=general, type=type, presentations=[presentation])
 
         # Add extras and notes
         fuse.extras = [Extra(text="key1=value1"), Extra(text="key2=value2")]
@@ -150,14 +146,14 @@ class TestTFuseLS(unittest.TestCase):
         self.assertEqual(fuse.general.creation_time, 1234567890.0)
         self.assertEqual(fuse.general.side, 2)
         self.assertEqual(fuse.general.standardizable, False)
-        self.assertEqual(fuse.general.fuse_type, "25A")
+        self.assertEqual(fuse.general.type, "25A")
 
         # Verify fuse type
-        self.assertIsNotNone(fuse.fuse_type)
-        if fuse.fuse_type:
-            self.assertEqual(fuse.fuse_type.short_name, "25A")
-            self.assertEqual(fuse.fuse_type.unom, 230.0)
-            self.assertEqual(fuse.fuse_type.inom, 25.0)
+        self.assertIsNotNone(fuse.type)
+        if fuse.type:
+            self.assertEqual(fuse.type.short_name, "25A")
+            self.assertEqual(fuse.type.unom, 230.0)
+            self.assertEqual(fuse.type.inom, 25.0)
 
         # Verify presentations
         self.assertEqual(len(fuse.presentations), 1)
@@ -177,16 +173,16 @@ class TestTFuseLS(unittest.TestCase):
         self.assertEqual(fuse.general.creation_time, 0)
         self.assertEqual(fuse.general.side, 1)
         self.assertEqual(fuse.general.standardizable, True)
-        self.assertEqual(fuse.general.fuse_type, "")
+        self.assertEqual(fuse.general.type, "")
 
         # Optional sections should be None or empty
-        self.assertIsNone(fuse.fuse_type)
+        self.assertIsNone(fuse.type)
         self.assertEqual(len(fuse.presentations), 0)
 
     def test_duplicate_fuse_registration_overwrites(self) -> None:
         """Test GUID collision handling with proper logging verification."""
-        general1 = FuseLV.General(guid=self.test_guid, name="Fuse 1", fuse_type="16A")
-        general2 = FuseLV.General(guid=self.test_guid, name="Fuse 2", fuse_type="25A")
+        general1 = FuseLV.General(guid=self.test_guid, name="Fuse 1", type="16A")
+        general2 = FuseLV.General(guid=self.test_guid, name="Fuse 2", type="25A")
 
         fuse1 = FuseLV(general=general1)
         fuse2 = FuseLV(general=general2)
@@ -202,7 +198,7 @@ class TestTFuseLS(unittest.TestCase):
 
     def test_fuse_general_serialize_with_defaults(self) -> None:
         """Test General class serialization with default values."""
-        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", fuse_type="16A")
+        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", type="16A")
 
         result = general.serialize()
 
@@ -227,7 +223,7 @@ class TestTFuseLS(unittest.TestCase):
             guid=self.test_guid,
             name="Test Fuse",
             in_object=self.in_object_guid,
-            fuse_type="16A",
+            type="16A",
         )
 
         result = general.serialize()
@@ -237,7 +233,7 @@ class TestTFuseLS(unittest.TestCase):
 
     def test_fuse_set_fuse_type_method(self) -> None:
         """Test set_fuse_type method with Types provider."""
-        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", fuse_type="16A")
+        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", type="16A")
         fuse = FuseLV(general=general)
 
         # Build a tiny Excel with a single fuse type
@@ -261,15 +257,15 @@ class TestTFuseLS(unittest.TestCase):
             fuse.set_fuse_type(types, "16A")
 
         # Verify fuse type was set
-        self.assertIsNotNone(fuse.fuse_type)
-        if fuse.fuse_type:
-            self.assertEqual(fuse.fuse_type.short_name, "16A")
-            self.assertEqual(fuse.fuse_type.unom, 230)
-            self.assertEqual(fuse.fuse_type.inom, 16.0)
+        self.assertIsNotNone(fuse.type)
+        if fuse.type:
+            self.assertEqual(fuse.type.short_name, "16A")
+            self.assertEqual(fuse.type.unom, 230)
+            self.assertEqual(fuse.type.inom, 16.0)
 
     def test_fuse_set_fuse_type_method_unknown_type(self) -> None:
         """Test set_fuse_type method with unknown type using Types provider."""
-        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", fuse_type="16A")
+        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", type="16A")
         fuse = FuseLV(general=general)
 
         from pyptp.type_reader import Types
@@ -280,7 +276,7 @@ class TestTFuseLS(unittest.TestCase):
         fuse.set_fuse_type(types, "UnknownType")
 
         # Verify fuse type remains None
-        self.assertIsNone(fuse.fuse_type)
+        self.assertIsNone(fuse.type)
 
     def test_fuse_round_trip_serialization(self) -> None:
         """Test that serialization and deserialization are consistent."""
@@ -289,14 +285,14 @@ class TestTFuseLS(unittest.TestCase):
             name="Round Trip Fuse",
             creation_time=1234567890.0,
             side=2,
-            fuse_type="25A",
+            type="25A",
         )
 
         original_fuse_type = FuseType(short_name="25A", unom=230.0, inom=25.0)
 
         original_fuse = FuseLV(
             general=original_general,
-            fuse_type=original_fuse_type,
+            type=original_fuse_type,
             presentations=[SecundairPresentation(distance=100, otherside=False)],
         )
 
@@ -326,17 +322,15 @@ class TestTFuseLS(unittest.TestCase):
             deserialized.general.creation_time, original_fuse.general.creation_time
         )
         self.assertEqual(deserialized.general.side, original_fuse.general.side)
-        self.assertEqual(
-            deserialized.general.fuse_type, original_fuse.general.fuse_type
-        )
+        self.assertEqual(deserialized.general.type, original_fuse.general.type)
 
         # Verify fuse type properties
-        if deserialized.fuse_type and original_fuse.fuse_type:
+        if deserialized.type and original_fuse.general.type:
             self.assertEqual(
-                deserialized.fuse_type.short_name, original_fuse.fuse_type.short_name
+                deserialized.type.short_name, original_fuse.type.short_name
             )
-            self.assertEqual(deserialized.fuse_type.unom, original_fuse.fuse_type.unom)
-            self.assertEqual(deserialized.fuse_type.inom, original_fuse.fuse_type.inom)
+            self.assertEqual(deserialized.type.unom, original_fuse.type.unom)
+            self.assertEqual(deserialized.type.inom, original_fuse.type.inom)
 
         # Verify presentations
         self.assertEqual(

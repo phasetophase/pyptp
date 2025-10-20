@@ -166,8 +166,8 @@ class TestFuseRegistration(unittest.TestCase):
         self.assertIn("TextSize:12", serialized)
         self.assertIn("NoText:True", serialized)
         self.assertIn("UpsideDownText:True", serialized)
-        self.assertIn("Strings1X:10", serialized)
-        self.assertIn("Strings1Y:20", serialized)
+        self.assertIn("StringsX:10", serialized)
+        self.assertIn("StringsY:20", serialized)
         self.assertIn("NoteX:50", serialized)
         self.assertIn("NoteY:60", serialized)
 

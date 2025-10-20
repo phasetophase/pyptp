@@ -43,10 +43,7 @@ class CircuitBreakerLV(ExtrasNotesMixin, HasPresentationsMixin):
     class General(DataClassJsonMixin):
         """General properties for a circuit breaker."""
 
-        guid: Guid = field(
-            default_factory=lambda: Guid(uuid4()),
-            metadata=config(encoder=encode_guid, decoder=decode_guid),
-        )
+        guid: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         creation_time: float | int = 0
         mutation_date: int = optional_field(0)
         revision_date: float | int = optional_field(0.0)

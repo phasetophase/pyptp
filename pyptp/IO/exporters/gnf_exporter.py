@@ -240,6 +240,7 @@ class GnfExporter:
                 ("FUSE", network.fuses.values()),
                 ("CIRCUIT BREAKER", network.circuit_breakers.values()),
                 ("FRAME", network.frames.values()),
+                ("LEGEND", network.legends.values()),
                 ("SELECTION", network.selections),
             ]
 

@@ -1,4 +1,4 @@
-"""Legend element for medium-voltage networks."""
+"""Legend element for low-voltage networks."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ from pyptp.elements.serialization_helpers import (
 )
 
 if TYPE_CHECKING:
-    from pyptp.network_mv import NetworkMV
+    from pyptp.network_lv import NetworkLV
 
 
 @dataclass_json
@@ -139,8 +139,8 @@ class LegendPresentation(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class LegendMV(DataClassJsonMixin):
-    """Legend element for MV networks."""
+class LegendLV(DataClassJsonMixin):
+    """Legend element for LV networks."""
 
     @dataclass
     class General(DataClassJsonMixin):
@@ -153,31 +153,28 @@ class LegendMV(DataClassJsonMixin):
         creation_time: float = 0.0
         mutation_date: int = 0
         revision_date: int = 0
-        variant: bool = False
         rows: int = 1
         columns: int = 1
 
         def serialize(self) -> str:
-            """Serialize general properties to VNF format."""
+            """Serialize general properties to GNF format."""
             return serialize_properties(
                 write_guid_no_skip("GUID", self.guid),
                 write_double_no_skip("CreationTime", self.creation_time),
                 write_integer("MutationDate", self.mutation_date) if self.mutation_date != 0 else "",
                 write_integer("RevisionDate", self.revision_date) if self.revision_date != 0 else "",
-                write_boolean("Variant", value=self.variant),
                 write_integer_no_skip("Rows", self.rows),
                 write_integer_no_skip("Columns", self.columns),
             )
 
         @classmethod
-        def deserialize(cls, data: dict) -> LegendMV.General:
-            """Parse general properties from VNF section data."""
+        def deserialize(cls, data: dict) -> LegendLV.General:
+            """Parse general properties from GNF section data."""
             return cls(
                 guid=decode_guid(data.get("GUID", str(uuid4()))),
                 creation_time=data.get("CreationTime", 0.0),
                 mutation_date=data.get("MutationDate", 0),
                 revision_date=data.get("RevisionDate", 0),
-                variant=data.get("Variant", False),
                 rows=data.get("Rows", 1),
                 columns=data.get("Columns", 1),
             )
@@ -187,7 +184,7 @@ class LegendMV(DataClassJsonMixin):
     cells: list[LegendCell] = field(default_factory=list)
     presentations: list[LegendPresentation] = field(default_factory=list)
 
-    def register(self, network: NetworkMV) -> None:
+    def register(self, network: NetworkLV) -> None:
         """Register legend in network with GUID-based indexing."""
         from pyptp.ptp_log import logger
 
@@ -196,7 +193,7 @@ class LegendMV(DataClassJsonMixin):
         network.legends[self.general.guid] = self
 
     def serialize(self) -> str:
-        """Serialize complete legend to VNF format."""
+        """Serialize complete legend to GNF format."""
         lines = []
         lines.append(f"#General {self.general.serialize()}")
 
@@ -212,8 +209,8 @@ class LegendMV(DataClassJsonMixin):
         return "\n".join(lines)
 
     @classmethod
-    def deserialize(cls, data: dict) -> LegendMV:
-        """Deserialize legend from VNF section data."""
+    def deserialize(cls, data: dict) -> LegendLV:
+        """Deserialize legend from GNF section data."""
         return cls(
             general=cls.General.deserialize(data.get("general", {})),
             merges=data.get("merges", []),

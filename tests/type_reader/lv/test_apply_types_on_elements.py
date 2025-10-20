@@ -48,9 +48,9 @@ class TestApplyTypesOnElements(unittest.TestCase):
 
     def test_lv_fuse_no_type_then_apply(self) -> None:
         # Start with a fuse that has no FuseType object
-        fuse = FuseLV(general=FuseLV.General(name="F", fuse_type="16A"))
+        fuse = FuseLV(general=FuseLV.General(name="F", type="16A"))
 
-        self.assertIsNone(fuse.fuse_type)
+        self.assertIsNone(fuse.type)
 
         # Build a tiny Excel with a single LV Fuse type
         with TemporaryDirectory() as td:
@@ -71,11 +71,11 @@ class TestApplyTypesOnElements(unittest.TestCase):
             # Apply by name
             fuse.set_fuse_type(types, "16A")
 
-        self.assertIsNotNone(fuse.fuse_type)
-        if fuse.fuse_type:
-            self.assertEqual(fuse.fuse_type.short_name, "16A")
-            self.assertEqual(fuse.fuse_type.unom, 230)
-            self.assertEqual(fuse.fuse_type.inom, 16.0)
+        self.assertIsNotNone(fuse.type)
+        if fuse.type:
+            self.assertEqual(fuse.type.short_name, "16A")
+            self.assertEqual(fuse.type.unom, 230)
+            self.assertEqual(fuse.type.inom, 16.0)
 
 
 if __name__ == "__main__":

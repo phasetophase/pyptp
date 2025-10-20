@@ -1,184 +1,102 @@
-"""Mutual (Secondary)."""
+"""Mutual coupling between transmission lines.
+
+Mutual elements represent electromagnetic coupling between two transmission lines,
+used for modeling parallel line interactions in medium-voltage networks.
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
-from uuid import uuid4
 
-from dataclasses_json import DataClassJsonMixin, config, dataclass_json
-
-from pyptp.elements.element_utils import (
-    Guid,
-    decode_guid,
-    encode_guid,
-    encode_guid_optional,
-    optional_field,
-    string_field,
-)
-from pyptp.elements.mixins import ExtrasNotesMixin
+from pyptp.elements.element_utils import Guid, decode_guid
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
-    write_double,
-    write_guid,
+    write_double_no_skip,
+    write_guid_no_skip,
 )
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
 
-    from .presentations import SecondaryPresentation
 
-
-@dataclass_json
 @dataclass
-class MutualMV(ExtrasNotesMixin):
-    """Represents a mutual (MV)."""
+class MutualMV:
+    """Mutual coupling element for medium-voltage networks.
 
-    @dataclass_json
-    @dataclass
-    class General(DataClassJsonMixin):
-        """General properties for a mutual."""
+    Represents electromagnetic coupling between two transmission lines for
+    accurate modeling of parallel line interactions in power system analysis.
 
-        guid: Guid = field(
-            default_factory=lambda: Guid(uuid4()),
-            metadata=config(encoder=encode_guid, decoder=decode_guid),
-        )
-        creation_time: float | int = 0
-        mutation_date: int = optional_field(0)
-        revision_date: float | int = optional_field(0.0)
-        variant: bool = False
-        name: str = string_field()
-        line1: Guid | None = field(
-            default=None,
-            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
-        )
-        line2: Guid | None = field(
-            default=None,
-            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
-        )
-        R00: float = 0.0
-        X00: float = 0.0
+    Attributes:
+        line1: GUID reference to first transmission line.
+        line2: GUID reference to second transmission line.
+        R00: Zero-sequence mutual resistance in ohms.
+        X00: Zero-sequence mutual reactance in ohms.
 
-        def serialize(self) -> str:
-            """Serialize General properties."""
-            return serialize_properties(
-                write_guid("Line1", self.line1) if self.line1 is not None else "",
-                write_guid("Line2", self.line2) if self.line2 is not None else "",
-                write_double("R00", self.R00),
-                write_double("X00", self.X00),
-            )
+    """
 
-        @classmethod
-        def deserialize(cls, data: dict) -> MutualMV.General:
-            """Deserialize General properties."""
-            guid = data.get("GUID")
-            line1 = data.get("Line1")
-            line2 = data.get("Line2")
-            mutation_date = data.get("MutationDate")
-            revision_date = data.get("RevisionDate")
-
-            return cls(
-                guid=decode_guid(guid) if guid else Guid(uuid4()),
-                creation_time=data.get("CreationTime", 0),
-                mutation_date=mutation_date if mutation_date is not None else 0,
-                revision_date=revision_date if revision_date is not None else 0.0,
-                variant=data.get("Variant", False),
-                name=data.get("Name", ""),
-                line1=decode_guid(line1) if line1 else None,
-                line2=decode_guid(line2) if line2 else None,
-                R00=data.get("R00", 0.0),
-                X00=data.get("X00", 0.0),
-            )
-
-    @dataclass_json
-    @dataclass
-    class MutualType(DataClassJsonMixin):
-        """Type properties."""
-
-        short_name: str = string_field()
-        R_mutual: float = 0.0
-        X_mutual: float = 0.0
-        Z_mutual: float = 0.0
-
-        def serialize(self) -> str:
-            """Serialize MutualType properties."""
-            props = []
-            props.append(f"ShortName:'{self.short_name}'")
-            props.append(f"Rmutual:{self.R_mutual}")
-            props.append(f"Xmutual:{self.X_mutual}")
-            props.append(f"Zmutual:{self.Z_mutual}")
-            return " ".join(props)
-
-        @classmethod
-        def deserialize(cls, data: dict) -> MutualMV.MutualType:
-            """Deserialize MutualType properties."""
-            return cls(
-                short_name=data.get("ShortName", ""),
-                R_mutual=data.get("Rmutual", 0.0),
-                X_mutual=data.get("Xmutual", 0.0),
-                Z_mutual=data.get("Zmutual", 0.0),
-            )
-
-    general: General
-    type: MutualType | None = None
-    presentations: list[SecondaryPresentation] = field(default_factory=list)
+    line1: Guid
+    line2: Guid
+    R00: float
+    X00: float
 
     def register(self, network: NetworkMV) -> None:
-        """Will add mutual to the network."""
-        key = f"{self.general.line1}_{self.general.line2}"
+        """Register mutual coupling in network.
+
+        Args:
+            network: Target network for registration.
+
+        Warns:
+            Logs critical warning if line pair already has mutual coupling defined.
+
+        """
+        key = f"{self.line1}_{self.line2}"
         if key in network.mutuals:
             logger.critical("Mutual %s already exists, overwriting", key)
         network.mutuals[key] = self
 
     def serialize(self) -> str:
-        """Serialize the mutual to the VNF format.
+        """Serialize mutual to VNF format.
 
         Returns:
-            str: The serialized representation.
+            VNF-formatted string representation.
 
         """
-        lines = []
-        lines.append(f"#General {self.general.serialize()}")
-
-        if self.type:
-            lines.append(f"#MutualType {self.type.serialize()}")
-
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
-        lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
-        lines.extend(f"#Note Text:{note.text}" for note in self.notes)
-
-        return "\n".join(lines)
+        properties = serialize_properties(
+            write_guid_no_skip("Line1", self.line1),
+            write_guid_no_skip("Line2", self.line2),
+            write_double_no_skip("R00", self.R00),
+            write_double_no_skip("X00", self.X00),
+        )
+        return f"#General {properties}"
 
     @classmethod
     def deserialize(cls, data: dict) -> MutualMV:
-        """Deserialization of the mutual from VNF format.
+        """Deserialize mutual from VNF format.
 
         Args:
-            data: Dictionary containing the parsed VNF data
+            data: Dictionary containing parsed VNF section data with 'general' key.
 
         Returns:
-            TMutualMS: The deserialized mutual
+            Initialized MutualMV instance.
+
+        Raises:
+            ValueError: If Line1 or Line2 are missing from the data.
 
         """
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
-        general = cls.General.deserialize(general_data)
 
-        mutual_type = None
-        if data.get("mutualType"):
-            mutual_type = cls.MutualType.deserialize(data["mutualType"][0])
+        line1_raw = general_data.get("Line1")
+        line2_raw = general_data.get("Line2")
 
-        presentations_data = data.get("presentations", [])
-        presentations = []
-        for pres_data in presentations_data:
-            from .presentations import SecondaryPresentation
-
-            presentation = SecondaryPresentation.deserialize(pres_data)
-            presentations.append(presentation)
+        if not line1_raw or not line2_raw:
+            msg = "Mutual requires both Line1 and Line2 GUIDs"
+            raise ValueError(msg)
 
         return cls(
-            general=general,
-            type=mutual_type,
-            presentations=presentations,
+            line1=decode_guid(line1_raw),
+            line2=decode_guid(line2_raw),
+            R00=general_data.get("R00", 0.0),
+            X00=general_data.get("X00", 0.0),
         )

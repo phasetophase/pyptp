@@ -1,16 +1,37 @@
 """NetworkX Usage Examples.
 
-Shows different ways to generate NetworkX graphs from a network
+Demonstrates how to convert electrical networks to NetworkX graphs
+for analysis and visualization.
 """
 
-from ipysigma import Sigma
-
 from pyptp.graph.networkx_converter import NetworkxConverter
+from pyptp.IO.importers.gnf_importer import GnfImporter
 from pyptp.IO.importers.vnf_importer import VnfImporter
 
-importer = VnfImporter()
+# Convert MV network to NetworkX graph
+vnf_importer = VnfImporter()
+mv_network = vnf_importer.import_vnf("PATH_TO_VNF")
+mv_graph = NetworkxConverter.graph_mv(mv_network)
 
-network = importer.import_vnf("PATH_TO_VNF")
-graph = NetworkxConverter.graph_mv(network)
-sigma = Sigma(graph, start_layout=True, height=1080, node_label="type", node_color="type")
-sigma.to_html("PATH_TO_GRAPH")
+# Convert LV network to NetworkX graph
+gnf_importer = GnfImporter()
+lv_network = gnf_importer.import_gnf("PATH_TO_GNF")
+lv_graph = NetworkxConverter.graph_lv(lv_network)
+
+# Now you can use NetworkX for analysis
+print(f"MV Network: {mv_graph.number_of_nodes()} nodes, {mv_graph.number_of_edges()} edges")
+print(f"LV Network: {lv_graph.number_of_nodes()} nodes, {lv_graph.number_of_edges()} edges")
+
+# Example: Use NetworkX algorithms
+import networkx as nx
+
+# Check if network is connected
+is_connected = nx.is_connected(mv_graph)
+print(f"Network is connected: {is_connected}")
+
+# Find shortest path between nodes
+# path = nx.shortest_path(mv_graph, source_node, target_node)
+
+# Export to various NetworkX formats
+# nx.write_gexf(mv_graph, "network.gexf")
+# nx.write_graphml(mv_graph, "network.graphml")
