@@ -28,19 +28,18 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
 
 dependencies = [
-    "type_enforced==1.8.1",
     "pandas==2.2.3",
     "openpyxl==3.1.5",
-    "dataclasses-json>=0.6.7,<0.7",
+    "dataclasses-json>=0.6.7,<1",
     "networkx>=3.4.2,<4",
-    "ipysigma>=0.24.4,<0.25",
-    "orjson>=3.10.0,<4",
+    "ipysigma>=0.24.4,<1",
     "requests>=2.31.0,<3",
     "pydantic-settings>=2.0,<3",
     "loguru>=0.7,<1",
