@@ -65,7 +65,7 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         name: str = string_field()
-        switch_state1: int = 0
+        switch_state1: int = 1
         switch_state2: int = 1
         field_name1: str = string_field()
         field_name2: str = string_field()
