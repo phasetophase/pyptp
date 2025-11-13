@@ -81,8 +81,8 @@ class TestLinkRegistration(unittest.TestCase):
             node1=self.node1_guid,
             node2=self.node2_guid,
             name="FullLink",
-            switch_state1=0,
-            switch_state2=2,
+            switch_state1=1,
+            switch_state2=1,
             field_name1="Field1",
             field_name2="Field2",
             subnet_border=True,
@@ -150,9 +150,8 @@ class TestLinkRegistration(unittest.TestCase):
         self.assertIn("Variant:True", serialized)
         self.assertIn(f"Node1:'{{{str(self.node1_guid).upper()}}}'", serialized)
         self.assertIn(f"Node2:'{{{str(self.node2_guid).upper()}}}'", serialized)
-        # SwitchState1 is 0, and write_integer_no_skip always outputs it
-        self.assertIn("SwitchState1:0", serialized)
-        self.assertIn("SwitchState2:2", serialized)
+        self.assertIn("SwitchState1:1", serialized)
+        self.assertIn("SwitchState2:1", serialized)
         self.assertIn("FieldName1:'Field1'", serialized)
         self.assertIn("FieldName2:'Field2'", serialized)
         self.assertIn("SubnetBorder:True", serialized)
@@ -246,7 +245,7 @@ class TestLinkRegistration(unittest.TestCase):
         self.assertIn("Name:'MinimalLink'", serialized)
         self.assertIn(f"Node1:'{{{str(self.node1_guid).upper()}}}'", serialized)
         self.assertIn(f"Node2:'{{{str(self.node2_guid).upper()}}}'", serialized)
-        self.assertIn("SwitchState1:0", serialized)
+        self.assertIn("SwitchState1:1", serialized)
         self.assertIn("SwitchState2:1", serialized)
         self.assertIn("RailConnectivity:1", serialized)
 
@@ -273,8 +272,8 @@ class TestLinkRegistration(unittest.TestCase):
             name="SwitchStatesLink",
             node1=self.node1_guid,
             node2=self.node2_guid,
-            switch_state1=0,  # Open
-            switch_state2=2,  # Closed with protection
+            switch_state1=1,
+            switch_state2=1,
         )
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
@@ -282,9 +281,8 @@ class TestLinkRegistration(unittest.TestCase):
         link.register(self.network)
 
         serialized = link.serialize()
-        # SwitchState1 is 0, and write_integer_no_skip always outputs it
-        self.assertIn("SwitchState1:0", serialized)
-        self.assertIn("SwitchState2:2", serialized)
+        self.assertIn("SwitchState1:1", serialized)
+        self.assertIn("SwitchState2:1", serialized)
 
     def test_link_with_field_names_serializes_correctly(self) -> None:
         """Test that links with field names serialize correctly."""

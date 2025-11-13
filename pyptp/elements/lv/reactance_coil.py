@@ -56,6 +56,7 @@ class ReactanceCoilLV(ExtrasNotesMixin, HasPresentationsMixin):
         switch_state2_L3: bool = True  # noqa: N815
         switch_state2_N: bool = True  # noqa: N815
         switch_state2_PE: bool = True  # noqa: N815
+
         field_name1: str = string_field()
         field_name2: str = string_field()
         type: str = field(default="", metadata=config(encoder=encode_string))
