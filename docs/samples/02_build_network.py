@@ -61,4 +61,4 @@ load.register(network)
 
 # Save
 network.save("simple_network.vnf")
-logger.info("Network created with {} nodes and {} line", len(network.nodes), len(network.lines))
+logger.info("Network created with {} nodes and {} line", len(network.nodes), len(network.links))
