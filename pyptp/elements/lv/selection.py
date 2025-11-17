@@ -25,19 +25,19 @@ class SelectionLV(DataClassJsonMixin):
     class General(DataClassJsonMixin):
         """General properties for a selection."""
 
-        Name: str = string_field()
+        name: str = string_field()
 
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(
-                write_quote_string("Name", self.Name),
+                write_quote_string("Name", self.name),
             )
 
         @classmethod
         def deserialize(cls, data: dict) -> SelectionLV.General:
             """Deserialize General properties."""
             return cls(
-                Name=data.get("Name", ""),
+                name=data.get("Name", ""),
             )
 
     @dataclass_json

@@ -38,19 +38,19 @@ class ScenarioMV:
     class General(DataClassJsonMixin):
         """General properties for a scenario."""
 
-        Name: str = string_field()
+        name: str = string_field()
 
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(
-                write_quote_string_no_skip("Name", self.Name),
+                write_quote_string_no_skip("Name", self.name),
             )
 
         @classmethod
         def deserialize(cls, data: dict) -> ScenarioMV.General:
             """Deserialize General properties."""
             return cls(
-                Name=data.get("Name", ""),
+                name=data.get("Name", ""),
             )
 
     @dataclass_json
@@ -95,9 +95,9 @@ class ScenarioMV:
 
     def register(self, network: NetworkMV) -> None:
         """Will add scenario to the network."""
-        if self.general.Name in network.scenarios:
-            logger.critical("Scenario %s already exists, overwriting", self.general.Name)
-        network.scenarios[self.general.Name] = self
+        if self.general.name in network.scenarios:
+            logger.critical("Scenario %s already exists, overwriting", self.general.name)
+        network.scenarios[self.general.name] = self
 
     def serialize(self) -> str:
         """Serialize the scenario to the VNF format.
@@ -108,8 +108,6 @@ class ScenarioMV:
         """
         lines = []
         lines.append(f"#General {self.general.serialize()}")
-
-        # Add ScenarioItem sections
         lines.extend(f"#ScenarioItem {item.serialize()}" for item in self.scenario_items)
 
         return "\n".join(lines)
@@ -128,7 +126,6 @@ class ScenarioMV:
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
         general = cls.General.deserialize(general_data)
 
-        # Deserialize ScenarioItem sections
         scenario_items = []
         scenario_items_data = data.get("scenarioItem", [])
         for item_data in scenario_items_data:

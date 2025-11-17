@@ -56,7 +56,7 @@ class TestSelectionGnfIntegration(unittest.TestCase):
 
         # Create selections
         selection1 = SelectionLV(
-            SelectionLV.General(Name="Knexis"),
+            SelectionLV.General(name="Knexis"),
             [
                 SelectionLV.Object(guid=self.node1_guid),
                 SelectionLV.Object(guid=self.node2_guid),
@@ -65,11 +65,11 @@ class TestSelectionGnfIntegration(unittest.TestCase):
         selection1.register(self.network)
 
         selection2 = SelectionLV(
-            SelectionLV.General(Name="Zon"), [SelectionLV.Object(guid=self.node3_guid)]
+            SelectionLV.General(name="Zon"), [SelectionLV.Object(guid=self.node3_guid)]
         )
         selection2.register(self.network)
 
-        empty_selection = SelectionLV(SelectionLV.General(Name="Empty"), [])
+        empty_selection = SelectionLV(SelectionLV.General(name="Empty"), [])
         empty_selection.register(self.network)
 
     def test_gnf_export_includes_selections(self) -> None:
@@ -120,14 +120,14 @@ class TestSelectionGnfIntegration(unittest.TestCase):
             # Helper function to find selection by name
             def find_selection_by_name(name: str) -> SelectionLV | None:
                 for selection in imported_network.selections:
-                    if selection.general.Name == name:
+                    if selection.general.name == name:
                         return selection
                 return None
 
             # Verify "Knexis" selection
             knexis_selection = find_selection_by_name("Knexis")
             assert knexis_selection is not None
-            self.assertEqual(knexis_selection.general.Name, "Knexis")
+            self.assertEqual(knexis_selection.general.name, "Knexis")
             self.assertEqual(len(knexis_selection.objects), 2)
             knexis_guids = [obj.guid for obj in knexis_selection.objects]
             self.assertIn(self.node1_guid, knexis_guids)
@@ -136,7 +136,7 @@ class TestSelectionGnfIntegration(unittest.TestCase):
             # Verify "Zon" selection
             zon_selection = find_selection_by_name("Zon")
             assert zon_selection is not None
-            self.assertEqual(zon_selection.general.Name, "Zon")
+            self.assertEqual(zon_selection.general.name, "Zon")
             self.assertEqual(len(zon_selection.objects), 1)
             zon_guids = [obj.guid for obj in zon_selection.objects]
             self.assertIn(self.node3_guid, zon_guids)
@@ -144,7 +144,7 @@ class TestSelectionGnfIntegration(unittest.TestCase):
             # Verify "Empty" selection
             empty_selection = find_selection_by_name("Empty")
             assert empty_selection is not None
-            self.assertEqual(empty_selection.general.Name, "Empty")
+            self.assertEqual(empty_selection.general.name, "Empty")
             self.assertEqual(len(empty_selection.objects), 0)
 
         finally:
@@ -184,7 +184,7 @@ class TestSelectionGnfIntegration(unittest.TestCase):
     def test_selection_serialization_format_matches_pascal(self) -> None:
         """Test that selection serialization format matches the Pascal implementation."""
         selection = SelectionLV(
-            SelectionLV.General(Name="Knexis"),
+            SelectionLV.General(name="Knexis"),
             [
                 SelectionLV.Object(guid=self.node1_guid),
                 SelectionLV.Object(guid=self.node2_guid),
