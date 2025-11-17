@@ -45,7 +45,7 @@ class TestSelectionRegistration(unittest.TestCase):
 
     def test_selection_registration_works(self) -> None:
         """Test that selections can register themselves with the network."""
-        general = SelectionLV.General(Name="TestSelection")
+        general = SelectionLV.General(name="TestSelection")
 
         objects = [
             SelectionLV.Object(guid=self.node1_guid),
@@ -58,11 +58,11 @@ class TestSelectionRegistration(unittest.TestCase):
         # Verify selection is in network
         self.assertEqual(len(self.network.selections), 1)
         self.assertIs(self.network.selections[0], selection)
-        self.assertEqual(self.network.selections[0].general.Name, "TestSelection")
+        self.assertEqual(self.network.selections[0].general.name, "TestSelection")
 
     def test_selection_with_objects_serializes_correctly(self) -> None:
         """Test that selections with objects serialize correctly."""
-        general = SelectionLV.General(Name="TestSelection")
+        general = SelectionLV.General(name="TestSelection")
 
         objects = [
             SelectionLV.Object(guid=self.node1_guid),
@@ -84,7 +84,7 @@ class TestSelectionRegistration(unittest.TestCase):
 
     def test_empty_selection_serializes_correctly(self) -> None:
         """Test that empty selections serialize correctly."""
-        general = SelectionLV.General(Name="EmptySelection")
+        general = SelectionLV.General(name="EmptySelection")
 
         selection = SelectionLV(general, [])
         selection.register(self.network)
@@ -100,12 +100,12 @@ class TestSelectionRegistration(unittest.TestCase):
 
     def test_duplicate_selection_registration_allows_duplicates(self) -> None:
         """Test that registering a selection with the same name now allows duplicates."""
-        general1 = SelectionLV.General(Name="TestSelection")
+        general1 = SelectionLV.General(name="TestSelection")
         objects1 = [SelectionLV.Object(guid=self.node1_guid)]
         selection1 = SelectionLV(general1, objects1)
         selection1.register(self.network)
 
-        general2 = SelectionLV.General(Name="TestSelection")
+        general2 = SelectionLV.General(name="TestSelection")
         objects2 = [SelectionLV.Object(guid=self.node2_guid)]
         selection2 = SelectionLV(general2, objects2)
         selection2.register(self.network)
@@ -132,7 +132,7 @@ class TestSelectionRegistration(unittest.TestCase):
         selection = SelectionLV.deserialize(data)
 
         # Verify general properties
-        self.assertEqual(selection.general.Name, "TestSelection")
+        self.assertEqual(selection.general.name, "TestSelection")
 
         # Verify objects
         self.assertEqual(len(selection.objects), 2)
@@ -147,14 +147,14 @@ class TestSelectionRegistration(unittest.TestCase):
         selection = SelectionLV.deserialize(data)
 
         # Verify general properties
-        self.assertEqual(selection.general.Name, "EmptySelection")
+        self.assertEqual(selection.general.name, "EmptySelection")
 
         # Verify no objects
         self.assertEqual(len(selection.objects), 0)
 
     def test_selection_round_trip_serialization(self) -> None:
         """Test that selection serialization and deserialization are consistent."""
-        original_general = SelectionLV.General(Name="RoundTripSelection")
+        original_general = SelectionLV.General(name="RoundTripSelection")
         original_objects = [
             SelectionLV.Object(guid=self.node1_guid),
             SelectionLV.Object(guid=self.node2_guid),
@@ -180,7 +180,7 @@ class TestSelectionRegistration(unittest.TestCase):
 
         # Verify consistency
         self.assertEqual(
-            deserialized_selection.general.Name, original_selection.general.Name
+            deserialized_selection.general.name, original_selection.general.name
         )
         self.assertEqual(
             len(deserialized_selection.objects), len(original_selection.objects)

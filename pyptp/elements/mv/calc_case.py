@@ -22,9 +22,9 @@ class CalculationCaseMV(DataClassJsonMixin):
     class General(DataClassJsonMixin):
         """General properties for calculation case."""
 
-        Calculation: str = field(default="")
-        Name: str = field(default="")
-        Date: float = field(default=0.0)
+        calculation: str = field(default="")
+        name: str = field(default="")
+        date: float = field(default=0.0)
 
         def serialize(self) -> str:
             """Serialize general properties to VNF format.
@@ -34,9 +34,9 @@ class CalculationCaseMV(DataClassJsonMixin):
 
             """
             return serialize_properties(
-                write_quote_string_no_skip("Calculation", self.Calculation),
-                write_quote_string_no_skip("Name", self.Name),
-                write_double_no_skip("Date", self.Date),
+                write_quote_string_no_skip("Calculation", self.calculation),
+                write_quote_string_no_skip("Name", self.name),
+                write_double_no_skip("Date", self.date),
             )
 
         @classmethod
@@ -51,9 +51,9 @@ class CalculationCaseMV(DataClassJsonMixin):
 
             """
             return cls(
-                Calculation=data.get("Calculation", ""),
-                Name=data.get("Name", ""),
-                Date=data.get("Date", 0.0),
+                calculation=data.get("Calculation", ""),
+                name=data.get("Name", ""),
+                date=data.get("Date", 0.0),
             )
 
     general: General = field(default_factory=General)
@@ -68,8 +68,6 @@ class CalculationCaseMV(DataClassJsonMixin):
         """
         lines = []
         lines.append(f"#General {self.general.serialize()}")
-
-        # Add content sections
         lines.extend(f"#Content {write_string_no_skip('Text', content)}" for content in self.content_strings)
 
         return "\n".join(lines)
