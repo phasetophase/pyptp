@@ -1,0 +1,47 @@
+NODES:
+  0783b7fc-e27c-30e8-b9c2-ec98ade36bae [type=ReactanceCoilLV]
+  09f0ba87-0294-3c44-aaf6-08941093d34e [type=BatteryLV]
+  158a5123-da5e-3f14-8df9-87e6a9e084b5 [type=NodeLV]
+  172baf58-3ba3-389c-b0f3-2b39e9914e21 [type=NodeLV]
+  1fb1ae9c-f101-3b4e-8e4a-0dbb763037d6 [type=LinkLV]
+  203ed03f-0da2-3e77-8883-01d38ca68b50 [type=EarthingTransformerLV]
+  263ce850-6cd0-308a-a881-993d24ad5fe3 [type=SpecialTransformerLV]
+  2c0249f0-4c36-3a22-b7bd-748d36d52633 [type=ShuntCapacitorLV]
+  2cfa4d43-1e81-3dea-98ce-a9886b5a14f7 [type=AsynchronousMotorLV]
+  35cde1db-1dac-36d5-b53b-ab9b2efa671a [type=AsynchronousGeneratorLV]
+  48f2870f-3d10-3fbf-9e79-efb52f0eb304 [type=SynchronousGeneratorLV]
+  56becc15-4d13-3177-8467-7c19f6e2a5e7 [type=PVLV]
+  56ff597f-8efa-3730-b884-92940f0fbfdb [type=NodeLV]
+  6b543a93-071a-3b39-a542-0de65f8f7374 [type=LoadLV]
+  6eef518b-e161-3eb5-a048-c2aa831bb1af [type=SourceLV]
+  7796663b-4610-3b8c-a1b1-175162fd61bc [type=NodeLV]
+  850719c5-7538-30c7-9055-5fe2c7462d41 [type=CableLV]
+  851dde78-9064-30a1-830d-e7deab295402 [type=FuseLV]
+  87602328-ed88-36c5-9442-cfebc9378537 [type=TransformerLV]
+  896705fa-c74f-337a-b1d0-d569442db90a [type=CircuitBreakerLV]
+  99fba99e-3a50-35a7-aa3b-58eb459c4540 [type=ConnectionLV]
+  b52309ab-b77a-3135-a4b1-b84f2e21bb13 [type=NodeLV]
+  d44e7ea7-b4bf-363b-8a74-5b2d7d3aa750 [type=NodeLV]
+EDGES:
+  0783b7fc-e27c-30e8-b9c2-ec98ade36bae -- 896705fa-c74f-337a-b1d0-d569442db90a
+  158a5123-da5e-3f14-8df9-87e6a9e084b5 -- 1fb1ae9c-f101-3b4e-8e4a-0dbb763037d6
+  158a5123-da5e-3f14-8df9-87e6a9e084b5 -- 263ce850-6cd0-308a-a881-993d24ad5fe3
+  158a5123-da5e-3f14-8df9-87e6a9e084b5 -- 2cfa4d43-1e81-3dea-98ce-a9886b5a14f7
+  158a5123-da5e-3f14-8df9-87e6a9e084b5 -- 6b543a93-071a-3b39-a542-0de65f8f7374
+  172baf58-3ba3-389c-b0f3-2b39e9914e21 -- 896705fa-c74f-337a-b1d0-d569442db90a
+  56ff597f-8efa-3730-b884-92940f0fbfdb -- 0783b7fc-e27c-30e8-b9c2-ec98ade36bae
+  56ff597f-8efa-3730-b884-92940f0fbfdb -- 203ed03f-0da2-3e77-8883-01d38ca68b50
+  56ff597f-8efa-3730-b884-92940f0fbfdb -- 2c0249f0-4c36-3a22-b7bd-748d36d52633
+  56ff597f-8efa-3730-b884-92940f0fbfdb -- 87602328-ed88-36c5-9442-cfebc9378537
+  7796663b-4610-3b8c-a1b1-175162fd61bc -- 263ce850-6cd0-308a-a881-993d24ad5fe3
+  7796663b-4610-3b8c-a1b1-175162fd61bc -- 56becc15-4d13-3177-8467-7c19f6e2a5e7
+  7796663b-4610-3b8c-a1b1-175162fd61bc -- 99fba99e-3a50-35a7-aa3b-58eb459c4540
+  850719c5-7538-30c7-9055-5fe2c7462d41 -- 851dde78-9064-30a1-830d-e7deab295402
+  b52309ab-b77a-3135-a4b1-b84f2e21bb13 -- 09f0ba87-0294-3c44-aaf6-08941093d34e
+  b52309ab-b77a-3135-a4b1-b84f2e21bb13 -- 6eef518b-e161-3eb5-a048-c2aa831bb1af
+  b52309ab-b77a-3135-a4b1-b84f2e21bb13 -- 851dde78-9064-30a1-830d-e7deab295402
+  b52309ab-b77a-3135-a4b1-b84f2e21bb13 -- 87602328-ed88-36c5-9442-cfebc9378537
+  d44e7ea7-b4bf-363b-8a74-5b2d7d3aa750 -- 1fb1ae9c-f101-3b4e-8e4a-0dbb763037d6
+  d44e7ea7-b4bf-363b-8a74-5b2d7d3aa750 -- 35cde1db-1dac-36d5-b53b-ab9b2efa671a
+  d44e7ea7-b4bf-363b-8a74-5b2d7d3aa750 -- 48f2870f-3d10-3fbf-9e79-efb52f0eb304
+  d44e7ea7-b4bf-363b-8a74-5b2d7d3aa750 -- 850719c5-7538-30c7-9055-5fe2c7462d41

@@ -1,4 +1,4 @@
-"""Reactance Coil (Branch)."""
+"""Reactance Coil (MV)."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ from pyptp.elements.serialization_helpers import (
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
-    from pyptp.elements.mv.presentations import ElementPresentation
+    from pyptp.elements.mv.presentations import BranchPresentation
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
 
@@ -164,7 +164,7 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
             )
 
     general: General
-    presentations: list[ElementPresentation]
+    presentations: list[BranchPresentation]
     type: ReactanceCoilType
 
     def register(self, network: NetworkMV) -> None:
@@ -213,9 +213,9 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
         presentations_data = data.get("presentations", [])
         presentations = []
         for pres_data in presentations_data:
-            from .presentations import ElementPresentation
+            from .presentations import BranchPresentation
 
-            presentation = ElementPresentation.deserialize(pres_data)
+            presentation = BranchPresentation.deserialize(pres_data)
             presentations.append(presentation)
 
         return cls(

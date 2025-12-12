@@ -101,13 +101,6 @@ class DeclarativeHandler(Generic[NetworkModel]):
         """
         parsed_dict = {}
 
-        # Extract comment text while avoiding false matches in other properties
-        text_match = re.search(r"(?:^|\s)Text:(.*)$", payload)
-        if text_match:
-            parsed_dict["Text"] = text_match.group(1).strip()
-            # Prevent double processing of Text content
-            payload = re.sub(r"(?:^|\s)Text:.*$", "", payload)
-
         # Support electrical protection property names with special characters
         key_value_pattern = re.compile(r"([\w><,/]+):(?:'([^']*)'|([^\s]+))")
 
