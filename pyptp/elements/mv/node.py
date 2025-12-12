@@ -13,6 +13,7 @@ from uuid import uuid4
 
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
+from pyptp.elements.color_utils import CL_BLACK
 from pyptp.elements.element_utils import (
     NIL_GUID,
     Guid,
@@ -25,6 +26,7 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
+    write_delphi_color,
     write_double,
     write_double_no_skip,
     write_guid_no_skip,
@@ -34,6 +36,7 @@ from pyptp.elements.serialization_helpers import (
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
+    from pyptp.elements.color_utils import DelphiColor
     from pyptp.network_mv import NetworkMV
 
     from .presentations import NodePresentation
@@ -379,8 +382,8 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Visual representation properties for network diagrams."""
 
         text: str = string_field()
-        text_color: int = 0
-        background_color: int = 0
+        text_color: DelphiColor = CL_BLACK
+        background_color: DelphiColor = CL_BLACK
         shape: int = 0
         size: int = 0
 
@@ -388,8 +391,8 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize icon properties to VNF format."""
             return serialize_properties(
                 write_quote_string("Text", self.text, skip=""),
-                write_integer("TextColor", self.text_color, skip=0),
-                write_integer("BackgroundColor", self.background_color, skip=0),
+                write_delphi_color("TextColor", self.text_color, skip=CL_BLACK),
+                write_delphi_color("BackgroundColor", self.background_color, skip=CL_BLACK),
                 write_integer("Shape", self.shape, skip=0),
                 write_integer("Size", self.size, skip=0),
             )
@@ -399,8 +402,8 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Parse icon properties from VNF data."""
             return cls(
                 text=data.get("Text", ""),
-                text_color=data.get("TextColor", 0),
-                background_color=data.get("BackgroundColor", 0),
+                text_color=data.get("TextColor", CL_BLACK),
+                background_color=data.get("BackgroundColor", CL_BLACK),
                 shape=data.get("Shape", 0),
                 size=data.get("Size", 0),
             )

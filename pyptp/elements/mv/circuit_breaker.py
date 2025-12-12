@@ -72,35 +72,35 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         current_protection1_present: bool = False
         current_protection1_active: bool = False
         current_protection1_info: str = string_field()
-        current_protection1_direction: int = 1
+        current_protection1_direction: int = 0
         current_protection1_rca: float = 45.0
         current_protection1_type: str = string_field()
 
         current_protection2_present: bool = False
         current_protection2_active: bool = False
         current_protection2_info: str = string_field()
-        current_protection2_direction: int = 1
+        current_protection2_direction: int = 0
         current_protection2_rca: float = 45.0
         current_protection2_type: str = string_field()
 
         earth_fault_protection1_present: bool = False
         earth_fault_protection1_active: bool = False
         earth_fault_protection1_info: str = string_field()
-        earth_fault_protection1_direction: int = 1
+        earth_fault_protection1_direction: int = 0
         earth_fault_protection1_rca: float = 0.0
         earth_fault_protection1_type: str = string_field()
 
         earth_fault_protection2_present: bool = False
         earth_fault_protection2_active: bool = False
         earth_fault_protection2_info: str = string_field()
-        earth_fault_protection2_direction: int = 1
+        earth_fault_protection2_direction: int = 0
         earth_fault_protection2_rca: float = 0.0
         earth_fault_protection2_type: str = string_field()
 
         voltage_protection_present: bool = False
         voltage_protection_active: bool = False
         voltage_protection_info: str = string_field()
-        voltage_protection_direction: int = 1
+        voltage_protection_direction: int = 0
         voltage_protection_rca: float = 45.0
         voltage_protection_type: str = string_field()
 
@@ -115,7 +115,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         voltage_protection2_present: bool = False
         voltage_protection2_active: bool = False
         voltage_protection2_info: str = string_field()
-        voltage_protection2_direction: int = 1
+        voltage_protection2_direction: int = 0
         voltage_protection2_rca: float = 0.0
         voltage_protection2_type: str = string_field()
 
@@ -171,7 +171,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer(
                     "CurrentProtection1Direction",
                     self.current_protection1_direction,
-                    skip=1,
+                    skip=0,
                 ),
                 write_double("CurrentProtection1RCA", self.current_protection1_rca),
                 write_quote_string("CurrentProtection1Type", self.current_protection1_type),
@@ -181,7 +181,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer(
                     "CurrentProtection2Direction",
                     self.current_protection2_direction,
-                    skip=1,
+                    skip=0,
                 ),
                 write_double("CurrentProtection2RCA", self.current_protection2_rca),
                 write_quote_string("CurrentProtection2Type", self.current_protection2_type),
@@ -197,7 +197,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer(
                     "EarthFaultProtection1Direction",
                     self.earth_fault_protection1_direction,
-                    skip=1,
+                    skip=0,
                 ),
                 write_double("EarthFaultProtection1RCA", self.earth_fault_protection1_rca),
                 write_quote_string("EarthFaultProtection1Type", self.earth_fault_protection1_type),
@@ -213,7 +213,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer(
                     "EarthFaultProtection2Direction",
                     self.earth_fault_protection2_direction,
-                    skip=1,
+                    skip=0,
                 ),
                 write_double("EarthFaultProtection2RCA", self.earth_fault_protection2_rca),
                 write_quote_string("EarthFaultProtection2Type", self.earth_fault_protection2_type),
@@ -223,7 +223,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer(
                     "VoltageProtectionDirection",
                     self.voltage_protection_direction,
-                    skip=1,
+                    skip=0,
                 ),
                 write_double("VoltageProtectionRCA", self.voltage_protection_rca),
                 write_quote_string("VoltageProtectionType", self.voltage_protection_type),
@@ -246,7 +246,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer(
                     "VoltageProtection2Direction",
                     self.voltage_protection2_direction,
-                    skip=1,
+                    skip=0,
                 ),
                 write_double("VoltageProtection2RCA", self.voltage_protection2_rca),
                 write_quote_string("VoltageProtection2Type", self.voltage_protection2_type),
@@ -328,31 +328,31 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 current_protection1_present=data.get("CurrentProtection1Present", False),
                 current_protection1_active=data.get("CurrentProtection1Active", False),
                 current_protection1_info=data.get("CurrentProtection1Info", ""),
-                current_protection1_direction=data.get("CurrentProtection1Direction", 1),
+                current_protection1_direction=data.get("CurrentProtection1Direction", 0),
                 current_protection1_rca=data.get("CurrentProtection1RCA", 45.0),
                 current_protection1_type=data.get("CurrentProtection1Type", ""),
                 current_protection2_present=data.get("CurrentProtection2Present", False),
                 current_protection2_active=data.get("CurrentProtection2Active", False),
                 current_protection2_info=data.get("CurrentProtection2Info", ""),
-                current_protection2_direction=data.get("CurrentProtection2Direction", 1),
+                current_protection2_direction=data.get("CurrentProtection2Direction", 0),
                 current_protection2_rca=data.get("CurrentProtection2RCA", 45.0),
                 current_protection2_type=data.get("CurrentProtection2Type", ""),
                 earth_fault_protection1_present=data.get("EarthFaultProtection1Present", False),
                 earth_fault_protection1_active=data.get("EarthFaultProtection1Active", False),
                 earth_fault_protection1_info=data.get("EarthFaultProtection1Info", ""),
-                earth_fault_protection1_direction=data.get("EarthFaultProtection1Direction", 1),
+                earth_fault_protection1_direction=data.get("EarthFaultProtection1Direction", 0),
                 earth_fault_protection1_rca=data.get("EarthFaultProtection1RCA", 0.0),
                 earth_fault_protection1_type=data.get("EarthFaultProtection1Type", ""),
                 earth_fault_protection2_present=data.get("EarthFaultProtection2Present", False),
                 earth_fault_protection2_active=data.get("EarthFaultProtection2Active", False),
                 earth_fault_protection2_info=data.get("EarthFaultProtection2Info", ""),
-                earth_fault_protection2_direction=data.get("EarthFaultProtection2Direction", 1),
+                earth_fault_protection2_direction=data.get("EarthFaultProtection2Direction", 0),
                 earth_fault_protection2_rca=data.get("EarthFaultProtection2RCA", 0.0),
                 earth_fault_protection2_type=data.get("EarthFaultProtection2Type", ""),
                 voltage_protection_present=data.get("VoltageProtectionPresent", False),
                 voltage_protection_active=data.get("VoltageProtectionActive", False),
                 voltage_protection_info=data.get("VoltageProtectionInfo", ""),
-                voltage_protection_direction=data.get("VoltageProtectionDirection", 1),
+                voltage_protection_direction=data.get("VoltageProtectionDirection", 0),
                 voltage_protection_rca=data.get("VoltageProtectionRCA", 45.0),
                 voltage_protection_type=data.get("VoltageProtectionType", ""),
                 differential_protection_present=data.get("DifferentialProtectionPresent", False),
@@ -365,7 +365,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 voltage_protection2_present=data.get("VoltageProtection2Present", False),
                 voltage_protection2_active=data.get("VoltageProtection2Active", False),
                 voltage_protection2_info=data.get("VoltageProtection2Info", ""),
-                voltage_protection2_direction=data.get("VoltageProtection2Direction", 1),
+                voltage_protection2_direction=data.get("VoltageProtection2Direction", 0),
                 voltage_protection2_rca=data.get("VoltageProtection2RCA", 0.0),
                 voltage_protection2_type=data.get("VoltageProtection2Type", ""),
                 differential_protection2_present=data.get("DifferentialProtection2Present", False),
