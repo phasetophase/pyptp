@@ -53,6 +53,42 @@ class Extra(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
+class Line(DataClassJsonMixin):
+    """Line text annotation for electrical network elements.
+
+    Provides additional metadata or documentation that extends
+    the core electrical properties of network elements.
+    """
+
+    text: str = string_field()
+
+    def encode(self) -> dict[str, Any]:
+        """Encode Line as GNF/VNF format dictionary.
+
+        Returns:
+            Dictionary with 'Text' key for GNF/VNF serialization.
+
+        """
+        return {"Text": self.text}
+
+    @classmethod
+    def deserialize(cls, data: dict) -> Line:
+        """Parse Line from GNF/VNF section data.
+
+        Args:
+            data: Property dictionary from GNF/VNF parsing.
+
+        Returns:
+            Initialized Line instance with parsed text content.
+
+        """
+        return cls(
+            text=data.get("text", data.get("Text", "")),
+        )
+
+
+@dataclass_json
+@dataclass
 class Note(DataClassJsonMixin):
     """Free-text note annotation for electrical network elements.
 

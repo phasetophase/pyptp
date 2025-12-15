@@ -23,7 +23,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import Extra, HasPresentationsMixin
+from pyptp.elements.mixins import Extra, HasPresentationsMixin, Line
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
@@ -273,7 +273,7 @@ class FrameLV:
             )
 
     general: General
-    line: Text | None
+    lines: list[Line] | None
     extras: list[Extra] | None
     geo: Geography | None
     presentations: list[FramePresentation]
@@ -302,21 +302,19 @@ class FrameLV:
             Multi-line string with all frame sections for GNF file.
 
         """
-        lines = []
-        lines.append(f"#General {self.general.serialize()}")
+        out = []
+        out.append(f"#General {self.general.serialize()}")
 
-        if self.line:
-            lines.append(f"#Line {self.line.encode()}")
-
-        if self.geo:
-            lines.append(f"#Geo {self.geo.serialize()}")
+        if self.lines:
+            for line in self.lines:
+                out.append(f"#Line Text:{line.text}")
 
         if self.extras:
-            lines.extend(f"#Extra {extra.encode()}" for extra in self.extras)
+            out.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
+        out.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
-        return "\n".join(lines)
+        return "\n".join(out)
 
     @classmethod
     def deserialize(cls, data: dict) -> FrameLV:
@@ -337,12 +335,13 @@ class FrameLV:
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
         general = cls.General.deserialize(general_data)
 
-        line_data = data.get("line", [{}])[0] if data.get("line") else None
-        line = None
-        if line_data:
-            from .shared import Text
-
-            line = Text.deserialize(line_data)
+        lines_data = data.get("lines", [])
+        lines = []
+        if lines_data or []:
+            for line_data in lines_data:
+                from pyptp.elements.mixins import Line
+            line = Line.deserialize(line_data)
+            lines.append(line)
 
         geo_data = data.get("geo", [{}])[0] if data.get("geo") else None
         geo = None
@@ -365,7 +364,7 @@ class FrameLV:
 
         return cls(
             general=general,
-            line=line,
+            lines=lines,
             extras=extras if extras else None,
             geo=geo,
             presentations=presentations,

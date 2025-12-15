@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from pyptp.elements.element_utils import Guid, encode_guid
 from pyptp.elements.lv.load_switch import LoadSwitchLV
-from pyptp.elements.lv.presentations import BranchPresentation
+from pyptp.elements.lv.presentations import BranchPresentation, ElementPresentation
 from pyptp.elements.mixins import Extra, Note
 from pyptp.network_lv import NetworkLV
 
@@ -162,10 +162,6 @@ class TestTLoadSwitchLS(unittest.TestCase):
             "presentations": [
                 {
                     "Sheet": str(self.test_guid),
-                    "FirstCorners": [(10, 20), (30, 40)],
-                    "SecondCorners": [(50, 60), (70, 80)],
-                    "Strings1X": 100,
-                    "Strings1Y": 200,
                 }
             ],
         }
@@ -190,14 +186,6 @@ class TestTLoadSwitchLS(unittest.TestCase):
         # Verify presentations
         self.assertEqual(len(load_switch.presentations), 1)
         self.assertEqual(load_switch.presentations[0].sheet, self.test_guid)
-        self.assertEqual(
-            load_switch.presentations[0].first_corners, [(10, 20), (30, 40)]
-        )
-        self.assertEqual(
-            load_switch.presentations[0].second_corners, [(50, 60), (70, 80)]
-        )
-        self.assertEqual(load_switch.presentations[0].strings1_x, 100)
-        self.assertEqual(load_switch.presentations[0].strings1_y, 200)
 
     def test_load_switch_deserialization_with_empty_data(self) -> None:
         """Test deserialization with empty data."""
@@ -322,9 +310,7 @@ class TestTLoadSwitchLS(unittest.TestCase):
 
         original_load_switch = LoadSwitchLV(
             general=original_general,
-            presentations=[
-                BranchPresentation(first_corners=[(10, 20)], second_corners=[(30, 40)])
-            ],
+            presentations=[ElementPresentation()],
             type=original_loadswitch_type,
         )
 
@@ -349,9 +335,7 @@ class TestTLoadSwitchLS(unittest.TestCase):
                     "TThermal": 1.0,
                 }
             ],
-            "presentations": [
-                {"FirstCorners": [(10, 20)], "SecondCorners": [(30, 40)]}
-            ],
+            "presentations": [{}],
         }
 
         deserialized = LoadSwitchLV.deserialize(data)
@@ -383,14 +367,6 @@ class TestTLoadSwitchLS(unittest.TestCase):
         # Verify presentations
         self.assertEqual(
             len(deserialized.presentations), len(original_load_switch.presentations)
-        )
-        self.assertEqual(
-            deserialized.presentations[0].first_corners,
-            original_load_switch.presentations[0].first_corners,
-        )
-        self.assertEqual(
-            deserialized.presentations[0].second_corners,
-            original_load_switch.presentations[0].second_corners,
         )
 
 

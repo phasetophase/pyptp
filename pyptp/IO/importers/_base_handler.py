@@ -178,7 +178,13 @@ class DeclarativeHandler(Generic[NetworkModel]):
             return None
 
         # Process text-based sections with format-specific handling
-        if config.gnf_tag in ("#Note Text:", "#Extra Text:", "#Comment", "#Comment Text:"):
+        if config.gnf_tag in (
+            "#Note Text:",
+            "#Extra Text:",
+            "#Comment",
+            "#Comment Text:",
+            "#Line Text:",
+        ):
             if config.kwarg_name == "notes":
                 from pyptp.elements.mixins import Note
 
@@ -186,16 +192,11 @@ class DeclarativeHandler(Generic[NetworkModel]):
             if config.kwarg_name == "extras":
                 from pyptp.elements.mixins import Extra
 
-                extras = []
-                for text in raw_data:
-                    match = re.match(r"([^=]+)=(.*)", text)
-                    if match:
-                        key = match.group(1).strip()
-                        value = match.group(2).strip()
-                        extras.append(Extra(text=f"{key}={value}"))
-                    elif text:
-                        extras.append(Extra(text=text.strip()))
-                return extras
+                return [Extra(text=text) for text in raw_data]
+            if config.kwarg_name == "lines":
+                from pyptp.elements.mixins import Line
+
+                return [Line(text=text) for text in raw_data]
             if config.kwarg_name == "comment":
                 # Convert raw text to Comment-compatible format for VNF files
                 if raw_data:
@@ -208,7 +209,11 @@ class DeclarativeHandler(Generic[NetworkModel]):
         target_cls = self._get_target_class(config.kwarg_name)
 
         # Import shared classes dynamically to avoid circular dependencies
-        if target_cls is None and config.kwarg_name in ["efficiencyType", "Qcontrol", "InverterRendement"]:
+        if target_cls is None and config.kwarg_name in [
+            "efficiencyType",
+            "Qcontrol",
+            "InverterRendement",
+        ]:
             from pyptp.elements.mv.shared import EfficiencyType, QControl
 
             if config.kwarg_name in ["efficiencyType", "InverterRendement"]:
@@ -236,7 +241,13 @@ class DeclarativeHandler(Generic[NetworkModel]):
             "current2_h3",
             "current2_h4",
         ]:
-            from pyptp.elements.lv.shared import CableType, CurrentType, Fields, FuseType, GeoCablePart
+            from pyptp.elements.lv.shared import (
+                CableType,
+                CurrentType,
+                Fields,
+                FuseType,
+                GeoCablePart,
+            )
 
             if config.kwarg_name == "cableType":
                 target_cls = CableType
@@ -358,7 +369,11 @@ class DeclarativeHandler(Generic[NetworkModel]):
         if class_name in presentation_mappings:
             module_type, presentation_type = presentation_mappings[class_name]
             if module_type == "lv":
-                from pyptp.elements.lv.presentations import BranchPresentation, ElementPresentation, NodePresentation
+                from pyptp.elements.lv.presentations import (
+                    BranchPresentation,
+                    ElementPresentation,
+                    NodePresentation,
+                )
 
                 mapping = {
                     "NodePresentation": NodePresentation,
@@ -474,14 +489,20 @@ class DeclarativeHandler(Generic[NetworkModel]):
                         if is_list_ann and kwargs.get(field) is None:
                             kwargs[field] = []
 
-                if kwargs.get("general") is None and handler_name not in {"PropertiesHandler", "CommentHandler"}:
+                if kwargs.get("general") is None and handler_name not in {
+                    "PropertiesHandler",
+                    "CommentHandler",
+                }:
                     continue
 
                 component_to_add = self.COMPONENT_CLS(**kwargs)
                 if hasattr(component_to_add, "register"):
                     component_to_add.register(model)
                 else:
-                    logger.warning("Component from %s does not have a register method.", handler_name)
+                    logger.warning(
+                        "Component from %s does not have a register method.",
+                        handler_name,
+                    )
 
             except (ValueError, TypeError, KeyError) as e:
                 msg = f"Failed to process component in handler {handler_name}: {e}"
@@ -521,7 +542,10 @@ class DeclarativeHandler(Generic[NetworkModel]):
                 for config in self.COMPONENT_CONFIG:
                     kwargs[config.kwarg_name] = self._process_section_data(section, config)
 
-                if kwargs.get("general") is None and handler_name not in {"PropertiesHandler", "CommentHandler"}:
+                if kwargs.get("general") is None and handler_name not in {
+                    "PropertiesHandler",
+                    "CommentHandler",
+                }:
                     continue
 
                 valid_sections.append(kwargs)
@@ -540,7 +564,10 @@ class DeclarativeHandler(Generic[NetworkModel]):
                 if hasattr(component_to_add, "register"):
                     component_to_add.register(model)
                 else:
-                    logger.warning("Component from %s does not have a register method.", handler_name)
+                    logger.warning(
+                        "Component from %s does not have a register method.",
+                        handler_name,
+                    )
             except (TypeError, ValueError, AttributeError):
                 # Continue processing remaining components on individual creation failures
                 logger.exception("Failed to create component in %s", handler_name)
