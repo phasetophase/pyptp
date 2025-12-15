@@ -12,7 +12,7 @@ Install from PyPI:
 pip install pyptp
 ```
 
-Examples in the [`examples/`](examples/) directory.
+Examples in the [`docs/samples`](docs/samples) directory.
 
 ## Contributing
 
