@@ -1,4 +1,4 @@
-# PyPtP https://github.com/phasetophase/pyptp
+# [PyPtP](https://github.com/phasetophase/pyptp)
 
 Open-source Python SDK for electrical grid calculations and modelling.
 
@@ -17,6 +17,7 @@ Examples in the [`docs/samples`](docs/samples) directory.
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
 - How to report bugs and request features
 - Development setup and coding standards
 - Pull request process

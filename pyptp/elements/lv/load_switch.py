@@ -19,10 +19,10 @@ from pyptp.elements.element_utils import (
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.ptp_log import logger
 
+from .presentations import SecundairPresentation
+
 if TYPE_CHECKING:
     from pyptp.network_lv import NetworkLV
-
-    from .presentations import BranchPresentation
 
 
 @dataclass
@@ -107,7 +107,7 @@ class LoadSwitchLV(ExtrasNotesMixin, HasPresentationsMixin):
             )
 
     general: General
-    presentations: list[BranchPresentation]
+    presentations: list[SecundairPresentation]
     type: LoadSwitchType
 
     def __post_init__(self) -> None:
@@ -159,11 +159,9 @@ class LoadSwitchLV(ExtrasNotesMixin, HasPresentationsMixin):
         load_switch_type = cls.LoadSwitchType.deserialize(loadswitch_data)
 
         presentations_data = data.get("presentations", [])
-        presentations = []
+        presentations: list[SecundairPresentation] = []
         for pres_data in presentations_data:
-            from .presentations import BranchPresentation
-
-            presentation = BranchPresentation.deserialize(pres_data)
+            presentation = SecundairPresentation.deserialize(pres_data)
             presentations.append(presentation)
 
         return cls(

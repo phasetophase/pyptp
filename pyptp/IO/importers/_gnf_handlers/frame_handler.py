@@ -15,9 +15,9 @@ class FrameHandler(DeclarativeHandler[NetworkLV]):
     COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation "),
-        SectionConfig("line", "#Line "),
+        SectionConfig("lines", "#Line Text:"),
         SectionConfig("geo", "#Geo "),
-        SectionConfig("extras", "#Extra "),
+        SectionConfig("extras", "#Extra Text:"),
     ]
 
     def resolve_target_class(self, kwarg_name: str) -> type | None:
