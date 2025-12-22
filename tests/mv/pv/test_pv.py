@@ -66,7 +66,7 @@ class TestPvRegistration(unittest.TestCase):
             variant=True,
             name="FullPV",
             switch_state=True,
-            field_name=10.0,
+            field_name="Test Name",
             failure_frequency=0.01,
             repair_duration=2.5,
             maintenance_frequency=0.1,
@@ -185,7 +185,7 @@ class TestPvRegistration(unittest.TestCase):
         self.assertIn("Variant:True", serialized)
         self.assertIn("SwitchState:1", serialized)
         self.assertIn("NotPreferred:True", serialized)
-        self.assertIn("FieldName:10", serialized)
+        self.assertIn("FieldName:'Test Name'", serialized)
         self.assertIn("FailureFrequency:0.01", serialized)
         self.assertIn("RepairDuration:2.5", serialized)
         self.assertIn("MaintenanceFrequency:0.1", serialized)

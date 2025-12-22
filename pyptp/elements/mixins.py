@@ -10,9 +10,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from dataclasses_json import DataClassJsonMixin, dataclass_json  # type: ignore[import-untyped]
+from dataclasses_json import DataClassJsonMixin, config, dataclass_json  # type: ignore[import-untyped]
 
-from pyptp.elements.element_utils import string_field
+from pyptp.elements.element_utils import (
+    FloatCoords,
+    decode_float_coords,
+    encode_float_coords,
+    string_field,
+)
 
 
 @dataclass_json
@@ -120,6 +125,47 @@ class Note(DataClassJsonMixin):
         """
         return cls(
             text=data.get("text", data.get("Text", "")),
+        )
+
+
+@dataclass_json
+@dataclass
+class Geography(DataClassJsonMixin):
+    """Geographical coordinate data for network elements.
+
+    Stores coordinate pairs for geographical positioning of elements
+    in GNF/VNF network files. Used for mapping and GIS integration.
+    """
+
+    coordinates: FloatCoords = field(
+        default_factory=list,
+        metadata=config(encoder=encode_float_coords, decoder=decode_float_coords),
+    )
+
+    def serialize(self) -> str:
+        """Serialize Geography coordinates to GNF/VNF format.
+
+        Returns:
+            Formatted coordinate string for the #Geo section.
+
+        """
+        if self.coordinates:
+            return f"Coordinates:{encode_float_coords(self.coordinates)}"
+        return ""
+
+    @classmethod
+    def deserialize(cls, data: dict) -> Geography:
+        """Parse Geography from GNF/VNF section data.
+
+        Args:
+            data: Property dictionary from GNF/VNF parsing.
+
+        Returns:
+            Initialized Geography instance with parsed coordinates.
+
+        """
+        return cls(
+            coordinates=decode_float_coords(data.get("Coordinates", "''")),
         )
 
 

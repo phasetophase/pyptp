@@ -67,7 +67,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
             revision_date=20,
             variant=True,
             name="FullMotor",
-            switch_state=True,
+            switch_state=1,
             field_name="TestField",
             failure_frequency=0.01,
             repair_duration=2.5,
@@ -174,7 +174,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
         # Verify general properties
         self.assertIn("Name:'FullMotor'", serialized)
         self.assertIn("Variant:True", serialized)
-        self.assertIn("SwitchState:True", serialized)
+        self.assertIn("SwitchState:1", serialized)
         self.assertIn("FieldName:'TestField'", serialized)
         self.assertIn("NotPreferred:True", serialized)
         self.assertIn("FailureFrequency:0.01", serialized)
@@ -420,7 +420,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
             guid=self.motor_guid,
             name="SwitchStateMotor",
             node=self.node_guid,
-            switch_state=True,
+            switch_state=1,
         )
         motor_type = AsynchronousMotorMV.AsynchronousMotorType()
         presentation = ElementPresentation(sheet=self.sheet_guid)
@@ -429,7 +429,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
         motor.register(self.network)
 
         serialized = motor.serialize()
-        self.assertIn("SwitchState:True", serialized)
+        self.assertIn("SwitchState:1", serialized)
 
     def test_async_motor_with_connection_type_serializes_correctly(self) -> None:
         """Test that asynchronous motors with connection type serialize correctly."""

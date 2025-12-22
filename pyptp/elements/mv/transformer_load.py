@@ -21,7 +21,6 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
-    write_boolean_as_byte_no_skip,
     write_boolean_no_skip,
     write_double,
     write_double_no_skip,
@@ -61,7 +60,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         revision_date: float | int = optional_field(0.0)
         variant: bool = False
         name: str = string_field()
-        switch_state: bool = True
+        switch_state: int = 1
         field_name: str = string_field()
         failure_frequency: float | int = 0
         repair_duration: float | int = 0
@@ -100,7 +99,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("RevisionDate", self.revision_date) if self.revision_date != 0.0 else "",
                 write_boolean_no_skip("Variant", value=self.variant),
                 write_quote_string_no_skip("Name", self.name),
-                write_boolean_as_byte_no_skip("SwitchState", value=self.switch_state),
+                write_integer_no_skip("SwitchState", self.switch_state),
                 write_quote_string_no_skip("FieldName", self.field_name),
                 write_double("FailureFrequency", self.failure_frequency),
                 write_double("RepairDuration", self.repair_duration),
@@ -141,7 +140,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 revision_date=data.get("RevisionDate", 0.0),
                 variant=data.get("Variant", False),
                 name=data.get("Name", ""),
-                switch_state=data.get("SwitchState", True),
+                switch_state=data.get("SwitchState", 1),
                 field_name=data.get("FieldName", ""),
                 failure_frequency=data.get("FailureFrequency", 0),
                 repair_duration=data.get("RepairDuration", 0),

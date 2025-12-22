@@ -176,7 +176,7 @@ class TestAsynchronousGeneratorRegistration(unittest.TestCase):
         # Verify general properties
         self.assertIn("Name:'FullGenerator'", serialized)
         self.assertIn("Variant:True", serialized)
-        self.assertIn("SwitchState:True", serialized)
+        self.assertIn("SwitchState:1", serialized)
         self.assertIn("FieldName:'TestField'", serialized)
         self.assertIn("NotPreferred:True", serialized)
         self.assertIn("FailureFrequency:0.01", serialized)
@@ -429,7 +429,7 @@ class TestAsynchronousGeneratorRegistration(unittest.TestCase):
         generator.register(self.network)
 
         serialized = generator.serialize()
-        self.assertIn("SwitchState:True", serialized)
+        self.assertIn("SwitchState:1", serialized)
 
     def test_async_generator_with_field_name_serializes_correctly(self) -> None:
         """Test that asynchronous generators with field name serialize correctly."""

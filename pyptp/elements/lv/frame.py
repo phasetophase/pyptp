@@ -11,19 +11,18 @@ from dataclasses_json import DataClassJsonMixin, config
 from pyptp.elements.color_utils import CL_BLACK, CL_BLUE, DelphiColor
 from pyptp.elements.element_utils import (
     NIL_GUID,
-    FloatCoords,
+    FrameShape,
     Guid,
     IntCoords,
-    decode_float_coords,
+    LineStyle,
     decode_guid,
     decode_int_coords,
-    encode_float_coords,
     encode_guid,
     encode_int_coords,
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import Extra, HasPresentationsMixin, Line
+from pyptp.elements.mixins import Extra, Geography, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
@@ -39,8 +38,6 @@ from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from pyptp.network_lv import NetworkLV
-
-    from .shared import Text
 
 
 @dataclass
@@ -136,8 +133,10 @@ class FrameLV:
         """
 
         sheet: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
-        sort: str = string_field(default="Rectangle")
-        """Frame shape type: 'Rectangle', 'Polygon', or 'Ellipse'."""
+        """Sheet GUID where this presentation is displayed."""
+
+        sort: FrameShape = FrameShape.RECTANGLE
+        """Frame shape type."""
 
         name_x: int = optional_field(0)
         """X offset of the text relative to object."""
@@ -151,14 +150,30 @@ class FrameLV:
         fill_color: DelphiColor = field(default=CL_BLUE)
         """Background fill color when filled is True."""
 
-        image_size: int = 1
-        """Scaling factor for the background image (1 = original size)."""
+        image_size: int = 100
+        """Scaling factor for the background image (100 = original size)."""
+
         color: DelphiColor = field(default=CL_BLUE)
+        """Border/outline color of the frame."""
+
         width: int = 1
+        """Line width of the frame border."""
+
+        style: LineStyle = LineStyle.SOLID
+        """Line style for the frame border."""
+
         text_color: DelphiColor = field(default=CL_BLACK)
-        text_size: int = 7
+        """Color of the frame's text label."""
+
+        text_size: int = 10
+        """Font size for the frame's text label."""
+
         font: str = string_field("Arial")
+        """Font family for the frame's text label."""
+
         text_style: int = optional_field(0)
+        """Font style flags (bold, italic, etc.)."""
+
         no_text: bool = False
         """Hides all text when True."""
 
@@ -186,16 +201,17 @@ class FrameLV:
             """
             return serialize_properties(
                 write_guid("Sheet", self.sheet),
-                write_quote_string("Sort", self.sort, skip="Rectangle"),
+                write_quote_string("Sort", self.sort, skip=FrameShape.RECTANGLE),
                 write_integer("NameX", self.name_x),
                 write_integer("NameY", self.name_y),
                 write_boolean("Filled", value=self.filled),
                 write_delphi_color("FillColor", self.fill_color, skip=CL_BLUE),
-                write_integer("ImageSize", self.image_size, skip=1),
+                write_integer("ImageSize", self.image_size, skip=100),
                 write_delphi_color("Color", self.color, skip=CL_BLUE),
                 write_integer("Width", self.width, skip=1),
+                write_quote_string("Style", self.style, skip=LineStyle.SOLID),
                 write_delphi_color("TextColor", self.text_color, skip=CL_BLACK),
-                write_integer("TextSize", self.text_size, skip=7),
+                write_integer("TextSize", self.text_size, skip=10),
                 write_quote_string("Font", self.font, skip="Arial"),
                 write_integer("TextStyle", self.text_style),
                 write_boolean("NoText", value=self.no_text),
@@ -217,66 +233,31 @@ class FrameLV:
             """
             return cls(
                 sheet=decode_guid(data.get("Sheet", str(NIL_GUID))),
-                sort=data.get("Sort", "Rectangle"),
+                sort=FrameShape(data.get("Sort", FrameShape.RECTANGLE)),
                 name_x=data.get("NameX", 0),
                 name_y=data.get("NameY", 0),
                 filled=data.get("Filled", False),
                 fill_color=data.get("FillColor", CL_BLUE),
-                image_size=data.get("ImageSize", 1),
+                image_size=data.get("ImageSize", 100),
                 color=data.get("Color", CL_BLUE),
                 width=data.get("Width", 1),
+                style=LineStyle(data.get("Style", LineStyle.SOLID)),
                 text_color=data.get("TextColor", CL_BLACK),
-                text_size=data.get("TextSize", 7),
+                text_size=data.get("TextSize", 10),
                 font=data.get("Font", "Arial"),
                 text_style=data.get("TextStyle", 0),
                 no_text=data.get("NoText", False),
                 upside_down_text=data.get("UpsideDownText", False),
                 strings_x=data.get("StringsX", 0),
                 strings_y=data.get("StringsY", 0),
-                first_corners=decode_int_coords(data.get("FirstCorners", "''")),
-            )
-
-    @dataclass
-    class Geography(DataClassJsonMixin):
-        """Geographical coordinate data for the frame."""
-
-        coordinates: FloatCoords = field(
-            default_factory=list,
-            metadata=config(encoder=encode_float_coords, decoder=decode_float_coords),
-        )
-
-        def serialize(self) -> str:
-            """Serialize Geography properties to GNF format.
-
-            Returns:
-                Space-separated property string for the #Geo section.
-
-            """
-            props = []
-            if self.coordinates:
-                props.append(f"Coordinates:{encode_float_coords(self.coordinates)}")
-            return " ".join(props)
-
-        @classmethod
-        def deserialize(cls, data: dict) -> FrameLV.Geography:
-            """Parse Geography properties from GNF section data.
-
-            Args:
-                data: Dictionary of property key-value pairs from GNF parsing.
-
-            Returns:
-                Initialized Geography instance with parsed properties.
-
-            """
-            return cls(
-                coordinates=decode_float_coords(data.get("Coordinates", "''")),
+                first_corners=decode_int_coords(data.get("FirstCorners", "")),
             )
 
     general: General
-    lines: list[Line] | None
-    extras: list[Extra] | None
-    geo: Geography | None
     presentations: list[FramePresentation]
+    lines: list[str] = field(default_factory=list)
+    extras: list[Extra] = field(default_factory=list)
+    geo_series: list[Geography] = field(default_factory=list)
 
     def register(self, network: NetworkLV) -> None:
         """Register frame in the network with GUID-based indexing.
@@ -306,8 +287,10 @@ class FrameLV:
         out.append(f"#General {self.general.serialize()}")
 
         if self.lines:
-            for line in self.lines:
-                out.append(f"#Line Text:{line.text}")
+            out.extend(f"#Line Text:{line}" for line in self.lines)
+
+        if self.geo_series:
+            out.extend(f"#Geo {geo.serialize()}" for geo in self.geo_series)
 
         if self.extras:
             out.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
@@ -323,49 +306,41 @@ class FrameLV:
         Args:
             data: Dictionary containing parsed GNF sections with keys:
                 - 'general': General properties section
-                - 'line': Optional text line data
-                - 'geo': Optional geographical coordinates
+                - 'lines': List of text line data
+                - 'geo_series': List of geographical coordinate series
                 - 'extras': List of extra properties
                 - 'presentations': List of presentation configurations
 
         Returns:
-            Fully initialized TFrameLS instance with all parsed data.
+            Fully initialized FrameLV instance with all parsed data.
 
         """
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
         general = cls.General.deserialize(general_data)
 
         lines_data = data.get("lines", [])
-        lines = []
-        if lines_data or []:
-            for line_data in lines_data:
-                from pyptp.elements.mixins import Line
-            line = Line.deserialize(line_data)
-            lines.append(line)
+        lines: list[str] = []
+        for line_data in lines_data:
+            # Extract text from dict format {"Text": "value"} or use string directly
+            if isinstance(line_data, dict):
+                lines.append(line_data.get("Text", ""))
+            else:
+                lines.append(str(line_data))
 
-        geo_data = data.get("geo", [{}])[0] if data.get("geo") else None
-        geo = None
-        if geo_data:
-            geo = cls.Geography.deserialize(geo_data)
+        # Parse geo_series as list of Geography objects
+        geo_data_list = data.get("geo_series", data.get("geo", []))
+        geo_series = [Geography.deserialize(geo_data) for geo_data in geo_data_list]
 
         extras_data = data.get("extras", [])
-        extras = []
-        for extra_data in extras_data:
-            from pyptp.elements.mixins import Extra
-
-            extra = Extra.deserialize(extra_data)
-            extras.append(extra)
+        extras = [Extra.deserialize(extra_data) for extra_data in extras_data]
 
         presentations_data = data.get("presentations", [])
-        presentations = []
-        for pres_data in presentations_data:
-            presentation = cls.FramePresentation.deserialize(pres_data)
-            presentations.append(presentation)
+        presentations = [cls.FramePresentation.deserialize(pres_data) for pres_data in presentations_data]
 
         return cls(
             general=general,
             lines=lines,
-            extras=extras if extras else None,
-            geo=geo,
+            extras=extras,
+            geo_series=geo_series,
             presentations=presentations,
         )

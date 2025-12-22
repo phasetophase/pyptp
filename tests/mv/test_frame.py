@@ -1,4 +1,4 @@
-"""Tests for TFrameLS class."""
+"""Tests for FrameMV class."""
 
 from __future__ import annotations
 
@@ -7,23 +7,23 @@ from uuid import uuid4
 
 from pyptp.elements.color_utils import CL_BLACK, CL_BLUE, CL_RED
 from pyptp.elements.element_utils import FrameShape, Guid, LineStyle
-from pyptp.elements.lv.frame import FrameLV
 from pyptp.elements.mixins import Extra, Geography
-from pyptp.network_lv import NetworkLV
+from pyptp.elements.mv.frame import FrameMV
+from pyptp.network_mv import NetworkMV
 
 
-class TestTFrameLS(unittest.TestCase):
-    """Test TFrameLS registration and serialization behavior."""
+class TestFrameMV(unittest.TestCase):
+    """Test FrameMV registration and serialization behavior."""
 
     def setUp(self) -> None:
         """Create fresh network and dependencies for isolated testing."""
-        self.network = NetworkLV()
+        self.network = NetworkMV()
         self.test_guid = Guid(uuid4())
 
     def test_frame_registration_works(self) -> None:
         """Verify basic frame registration in network."""
-        general = FrameLV.General(guid=self.test_guid, name="Test Frame")
-        frame = FrameLV(general=general, presentations=[FrameLV.FramePresentation()])
+        general = FrameMV.General(guid=self.test_guid, name="Test Frame")
+        frame = FrameMV(general=general, presentations=[FrameMV.FramePresentation()])
 
         # Verify network starts empty
         self.assertEqual(len(self.network.frames), 0)
@@ -37,8 +37,8 @@ class TestTFrameLS(unittest.TestCase):
 
     def test_frame_with_minimal_properties_serializes_correctly(self) -> None:
         """Test serialization with minimal properties."""
-        general = FrameLV.General(guid=self.test_guid, name="Minimal Frame")
-        frame = FrameLV(general=general, presentations=[FrameLV.FramePresentation()])
+        general = FrameMV.General(guid=self.test_guid, name="Minimal Frame")
+        frame = FrameMV(general=general, presentations=[FrameMV.FramePresentation()])
 
         result = frame.serialize()
 
@@ -51,18 +51,18 @@ class TestTFrameLS(unittest.TestCase):
         self.assertNotIn("#Line", result)
         self.assertNotIn("#Geo", result)
         self.assertNotIn("#Extra", result)
-        # May contain empty #Presentation sections due to empty list
 
     def test_frame_with_full_properties_serializes_correctly(self) -> None:
         """Test serialization with all properties set."""
-        general = FrameLV.General(
+        general = FrameMV.General(
             guid=self.test_guid,
             creation_time=1234567890.5,
             mutation_date=20240101,
             name="Full Frame",
-            revision_date=1234567891.0,
+            revision_date=1234567891,
             image="test_image.png",
             container=True,
+            variant=True,
         )
 
         lines = ["Frame line text"]
@@ -71,7 +71,7 @@ class TestTFrameLS(unittest.TestCase):
 
         extras = [Extra(text="key1=value1"), Extra(text="key2=value2")]
 
-        presentation = FrameLV.FramePresentation(
+        presentation = FrameMV.FramePresentation(
             sheet=self.test_guid,
             sort=FrameShape.ELLIPSE,
             name_x=50,
@@ -93,7 +93,7 @@ class TestTFrameLS(unittest.TestCase):
             first_corners=[(10, 20), (30, 40)],
         )
 
-        frame = FrameLV(
+        frame = FrameMV(
             general=general,
             lines=lines,
             extras=extras,
@@ -112,6 +112,7 @@ class TestTFrameLS(unittest.TestCase):
         self.assertIn("RevisionDate:1234567891", result)
         self.assertIn("Image:'test_image.png'", result)
         self.assertIn("Container:True", result)
+        self.assertIn("Variant:True", result)
 
         # Verify line section
         self.assertIn("#Line Text:Frame line text", result)
@@ -131,16 +132,15 @@ class TestTFrameLS(unittest.TestCase):
         self.assertIn("UpsideDownText:True", result)
 
     def test_frame_deserialization_works(self) -> None:
-        """Test deserialization from GNF format data."""
+        """Test deserialization from VNF format data."""
         data = {
-            "general": [
-                {
-                    "GUID": str(self.test_guid),
-                    "Name": "Deserialized Frame",
-                    "CreationTime": 1234567890.0,
-                    "Container": True,
-                }
-            ],
+            "general": {
+                "GUID": str(self.test_guid),
+                "Name": "Deserialized Frame",
+                "CreationTime": 1234567890.0,
+                "Container": True,
+                "Variant": True,
+            },
             "lines": [{"Text": "Line text"}],
             "geo_series": [{"Coordinates": "'{(100,0 200,0) (300,0 400,0) }'"}],
             "extras": [
@@ -158,16 +158,16 @@ class TestTFrameLS(unittest.TestCase):
             ],
         }
 
-        frame = FrameLV.deserialize(data)
+        frame = FrameMV.deserialize(data)
 
         # Verify general properties
         self.assertEqual(frame.general.guid, self.test_guid)
         self.assertEqual(frame.general.name, "Deserialized Frame")
         self.assertEqual(frame.general.creation_time, 1234567890.0)
         self.assertEqual(frame.general.container, True)
+        self.assertEqual(frame.general.variant, True)
 
         # Verify lines are plain strings
-        self.assertIsNotNone(frame.lines)
         self.assertEqual(frame.lines, ["Line text"])
 
         # Verify geo_series
@@ -177,7 +177,6 @@ class TestTFrameLS(unittest.TestCase):
         )
 
         # Verify extras
-        self.assertIsNotNone(frame.extras)
         self.assertEqual(len(frame.extras), 2)
         self.assertEqual(frame.extras[0].text, "key1=value1")
         self.assertEqual(frame.extras[1].text, "key2=value2")
@@ -194,13 +193,14 @@ class TestTFrameLS(unittest.TestCase):
         """Test deserialization with empty data."""
         data = {}
 
-        frame = FrameLV.deserialize(data)
+        frame = FrameMV.deserialize(data)
 
         # Should have default general properties
         self.assertIsNotNone(frame.general)
         self.assertEqual(frame.general.name, "")
-        self.assertEqual(frame.general.creation_time, 0)
+        self.assertEqual(frame.general.creation_time, 0.0)
         self.assertEqual(frame.general.container, False)
+        self.assertEqual(frame.general.variant, False)
 
         # Optional sections should be empty lists
         self.assertEqual(frame.lines, [])
@@ -210,11 +210,11 @@ class TestTFrameLS(unittest.TestCase):
 
     def test_duplicate_frame_registration_overwrites(self) -> None:
         """Test GUID collision handling with proper logging verification."""
-        general1 = FrameLV.General(guid=self.test_guid, name="Frame 1")
-        general2 = FrameLV.General(guid=self.test_guid, name="Frame 2")
+        general1 = FrameMV.General(guid=self.test_guid, name="Frame 1")
+        general2 = FrameMV.General(guid=self.test_guid, name="Frame 2")
 
-        frame1 = FrameLV(general=general1, presentations=[FrameLV.FramePresentation()])
-        frame2 = FrameLV(general=general2, presentations=[FrameLV.FramePresentation()])
+        frame1 = FrameMV(general=general1, presentations=[FrameMV.FramePresentation()])
+        frame2 = FrameMV(general=general2, presentations=[FrameMV.FramePresentation()])
 
         # Register first frame
         frame1.register(self.network)
@@ -222,12 +222,11 @@ class TestTFrameLS(unittest.TestCase):
 
         # Register second frame with same GUID should overwrite
         frame2.register(self.network)
-        # Verify frame was overwritten
         self.assertEqual(self.network.frames[self.test_guid].general.name, "Frame 2")
 
     def test_frame_general_serialize_with_defaults(self) -> None:
         """Test General class serialization with default values."""
-        general = FrameLV.General(guid=self.test_guid, name="Test Frame")
+        general = FrameMV.General(guid=self.test_guid, name="Test Frame")
 
         result = general.serialize()
 
@@ -241,15 +240,15 @@ class TestTFrameLS(unittest.TestCase):
         self.assertNotIn("RevisionDate:", result)
         self.assertNotIn("Image:", result)
         self.assertNotIn("Container:", result)
+        self.assertNotIn("Variant:", result)
 
     def test_frame_presentation_serialize_with_defaults(self) -> None:
         """Test FramePresentation class serialization with default values."""
-        presentation = FrameLV.FramePresentation()
+        presentation = FrameMV.FramePresentation()
 
         result = presentation.serialize()
 
-        # Should skip default values
-        self.assertNotIn("Sheet:", result)
+        # Should skip default values (except Sheet which uses no_skip)
         self.assertNotIn("Sort:", result)  # Rectangle is default
         self.assertNotIn("NameX:", result)
         self.assertNotIn("NameY:", result)
@@ -271,9 +270,9 @@ class TestTFrameLS(unittest.TestCase):
 
     def test_frame_with_no_lines_serializes_correctly(self) -> None:
         """Test serialization with no lines."""
-        general = FrameLV.General(guid=self.test_guid, name="No Lines Frame")
-        frame = FrameLV(
-            general=general, presentations=[FrameLV.FramePresentation()], lines=[]
+        general = FrameMV.General(guid=self.test_guid, name="No Lines Frame")
+        frame = FrameMV(
+            general=general, presentations=[FrameMV.FramePresentation()], lines=[]
         )
 
         result = frame.serialize()
@@ -282,10 +281,10 @@ class TestTFrameLS(unittest.TestCase):
 
     def test_frame_with_multiple_lines_serializes_correctly(self) -> None:
         """Test serialization with multiple lines."""
-        general = FrameLV.General(guid=self.test_guid, name="Multi Line Frame")
-        frame = FrameLV(
+        general = FrameMV.General(guid=self.test_guid, name="Multi Line Frame")
+        frame = FrameMV(
             general=general,
-            presentations=[FrameLV.FramePresentation()],
+            presentations=[FrameMV.FramePresentation()],
             lines=["First line", "Second line", "Third line"],
         )
 
@@ -303,10 +302,10 @@ class TestTFrameLS(unittest.TestCase):
 
     def test_frame_with_empty_line_serializes_correctly(self) -> None:
         """Test serialization with empty string line."""
-        general = FrameLV.General(guid=self.test_guid, name="Empty Line Frame")
-        frame = FrameLV(
+        general = FrameMV.General(guid=self.test_guid, name="Empty Line Frame")
+        frame = FrameMV(
             general=general,
-            presentations=[FrameLV.FramePresentation()],
+            presentations=[FrameMV.FramePresentation()],
             lines=["", "Non-empty line", ""],
         )
 
@@ -322,7 +321,7 @@ class TestTFrameLS(unittest.TestCase):
     def test_frame_deserialization_with_multiple_lines(self) -> None:
         """Test deserialization with multiple lines."""
         data = {
-            "general": [{"GUID": str(self.test_guid), "Name": "Multi Line"}],
+            "general": {"GUID": str(self.test_guid), "Name": "Multi Line"},
             "lines": [
                 {"Text": "Line 1"},
                 {"Text": "Line 2"},
@@ -330,7 +329,7 @@ class TestTFrameLS(unittest.TestCase):
             ],
         }
 
-        frame = FrameLV.deserialize(data)
+        frame = FrameMV.deserialize(data)
 
         self.assertEqual(len(frame.lines), 3)
         self.assertEqual(frame.lines[0], "Line 1")
@@ -340,7 +339,7 @@ class TestTFrameLS(unittest.TestCase):
     def test_frame_deserialization_with_empty_lines(self) -> None:
         """Test deserialization with empty string lines."""
         data = {
-            "general": [{"GUID": str(self.test_guid), "Name": "Empty Lines"}],
+            "general": {"GUID": str(self.test_guid), "Name": "Empty Lines"},
             "lines": [
                 {"Text": ""},
                 {"Text": "Non-empty"},
@@ -348,7 +347,7 @@ class TestTFrameLS(unittest.TestCase):
             ],
         }
 
-        frame = FrameLV.deserialize(data)
+        frame = FrameMV.deserialize(data)
 
         self.assertEqual(len(frame.lines), 3)
         self.assertEqual(frame.lines[0], "")
@@ -374,40 +373,38 @@ class TestTFrameLS(unittest.TestCase):
 
     def test_frame_round_trip_serialization(self) -> None:
         """Test that serialization and deserialization are consistent."""
-        original_general = FrameLV.General(
+        original_general = FrameMV.General(
             guid=self.test_guid,
             name="Round Trip Frame",
             creation_time=1234567890.0,
             container=True,
         )
 
-        original_frame = FrameLV(
+        original_frame = FrameMV(
             general=original_general,
             lines=["Round trip text"],
             extras=[Extra(text="key=value")],
             geo_series=[Geography(coordinates=[(100.0, 200.0)])],
             presentations=[
-                FrameLV.FramePresentation(sort=FrameShape.ELLIPSE, name_x=50)
+                FrameMV.FramePresentation(sort=FrameShape.ELLIPSE, name_x=50)
             ],
         )
 
-        # Simulate parsing back from GNF format
+        # Simulate parsing back from VNF format
         data = {
-            "general": [
-                {
-                    "GUID": str(self.test_guid),
-                    "Name": "Round Trip Frame",
-                    "CreationTime": 1234567890.0,
-                    "Container": True,
-                }
-            ],
+            "general": {
+                "GUID": str(self.test_guid),
+                "Name": "Round Trip Frame",
+                "CreationTime": 1234567890.0,
+                "Container": True,
+            },
             "lines": [{"Text": "Round trip text"}],
             "extras": [{"Text": "key=value"}],
             "geo_series": [{"Coordinates": "'{(100,0 200,0) }'"}],
             "presentations": [{"Sort": "Ellipse", "NameX": 50}],
         }
 
-        deserialized = FrameLV.deserialize(data)
+        deserialized = FrameMV.deserialize(data)
 
         # Verify key properties match
         self.assertEqual(deserialized.general.guid, original_frame.general.guid)
@@ -420,11 +417,9 @@ class TestTFrameLS(unittest.TestCase):
         )
 
         # Verify lines are plain strings
-        self.assertIsNotNone(deserialized.lines)
         self.assertEqual(deserialized.lines, ["Round trip text"])
 
         # Verify extras match
-        self.assertIsNotNone(deserialized.extras)
         self.assertEqual(len(deserialized.extras), 1)
         self.assertEqual(deserialized.extras[0].text, "key=value")
 
