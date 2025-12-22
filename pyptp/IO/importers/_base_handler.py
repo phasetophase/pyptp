@@ -194,11 +194,10 @@ class DeclarativeHandler(Generic[NetworkModel]):
 
                 return [Extra(text=text) for text in raw_data]
             if config.kwarg_name == "lines":
-                from pyptp.elements.mixins import Line
-
-                return [Line(text=text) for text in raw_data]
+                # Return plain strings for lines
+                return list(raw_data)
             if config.kwarg_name == "comment":
-                # Convert raw text to Comment-compatible format for VNF files
+                # Convert raw text to Comment-compatible format
                 if raw_data:
                     text = " ".join(raw_data) if len(raw_data) > 1 else raw_data[0]
                     return {"Text": text}

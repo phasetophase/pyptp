@@ -21,7 +21,6 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
-    write_boolean_as_byte_no_skip,
     write_boolean_no_skip,
     write_double,
     write_double_no_skip,
@@ -60,7 +59,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
         revision_date: int = 0
         variant: bool = False
         name: str = string_field()
-        switch_state: bool = False
+        switch_state: int = 0
         field_name: str = string_field()
         failure_frequency: float = 0.0
         repair_duration: float = 0.0
@@ -86,7 +85,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer("RevisionDate", self.revision_date) if self.revision_date != 0 else "",
                 write_boolean("Variant", value=self.variant),
                 write_quote_string_no_skip("Name", self.name),
-                write_boolean_as_byte_no_skip("SwitchState", value=self.switch_state),
+                write_integer_no_skip("SwitchState", self.switch_state),
                 write_quote_string("FieldName", self.field_name),
                 write_double("FailureFrequency", self.failure_frequency),
                 write_double("RepairDuration", self.repair_duration),
@@ -114,7 +113,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
                 revision_date=data.get("RevisionDate", 0),
                 variant=data.get("Variant", False),
                 name=data.get("Name", ""),
-                switch_state=data.get("SwitchState", False),
+                switch_state=data.get("SwitchState", 0),
                 field_name=data.get("FieldName", ""),
                 failure_frequency=data.get("FailureFrequency", 0.0),
                 repair_duration=data.get("RepairDuration", 0.0),
@@ -432,11 +431,11 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
     general: General
     presentations: list[ElementPresentation]
     type: WindTurbineType
-    q_control: QControl | None
-    pu_control: PUControl | None
-    pf_control: PfControl | None
-    pi_control: PIControl | None
-    restriction: Restriction | None
+    q_control: QControl | None = None
+    pu_control: PUControl | None = None
+    pf_control: PfControl | None = None
+    pi_control: PIControl | None = None
+    restriction: Restriction | None = None
 
     def register(self, network: NetworkMV) -> None:
         """Will add windturbine to the network."""

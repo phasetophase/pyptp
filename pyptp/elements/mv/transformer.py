@@ -208,17 +208,17 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         snom: float = 0.0
         unom1: float = 0.0
         unom2: float = 0.0
-        Uk: float = 0.0
-        Pk: float = 0.0
-        Po: float = 0.0
-        Io: float = 0.0
-        R0: float = 0.0
-        Z0: float = 0.0
+        uk: float = 0.0
+        pk: float = 0.0
+        po: float = 0.0
+        io: float = 0.0
+        r0: float = 0.0
+        z0: float = 0.0
         side_z0: int = 0
-        Ik2s: float = 0.0
-        C1: float = 0.0
-        C2: float = 0.0
-        C12: float = 0.0
+        ik2s: float = 0.0
+        c1: float = 0.0
+        c2: float = 0.0
+        c12: float = 0.0
         winding_connection1: str = string_field()
         winding_connection2: str = string_field()
         clock_number: int = 0
@@ -237,17 +237,17 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Snom", self.snom),
                 write_double("Unom1", self.unom1),
                 write_double("Unom2", self.unom2),
-                write_double("Uk", self.Uk),
-                write_double("Pk", self.Pk),
-                write_double("Po", self.Po),
-                write_double("Io", self.Io),
-                write_double("R0", self.R0),
-                write_double("Z0", self.Z0),
+                write_double("Uk", self.uk),
+                write_double("Pk", self.pk),
+                write_double("Po", self.po),
+                write_double("Io", self.io),
+                write_double("R0", self.r0),
+                write_double("Z0", self.z0),
                 write_integer("Side_Z0", self.side_z0),
-                write_double("Ik2s", self.Ik2s),
-                write_double("C1", self.C1),
-                write_double("C2", self.C2),
-                write_double("C12", self.C12),
+                write_double("Ik2s", self.ik2s),
+                write_double("C1", self.c1),
+                write_double("C2", self.c2),
+                write_double("C12", self.c12),
                 write_quote_string_no_skip("WindingConnection1", self.winding_connection1),
                 write_quote_string_no_skip("WindingConnection2", self.winding_connection2),
                 write_integer_no_skip("ClockNumber", self.clock_number),
@@ -268,17 +268,17 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 snom=data.get("Snom", 0.0),
                 unom1=data.get("Unom1", 0.0),
                 unom2=data.get("Unom2", 0.0),
-                Uk=data.get("Uk", 0.0),
-                Pk=data.get("Pk", 0.0),
-                Po=data.get("Po", 0.0),
-                Io=data.get("Io", 0.0),
-                R0=data.get("R0", 0.0),
-                Z0=data.get("Z0", 0.0),
+                uk=data.get("Uk", 0.0),
+                pk=data.get("Pk", 0.0),
+                po=data.get("Po", 0.0),
+                io=data.get("Io", 0.0),
+                r0=data.get("R0", 0.0),
+                z0=data.get("Z0", 0.0),
                 side_z0=data.get("Side_Z0", 0),
-                Ik2s=data.get("Ik2s", 0.0),
-                C1=data.get("C1", 0.0),
-                C2=data.get("C2", 0.0),
-                C12=data.get("C12", 0.0),
+                ik2s=data.get("Ik2s", 0.0),
+                c1=data.get("C1", 0.0),
+                c2=data.get("C2", 0.0),
+                c12=data.get("C12", 0.0),
                 winding_connection1=data.get("WindingConnection1", ""),
                 winding_connection2=data.get("WindingConnection2", ""),
                 clock_number=data.get("ClockNumber", 0),
@@ -300,8 +300,8 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         control_status: int = 1
         measure_side: int = 1
         control_node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
-        set_point: float = 0.0
-        dead_band: float = 0.0
+        setpoint: float = 0.0
+        deadband: float = 0.0
         control_sort: int = 0
         rc: float = 0.0
         xc: float = 0.0
@@ -323,8 +323,8 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer_no_skip("ControlStatus", self.control_status),
                 write_integer_no_skip("MeasureSide", self.measure_side),
                 write_guid("ControlNode", self.control_node) if self.control_node != NIL_GUID else "",
-                write_double("SetPoint", self.set_point),
-                write_double("DeadBand", self.dead_band),
+                write_double("SetPoint", self.setpoint),
+                write_double("DeadBand", self.deadband),
                 write_integer_no_skip("ControlSort", self.control_sort),
                 write_double("Rc", self.rc),
                 write_double("Xc", self.xc),
@@ -348,8 +348,8 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 control_status=data.get("ControlStatus", 1),
                 measure_side=data.get("MeasureSide", 1),
                 control_node=decode_guid(data.get("ControlNode", str(NIL_GUID))),
-                set_point=data.get("SetPoint", 0.0),
-                dead_band=data.get("DeadBand", 0.0),
+                setpoint=data.get("SetPoint", 0.0),
+                deadband=data.get("DeadBand", 0.0),
                 control_sort=data.get("ControlSort", 0),
                 rc=data.get("Rc", 0.0),
                 xc=data.get("Xc", 0.0),

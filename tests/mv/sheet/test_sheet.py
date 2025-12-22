@@ -1,4 +1,4 @@
-"""Tests for TSheetMS behavior using the new registration system."""
+"""Tests for SheetMV class."""
 
 import unittest
 from uuid import UUID

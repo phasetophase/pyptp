@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import field
+from enum import StrEnum
 from typing import TYPE_CHECKING, NewType, Protocol, TypeAlias, TypeVar, cast
 from uuid import NAMESPACE_DNS, UUID, uuid3, uuid4
 
@@ -46,6 +47,25 @@ NIL_GUID = Guid(UUID(int=0))
 # Branch side identifiers for electrical elements connected to branches
 SIDE_NODE1 = 1
 SIDE_NODE2 = 2
+
+
+class LineStyle(StrEnum):
+    """Line drawing styles for visual elements."""
+
+    SOLID = "Solid"
+    DASH = "Dash"
+    DOT = "Dot"
+    DASH_DOT = "DashDot"
+    DASH_DOT_DOT = "DashDotDot"
+
+
+class FrameShape(StrEnum):
+    """Frame shape types for container elements."""
+
+    RECTANGLE = "Rectangle"
+    POLYGON = "Polygon"
+    ELLIPSE = "Ellipse"
+    PICTURE = "Picture"
 
 
 def optional_field(default_value: T = None) -> T:

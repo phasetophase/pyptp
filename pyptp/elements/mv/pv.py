@@ -21,12 +21,12 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
-    write_boolean_as_byte,
     write_double,
     write_double_no_skip,
     write_guid,
     write_guid_no_skip,
     write_integer,
+    write_integer_no_skip,
     write_quote_string,
 )
 from pyptp.ptp_log import logger
@@ -62,8 +62,8 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         revision_date: float | int = optional_field(0.0)
         variant: bool = False
         name: str = string_field()
-        switch_state: bool = False
-        field_name: float = 0.0
+        switch_state: int = 0
+        field_name: str = string_field()
         failure_frequency: float = 0.0
         repair_duration: float = 0.0
         maintenance_frequency: float = 0.0
@@ -95,8 +95,8 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("RevisionDate", self.revision_date, skip=0.0),
                 write_boolean("Variant", value=self.variant),
                 write_quote_string("Name", self.name, skip=""),
-                write_boolean_as_byte("SwitchState", value=self.switch_state),
-                write_double("FieldName", self.field_name, skip=0.0),
+                write_integer_no_skip("SwitchState", self.switch_state),
+                write_quote_string("FieldName", self.field_name, skip=""),
                 write_double("FailureFrequency", self.failure_frequency, skip=0.0),
                 write_double("RepairDuration", self.repair_duration, skip=0.0),
                 write_double("MaintenanceFrequency", self.maintenance_frequency, skip=0.0),
@@ -136,8 +136,8 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
                 revision_date=revision_date if revision_date is not None else 0.0,
                 variant=data.get("Variant", False),
                 name=data.get("Name", ""),
-                switch_state=data.get("SwitchState", False),
-                field_name=data.get("FieldName", 0.0),
+                switch_state=data.get("SwitchState", 0),
+                field_name=data.get("FieldName", ""),
                 failure_frequency=data.get("FailureFrequency", 0.0),
                 repair_duration=data.get("RepairDuration", 0.0),
                 maintenance_frequency=data.get("MaintenanceFrequency", 0.0),

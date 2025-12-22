@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, ClassVar
 
-from pyptp.elements.mv.frame import FrameMV, FramePresentation
+from pyptp.elements.mv.frame import FrameMV
 from pyptp.IO.importers._base_handler import DeclarativeHandler, SectionConfig
 from pyptp.network_mv import NetworkMV as TNetworkMSType
 
@@ -16,7 +16,7 @@ class FrameHandler(DeclarativeHandler[TNetworkMSType]):
 
     COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
         SectionConfig("general", "#General ", required=True),
-        SectionConfig("lines", "#Line ", required=False),
+        SectionConfig("lines", "#Line Text:", required=False),
         SectionConfig("geo_series", "#Geo ", required=False),
         SectionConfig("presentations", "#Presentation ", required=False),
         SectionConfig("extras", "#Extra Text:", required=False),
@@ -35,7 +35,7 @@ class FrameHandler(DeclarativeHandler[TNetworkMSType]):
         if kwarg_name == "general":
             return FrameMV.General
         if kwarg_name == "presentations":
-            return FramePresentation
+            return FrameMV.FramePresentation
 
         return None
 
