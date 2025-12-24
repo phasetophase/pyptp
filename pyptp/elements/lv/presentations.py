@@ -168,7 +168,7 @@ class BranchPresentation(DataClassJsonMixin):
         """Serialize BranchPresentation properties to a string."""
         props = [
             write_string_no_skip("Sheet", encode_guid(self.sheet)),
-            write_delphi_color_no_skip("Color", self.color),
+            write_delphi_color("Color", self.color),
             write_integer("Size", self.size, skip=1),
             write_integer("Width", self.width, skip=1),
             write_delphi_color("TextColor", self.text_color),
@@ -282,7 +282,7 @@ class ElementPresentation(DataClassJsonMixin):
             write_string_no_skip("Sheet", encode_guid(self.sheet)),
             write_integer_no_skip("X", self.x),
             write_integer_no_skip("Y", self.y),
-            write_delphi_color_no_skip("Color", self.color),
+            write_delphi_color("Color", self.color),
             write_integer("Size", self.size, skip=1),
             write_integer("Width", self.width, skip=1),
             write_delphi_color("TextColor", self.text_color),

@@ -25,7 +25,7 @@ class HomeHandler(DeclarativeHandler[NetworkLV]):
         SectionConfig("load", "#Load "),
         SectionConfig("public_lighting", "#PL "),
         SectionConfig("public_lighting_type", "#PLType "),
-        SectionConfig("heat_pump", "#HeatPump "),
+        SectionConfig("heat_pump", "#Heatpump "),
         SectionConfig("generation", "#Generation "),
         SectionConfig("pv", "#PV "),
         SectionConfig("pv_efficiency", "#PVInverterEfficiencyType "),
@@ -51,6 +51,14 @@ class HomeHandler(DeclarativeHandler[NetworkLV]):
             return FuseType
         if kwarg_name == "connection_geography":
             return ConnectionLV.Geography
+        if kwarg_name == "public_lighting":
+            return ConnectionLV.PL
+        if kwarg_name == "public_lighting_type":
+            return ConnectionLV.PLType
+        if kwarg_name == "heat_pump":
+            return ConnectionLV.Heatpump
+        if kwarg_name == "gms":
+            return ConnectionLV.GM
         if kwarg_name in [
             "pv_efficiency",
             "windturbine_efficiency",

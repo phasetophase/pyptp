@@ -108,7 +108,7 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer_no_skip("Phase", self.phase),
                 write_double_no_skip("Pref", self.pref),
                 write_double_no_skip("StateOfCharge", self.state_of_charge),
-                write_guid("Profile", self.profile, skip=DEFAULT_PROFILE_GUID),
+                write_guid("Profile", self.profile),
                 write_double_no_skip("Capacity", self.capacity),
                 write_double_no_skip("Crate", self.c_rate),
                 write_quote_string("HarmonicsType", self.harmonics_type),

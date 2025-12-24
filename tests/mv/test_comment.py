@@ -25,7 +25,6 @@ class TestTCommentMS(unittest.TestCase):
 
         # Register comment
         comment.register(self.network)
-
         # Verify comment was added
         self.assertEqual(len(self.network.comments), 1)
         self.assertEqual(self.network.comments[0], comment)

@@ -1,6 +1,6 @@
 [project]
 name = "pyptp"
-version = "0.0.14"
+version = "0.0.15"
 description = "Open-source Python SDK for electrical grid calculations and modelling"
 authors = [{ name = "Phase to Phase", email = "pyptp@phasetophase.com" }]
 license = { text = "GPL-3.0-or-later" }
@@ -77,6 +77,7 @@ ignore = [
     "D213",   # Multi-line docstring summary should start at the second line (conflicts with D212)
     "TRY300", # Consider moving this statement to an else block
     "COM812", # Trailing comma missing (conflicts with formatter)
+    "PLC0415", # Import statements outside of a module's top-level scope
 ]
 
 [tool.ruff.lint.pylint]

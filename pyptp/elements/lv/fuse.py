@@ -130,8 +130,6 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
         lines = []
 
         general_line = f"#General {self.general.serialize()}"
-        if self.type:
-            general_line += f" {write_quote_string('FuseType', self.type.short_name)}"
         lines.append(general_line)
 
         if self.type:

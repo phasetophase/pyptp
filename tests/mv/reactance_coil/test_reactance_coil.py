@@ -1,4 +1,4 @@
-"""Tests for TReactanceCoilMS behavior using the new registration system."""
+"""Tests for ReactanceCoilMV behavior using the new registration system."""
 
 import unittest
 from uuid import UUID
@@ -7,7 +7,7 @@ from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
-from pyptp.elements.mv.presentations import ElementPresentation, NodePresentation
+from pyptp.elements.mv.presentations import BranchPresentation, NodePresentation
 from pyptp.elements.mv.reactance_coil import ReactanceCoilMV
 from pyptp.elements.mv.sheet import SheetMV
 from pyptp.network_mv import NetworkMV
@@ -62,7 +62,7 @@ class TestReactanceCoilRegistration(unittest.TestCase):
             node2=self.node2_guid,
         )
         reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="TestType")
-        presentation = ElementPresentation(sheet=self.sheet_guid)
+        presentation = BranchPresentation(sheet=self.sheet_guid)
 
         reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
         reactance_coil.register(self.network)
@@ -112,26 +112,32 @@ class TestReactanceCoilRegistration(unittest.TestCase):
             Ik2s=150.0,
         )
 
-        presentation = ElementPresentation(
+        presentation = BranchPresentation(
             sheet=self.sheet_guid,
-            x=100,
-            y=200,
             color=DelphiColor("$FF0000"),
             size=2,
             width=3,
+            style="Dash",
             text_color=DelphiColor("$00FF00"),
             text_size=12,
-            font="Arial",
-            text_style=1,
+            font="Courier",
+            text_style=2,
             no_text=True,
             upside_down_text=True,
             strings1_x=10,
             strings1_y=20,
-            symbol_strings_x=30,
-            symbol_strings_y=40,
-            note_x=50,
-            note_y=60,
-            flag_flipped=True,
+            strings2_x=30,
+            strings2_y=40,
+            mid_strings_x=50,
+            mid_strings_y=60,
+            fault_strings_x=70,
+            fault_strings_y=80,
+            note_x=90,
+            note_y=100,
+            flag_flipped1=True,
+            flag_flipped2=True,
+            first_corners=[(100, 100), (200, 200)],
+            second_corners=[(300, 300), (400, 400)],
         )
 
         reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
@@ -185,24 +191,32 @@ class TestReactanceCoilRegistration(unittest.TestCase):
         self.assertIn("X2:0.18", serialized)
         self.assertIn("Ik2s:150", serialized)
 
-        # Verify presentation properties
+        # Verify presentation properties (BranchPresentation)
         self.assertIn(f"Sheet:'{{{str(self.sheet_guid).upper()}}}'", serialized)
-        self.assertIn("X:100", serialized)
-        self.assertIn("Y:200", serialized)
         self.assertIn("Color:$FF0000", serialized)
         self.assertIn("Size:2", serialized)
         self.assertIn("Width:3", serialized)
+        self.assertIn("Style:'Dash'", serialized)
         self.assertIn("TextColor:$00FF00", serialized)
         self.assertIn("TextSize:12", serialized)
+        self.assertIn("Font:'Courier'", serialized)
+        self.assertIn("TextStyle:2", serialized)
         self.assertIn("NoText:True", serialized)
         self.assertIn("UpsideDownText:True", serialized)
         self.assertIn("Strings1X:10", serialized)
         self.assertIn("Strings1Y:20", serialized)
-        self.assertIn("SymbolStringsX:30", serialized)
-        self.assertIn("SymbolStringsY:40", serialized)
-        self.assertIn("NoteX:50", serialized)
-        self.assertIn("NoteY:60", serialized)
-        self.assertIn("FlagFlipped:True", serialized)
+        self.assertIn("Strings2X:30", serialized)
+        self.assertIn("Strings2Y:40", serialized)
+        self.assertIn("MidStringsX:50", serialized)
+        self.assertIn("MidStringsY:60", serialized)
+        self.assertIn("FaultStringsX:70", serialized)
+        self.assertIn("FaultStringsY:80", serialized)
+        self.assertIn("NoteX:90", serialized)
+        self.assertIn("NoteY:100", serialized)
+        self.assertIn("FlagFlipped1:True", serialized)
+        self.assertIn("FlagFlipped2:True", serialized)
+        self.assertIn("FirstCorners:", serialized)
+        self.assertIn("SecondCorners:", serialized)
 
         # Verify extras and notes
         self.assertIn("#Extra Text:foo=bar", serialized)
@@ -218,7 +232,7 @@ class TestReactanceCoilRegistration(unittest.TestCase):
         )
         reactance_coil_type1 = ReactanceCoilMV.ReactanceCoilType(short_name="Type1")
         reactance_coil1 = ReactanceCoilMV(
-            general1, [ElementPresentation(sheet=self.sheet_guid)], reactance_coil_type1
+            general1, [BranchPresentation(sheet=self.sheet_guid)], reactance_coil_type1
         )
         reactance_coil1.register(self.network)
 
@@ -230,7 +244,7 @@ class TestReactanceCoilRegistration(unittest.TestCase):
         )
         reactance_coil_type2 = ReactanceCoilMV.ReactanceCoilType(short_name="Type2")
         reactance_coil2 = ReactanceCoilMV(
-            general2, [ElementPresentation(sheet=self.sheet_guid)], reactance_coil_type2
+            general2, [BranchPresentation(sheet=self.sheet_guid)], reactance_coil_type2
         )
         reactance_coil2.register(self.network)
 
@@ -251,7 +265,7 @@ class TestReactanceCoilRegistration(unittest.TestCase):
             node2=self.node2_guid,
         )
         reactance_coil_type = ReactanceCoilMV.ReactanceCoilType()
-        presentation = ElementPresentation(sheet=self.sheet_guid)
+        presentation = BranchPresentation(sheet=self.sheet_guid)
 
         reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
         reactance_coil.register(self.network)
@@ -273,7 +287,10 @@ class TestReactanceCoilRegistration(unittest.TestCase):
         self.assertNotIn("Variant:", serialized)  # False values are skipped
         self.assertIn("SwitchState1:0", serialized)
         self.assertIn("SwitchState2:0", serialized)
-        # SubnetBorder:False should be skipped as default
+
+        # Should not have optional sections
+        self.assertNotIn("#Extra", serialized)
+        self.assertNotIn("#Note", serialized)
 
     def test_reactance_coil_with_electrical_properties_serializes_correctly(
         self,
@@ -294,7 +311,7 @@ class TestReactanceCoilRegistration(unittest.TestCase):
             R0=0.05,
             X0=0.15,
         )
-        presentation = ElementPresentation(sheet=self.sheet_guid)
+        presentation = BranchPresentation(sheet=self.sheet_guid)
 
         reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
         reactance_coil.register(self.network)
@@ -322,7 +339,7 @@ class TestReactanceCoilRegistration(unittest.TestCase):
             X2=0.18,
             Ik2s=150.0,
         )
-        presentation = ElementPresentation(sheet=self.sheet_guid)
+        presentation = BranchPresentation(sheet=self.sheet_guid)
 
         reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
         reactance_coil.register(self.network)
@@ -348,7 +365,7 @@ class TestReactanceCoilRegistration(unittest.TestCase):
             maintenance_cancel_duration=1.0,
         )
         reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="MainType")
-        presentation = ElementPresentation(sheet=self.sheet_guid)
+        presentation = BranchPresentation(sheet=self.sheet_guid)
 
         reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
         reactance_coil.register(self.network)
@@ -360,18 +377,80 @@ class TestReactanceCoilRegistration(unittest.TestCase):
         self.assertIn("MaintenanceDuration:4.0", serialized)
         self.assertIn("MaintenanceCancelDuration:1.0", serialized)
 
-    def test_reactance_coil_with_switch_states_serializes_correctly(self) -> None:
-        """Test that reactance coils with switch states serialize correctly."""
+    def test_reactance_coil_with_branch_presentation_corners(self) -> None:
+        """Test that reactance coils with corner coordinates serialize correctly."""
         general = ReactanceCoilMV.General(
             guid=self.reactance_coil_guid,
-            name="SwitchStateReactanceCoil",
+            name="CornersReactanceCoil",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+        )
+        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="CornerType")
+        presentation = BranchPresentation(
+            sheet=self.sheet_guid,
+            first_corners=[(100, 150), (200, 250)],
+            second_corners=[(300, 350), (400, 450)],
+        )
+
+        reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
+        reactance_coil.register(self.network)
+
+        serialized = reactance_coil.serialize()
+        self.assertIn("FirstCorners:", serialized)
+        self.assertIn("SecondCorners:", serialized)
+
+    def test_reactance_coil_with_multiple_presentations(self) -> None:
+        """Test that reactance coils with multiple presentations serialize correctly."""
+        general = ReactanceCoilMV.General(
+            guid=self.reactance_coil_guid,
+            name="MultiPresentationReactanceCoil",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+        )
+        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="MultiType")
+
+        # Create a second sheet
+        sheet2 = SheetMV(
+            SheetMV.General(
+                guid=Guid(UUID("11111111-2222-3333-4444-555555555555")),
+                name="TestSheet2",
+            ),
+        )
+        sheet2.register(self.network)
+
+        presentation1 = BranchPresentation(
+            sheet=self.sheet_guid, color=DelphiColor("$FF0000")
+        )
+        presentation2 = BranchPresentation(
+            sheet=sheet2.general.guid, color=DelphiColor("$00FF00")
+        )
+
+        reactance_coil = ReactanceCoilMV(
+            general, [presentation1, presentation2], reactance_coil_type
+        )
+        reactance_coil.register(self.network)
+
+        serialized = reactance_coil.serialize()
+        self.assertEqual(serialized.count("#Presentation"), 2)
+        self.assertIn("Color:$FF0000", serialized)
+        self.assertIn("Color:$00FF00", serialized)
+
+    def test_reactance_coil_with_flag_flipped_properties(self) -> None:
+        """Test that reactance coils with flag flipped properties serialize correctly."""
+        general = ReactanceCoilMV.General(
+            guid=self.reactance_coil_guid,
+            name="FlagFlippedReactanceCoil",
             node1=self.node1_guid,
             node2=self.node2_guid,
             switch_state1=True,
             switch_state2=True,
         )
-        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="SwitchType")
-        presentation = ElementPresentation(sheet=self.sheet_guid)
+        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="FlagType")
+        presentation = BranchPresentation(
+            sheet=self.sheet_guid,
+            flag_flipped1=True,
+            flag_flipped2=True,
+        )
 
         reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
         reactance_coil.register(self.network)
@@ -379,82 +458,34 @@ class TestReactanceCoilRegistration(unittest.TestCase):
         serialized = reactance_coil.serialize()
         self.assertIn("SwitchState1:1", serialized)
         self.assertIn("SwitchState2:1", serialized)
+        self.assertIn("FlagFlipped1:True", serialized)
+        self.assertIn("FlagFlipped2:True", serialized)
 
-    def test_reactance_coil_with_field_names_serializes_correctly(self) -> None:
-        """Test that reactance coils with field names serialize correctly."""
+    def test_reactance_coil_with_extras_and_notes(self) -> None:
+        """Test that reactance coils with multiple extras and notes serialize correctly."""
         general = ReactanceCoilMV.General(
             guid=self.reactance_coil_guid,
-            name="FieldNameReactanceCoil",
+            name="ExtrasNotesReactanceCoil",
             node1=self.node1_guid,
             node2=self.node2_guid,
-            field_name1="Field1",
-            field_name2="Field2",
         )
-        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="FieldType")
-        presentation = ElementPresentation(sheet=self.sheet_guid)
+        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="ExtrasType")
+        presentation = BranchPresentation(sheet=self.sheet_guid)
 
         reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
+        reactance_coil.extras.append(Extra(text="key1=value1"))
+        reactance_coil.extras.append(Extra(text="key2=value2"))
+        reactance_coil.notes.append(Note(text="First note"))
+        reactance_coil.notes.append(Note(text="Second note"))
         reactance_coil.register(self.network)
 
         serialized = reactance_coil.serialize()
-        self.assertIn("FieldName1:'Field1'", serialized)
-        self.assertIn("FieldName2:'Field2'", serialized)
-
-    def test_reactance_coil_with_sources_serializes_correctly(self) -> None:
-        """Test that reactance coils with sources serialize correctly."""
-        general = ReactanceCoilMV.General(
-            guid=self.reactance_coil_guid,
-            name="SourceReactanceCoil",
-            node1=self.node1_guid,
-            node2=self.node2_guid,
-            source1="Source1",
-            source2="Source2",
-        )
-        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="SourceType")
-        presentation = ElementPresentation(sheet=self.sheet_guid)
-
-        reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
-        reactance_coil.register(self.network)
-
-        serialized = reactance_coil.serialize()
-        self.assertIn("Source1:'Source1'", serialized)
-        self.assertIn("Source2:'Source2'", serialized)
-
-    def test_reactance_coil_with_subnet_border_serializes_correctly(self) -> None:
-        """Test that reactance coils with subnet border serialize correctly."""
-        general = ReactanceCoilMV.General(
-            guid=self.reactance_coil_guid,
-            name="SubnetBorderReactanceCoil",
-            node1=self.node1_guid,
-            node2=self.node2_guid,
-            subnet_border=True,
-        )
-        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="SubnetType")
-        presentation = ElementPresentation(sheet=self.sheet_guid)
-
-        reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
-        reactance_coil.register(self.network)
-
-        serialized = reactance_coil.serialize()
-        self.assertIn("SubnetBorder:True", serialized)
-
-    def test_reactance_coil_with_generator_type_serializes_correctly(self) -> None:
-        """Test that reactance coils with generator type serialize correctly."""
-        general = ReactanceCoilMV.General(
-            guid=self.reactance_coil_guid,
-            name="GeneratorTypeReactanceCoil",
-            node1=self.node1_guid,
-            node2=self.node2_guid,
-            type="GenType",
-        )
-        reactance_coil_type = ReactanceCoilMV.ReactanceCoilType(short_name="GenType")
-        presentation = ElementPresentation(sheet=self.sheet_guid)
-
-        reactance_coil = ReactanceCoilMV(general, [presentation], reactance_coil_type)
-        reactance_coil.register(self.network)
-
-        serialized = reactance_coil.serialize()
-        self.assertIn("AsynchronousGeneratorType:'GenType'", serialized)
+        self.assertEqual(serialized.count("#Extra"), 2)
+        self.assertEqual(serialized.count("#Note"), 2)
+        self.assertIn("#Extra Text:key1=value1", serialized)
+        self.assertIn("#Extra Text:key2=value2", serialized)
+        self.assertIn("#Note Text:First note", serialized)
+        self.assertIn("#Note Text:Second note", serialized)
 
 
 if __name__ == "__main__":
