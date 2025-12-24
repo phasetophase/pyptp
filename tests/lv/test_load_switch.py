@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from pyptp.elements.element_utils import Guid, encode_guid
 from pyptp.elements.lv.load_switch import LoadSwitchLV
-from pyptp.elements.lv.presentations import BranchPresentation, ElementPresentation
+from pyptp.elements.lv.presentations import SecundairPresentation
 from pyptp.elements.mixins import Extra, Note
 from pyptp.network_lv import NetworkLV
 
@@ -87,12 +87,10 @@ class TestTLoadSwitchLS(unittest.TestCase):
             short_name="LS-25A", unom=230.0, inom=25.0, ik_thermal=1000.0, t_thermal=1.0
         )
 
-        presentation = BranchPresentation(
+        presentation = SecundairPresentation(
             sheet=self.test_guid,
-            first_corners=[(10, 20), (30, 40)],
-            second_corners=[(50, 60), (70, 80)],
-            strings1_x=100,
-            strings1_y=200,
+            strings_x=100,
+            strings_y=200,
         )
 
         load_switch = LoadSwitchLV(
@@ -127,10 +125,8 @@ class TestTLoadSwitchLS(unittest.TestCase):
         # Verify presentation section
         self.assertIn("#Presentation", result)
         self.assertIn(f"Sheet:{encode_guid(self.test_guid)}", result)
-        self.assertIn("Strings1X:100", result)
-        self.assertIn("Strings1Y:200", result)
-        self.assertIn("FirstCorners:'{(10 20) (30 40) }'", result)
-        self.assertIn("SecondCorners:'{(50 60) (70 80) }'", result)
+        self.assertIn("StringsX:100", result)
+        self.assertIn("StringsY:200", result)
 
         # Verify extras and notes
         self.assertIn("#Extra Text:key1=value1", result)
@@ -310,7 +306,7 @@ class TestTLoadSwitchLS(unittest.TestCase):
 
         original_load_switch = LoadSwitchLV(
             general=original_general,
-            presentations=[ElementPresentation()],
+            presentations=[SecundairPresentation()],
             type=original_loadswitch_type,
         )
 

@@ -24,7 +24,7 @@ from pyptp.elements.element_utils import (
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
-    write_boolean_no_skip,
+    write_boolean,
     write_double,
     write_double_no_skip,
     write_float_no_skip,
@@ -128,21 +128,21 @@ class NodeLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("Unom", self.unom),
                 write_quote_string("Function", self.function),
                 write_quote_string("EarthingConfiguration", self.earthing_configuration),
-                write_boolean_no_skip("s_N_PE", value=self.s_N_PE),
-                write_boolean_no_skip("s_PE_e", value=self.s_PE_e),
+                write_boolean("s_N_PE", value=self.s_N_PE),
+                write_boolean("s_PE_e", value=self.s_PE_e),
                 write_double("Re", self.Re),
                 write_integer("k_h1", self.k_h1),
                 write_integer("k_h2", self.k_h2),
                 write_integer("k_h3", self.k_h3),
                 write_integer("k_h4", self.k_h4),
-                write_boolean_no_skip("s_h1", value=self.s_h1),
-                write_boolean_no_skip("s_h2", value=self.s_h2),
-                write_boolean_no_skip("s_h3", value=self.s_h3),
-                write_boolean_no_skip("s_h4", value=self.s_h4),
+                write_boolean("s_h1", value=self.s_h1),
+                write_boolean("s_h2", value=self.s_h2),
+                write_boolean("s_h3", value=self.s_h3),
+                write_boolean("s_h4", value=self.s_h4),
                 write_double("GX", self.gx),
                 write_double("GY", self.gy),
                 write_double("FailureFrequency", self.failure_frequency),
-                write_boolean_no_skip("Risk", value=self.risk),
+                write_boolean("Risk", value=self.risk),
             )
 
         @classmethod
@@ -221,16 +221,16 @@ class NodeLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         """
         lines = []
-        lines.append(f"#General {self.general.serialize()}")
+        lines.append(f"#General {self.general.serialize()} ")
 
         if self.fields:
-            lines.append(f"#Fields {self.fields.serialize()}")
+            lines.append(f"#Fields {self.fields.serialize()} ")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
+        lines.extend(f"#Presentation {presentation.serialize()} " for presentation in self.presentations)
 
-        lines.extend(f"#Extra Text:{extra.text}" for extra in self.safe_extras)
+        lines.extend(f"#Extra Text:{extra.text} " for extra in self.safe_extras)
 
-        lines.extend(f"#Note Text:{note.text}" for note in self.safe_notes)
+        lines.extend(f"#Note Text:{note.text} " for note in self.safe_notes)
 
         return "\n".join(lines)
 

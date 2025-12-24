@@ -372,7 +372,7 @@ class ElementPresentation(DataClassJsonMixin):
     including colors, sizes, text formatting, and coordinate positioning on sheets.
     """
 
-    sheet: Guid
+    sheet: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
     """The sheet where the element is visible."""
     x: int = 0
     """X coordinate on the sheet."""

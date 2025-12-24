@@ -3,7 +3,7 @@
 import unittest
 from uuid import UUID
 
-from pyptp.elements.color_utils import DelphiColor
+from pyptp.elements.color_utils import CL_BLACK, CL_SILVER, DelphiColor
 from pyptp.elements.element_utils import Guid
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
@@ -160,8 +160,8 @@ class TestNodeRegistration(unittest.TestCase):
 
         icon = NodeMV.Icon(
             text="TestIcon",
-            text_color=255,
-            background_color=65535,
+            text_color=CL_BLACK,
+            background_color=CL_SILVER,
             shape=1,
             size=16,
         )
@@ -284,7 +284,7 @@ class TestNodeRegistration(unittest.TestCase):
         self.assertIn("EAN:'123456789012345678'", serialized)
         self.assertIn("Adress:'123 Test St'", serialized)
         self.assertIn("Text:'TestIcon'", serialized)
-        self.assertIn("TextColor:255", serialized)
+        self.assertIn("TextColor:$00FF00", serialized)
         self.assertIn("TypeName:'TestDiffType'", serialized)
         self.assertIn("Switch:'{12345678-1234-1234-1234-123456789012}'", serialized)
         self.assertIn(

@@ -139,10 +139,10 @@ class FrameLV:
         """Frame shape type."""
 
         name_x: int = optional_field(0)
-        """X offset of the text relative to object."""
+        """X offset of the text relative to the weighted centre of the frame."""
 
         name_y: int = optional_field(0)
-        """Y offset of the text relative to object."""
+        """Y offset of the text relative to the weighted centre of the frame."""
 
         filled: bool = False
         """Whether the frame interior is filled with a background color."""

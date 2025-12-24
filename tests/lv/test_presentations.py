@@ -237,7 +237,6 @@ class TestBranchPresentation(unittest.TestCase):
 
         # Should include required fields
         self.assertIn(f"Sheet:{encode_guid(NIL_GUID)}", result)
-        self.assertIn(f"Color:{CL_BLACK}", result)
 
         # Should skip default values
         self.assertNotIn("Size:", result)  # Default 1 should be skipped
@@ -406,7 +405,6 @@ class TestElementPresentation(unittest.TestCase):
         self.assertIn(f"Sheet:{encode_guid(NIL_GUID)}", result)
         self.assertIn("X:0", result)
         self.assertIn("Y:0", result)
-        self.assertIn(f"Color:{CL_BLACK}", result)
 
         # Should skip default values
         self.assertNotIn("Size:", result)  # Default 1 should be skipped

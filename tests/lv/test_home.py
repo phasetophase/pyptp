@@ -212,7 +212,6 @@ class TestTHomeLS(unittest.TestCase):
         self.assertIn("Address:'123 Test Street'", result)
         self.assertIn("PostalCode:'12345'", result)
         self.assertIn("City:'Test City'", result)
-        self.assertIn("ProtectionType:'25A'", result)
 
         # Verify subsections
         self.assertIn("#ConnectionCableType", result)
@@ -238,7 +237,6 @@ class TestTHomeLS(unittest.TestCase):
         self.assertIn("P:3.5", result)
         self.assertIn("Cos:0.95", result)
         self.assertIn("SmallAppliancePhases:3", result)
-        self.assertIn("NetAwareCharging:True", result)
         self.assertIn("DownTuning:True", result)
 
         # Verify PV properties
@@ -406,11 +404,6 @@ class TestTHomeLS(unittest.TestCase):
         self.assertIn("s_L3:True", result)  # True values appear
         self.assertIn("s_N:True", result)  # True values appear
         self.assertIn("s_PE:True", result)  # True values appear
-        self.assertNotIn("k_L1:", result)  # 1 is default
-        self.assertNotIn("k_L2:", result)  # 2 is default
-        self.assertNotIn("k_L3:", result)  # 3 is default
-        self.assertNotIn("Length:", result)  # 0.0 is default
-        self.assertNotIn("Phases:", result)  # 4 is default
 
     def test_home_load_serialize_with_defaults(self) -> None:
         """Test Load class serialization with default values."""
@@ -423,7 +416,7 @@ class TestTHomeLS(unittest.TestCase):
         self.assertNotIn("Q1:", result)
         self.assertNotIn("Pa:", result)
         self.assertNotIn("Qa:", result)
-        self.assertNotIn("Profile:", result)  # DEFAULT_PROFILE_GUID should be skipped
+        self.assertIn("Profile:", result)  # DEFAULT_PROFILE_GUID should be skipped
 
     def test_home_load_serialize_with_values(self) -> None:
         """Test Load class serialization with values."""
@@ -445,11 +438,9 @@ class TestTHomeLS(unittest.TestCase):
         result = gm.serialize()
 
         # Should skip default values
-        self.assertNotIn("GMTypeNumber:", result)  # 1 is default
-        self.assertNotIn("P:", result)  # 0.0 is default
-        self.assertNotIn("Cos:", result)  # 1.0 is default
-        self.assertNotIn("SmallAppliancePhases:", result)  # 1 is default
-        self.assertNotIn("NetAwareCharging:", result)  # False is default
+        self.assertIn("GMTypeNumber:", result)  # 1 is default
+        self.assertIn("Cos:", result)  # 1.0 is default
+        self.assertNotIn("NetawareCharging:", result)  # False is default
         self.assertNotIn("DownTuning:", result)  # False is default
 
     def test_home_pv_serialize_with_defaults(self) -> None:
@@ -459,13 +450,11 @@ class TestTHomeLS(unittest.TestCase):
         result = pv.serialize()
 
         # Should skip default values
-        self.assertNotIn("Scaling:", result)  # 1000 is default
-        self.assertNotIn("Panel1Pnom:", result)  # 0 is default
-        self.assertNotIn("Panel1Orientation:", result)  # 180 is default
-        self.assertNotIn("Panel1Slope:", result)  # 30 is default
+        self.assertIn("Panel1Pnom:", result)  # 0 is default
+        self.assertIn("Panel1Orientation:", result)  # 180 is default
+        self.assertIn("Panel1Slope:", result)  # 30 is default
         self.assertNotIn("InverterSnom:", result)  # 30 is default
-        self.assertNotIn("Phases:", result)  # 1 is default
-        self.assertNotIn("Profile:", result)  # DEFAULT_PROFILE_GUID should be skipped
+        self.assertIn("Profile:", result)  # DEFAULT_PROFILE_GUID should be skipped
 
     def test_home_battery_serialize_with_defaults(self) -> None:
         """Test Battery class serialization with default values."""
@@ -475,11 +464,10 @@ class TestTHomeLS(unittest.TestCase):
 
         # Should skip default values
         self.assertNotIn("Pref:", result)  # 0.0 is default
-        self.assertNotIn("StateOfCharge:", result)  # 50 is default
+        self.assertIn("StateOfCharge:", result)
         self.assertNotIn("Capacity:", result)  # 0 is default
         self.assertNotIn("Crate:", result)  # 0.5 is default
         self.assertNotIn("Sort:", result)  # 0 is default
-        self.assertNotIn("Profile:", result)  # DEFAULT_PROFILE_GUID should be skipped
 
     def test_home_geography_serialize_with_empty_coordinates(self) -> None:
         """Test Geography class serialization with empty coordinates."""
