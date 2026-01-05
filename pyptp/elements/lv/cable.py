@@ -271,9 +271,12 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
                 Space-separated property string for GNF file section.
 
             """
-            return serialize_properties(
-                write_double_no_skip("Length", self.length),
-                write_quote_string("CableType", self.type),
+            return (
+                serialize_properties(
+                    write_double_no_skip("Length", self.length),
+                    write_quote_string("CableType", self.type),
+                )
+                + " "
             )
 
         @classmethod
@@ -312,11 +315,14 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
                 Space-separated property string for GNF file section.
 
             """
-            return serialize_properties(
-                write_integer_no_skip("FirstDistance", self.first_distance),
-                write_integer_no_skip("BetweenDistance", self.between_distance),
-                write_integer_no_skip("RemainingDistance", self.remaining_distance),
-                write_integer_no_skip("NumberOf", self.number_of),
+            return (
+                serialize_properties(
+                    write_integer_no_skip("FirstDistance", self.first_distance),
+                    write_integer_no_skip("BetweenDistance", self.between_distance),
+                    write_integer_no_skip("RemainingDistance", self.remaining_distance),
+                    write_integer_no_skip("NumberOf", self.number_of),
+                )
+                + " "
             )
 
         @classmethod
