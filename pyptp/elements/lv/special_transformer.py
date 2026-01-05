@@ -142,7 +142,7 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
         """Special Transformer Voltage Control properties."""
 
         present: bool = False
-        status: int = 0
+        status: bool = False
         measure_side: int = 3
         setpoint: float = 0.4
         deadband: float = optional_field(0)
@@ -159,7 +159,7 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize VoltageControl properties."""
             return serialize_properties(
                 write_boolean("Present", value=self.present),
-                write_integer("Status", self.status, skip=0),
+                write_boolean("Status", value=self.status),
                 write_integer("MeasureSide", self.measure_side, skip=3),
                 write_double("Setpoint", self.setpoint, skip=0.4),
                 write_double("Deadband", self.deadband, skip=0),
@@ -178,7 +178,7 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
             """Deserialize VoltageControl properties."""
             return cls(
                 present=data.get("Present", False),
-                status=data.get("Status", 0),
+                status=data.get("Status", False),
                 measure_side=data.get("MeasureSide", 3),
                 setpoint=data.get("Setpoint", 0.4),
                 deadband=data.get("Deadband", 0),
@@ -358,11 +358,10 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.type:
             lines.append(f"#SpecialTransformerType {self.type.serialize()}")
 
+        lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
+        lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
-        lines.extend(f"#Extra Text:{extra.text}" for extra in self.safe_extras)
-
-        lines.extend(f"#Note Text:{note.text}" for note in self.safe_notes)
 
         return "\n".join(lines)
 

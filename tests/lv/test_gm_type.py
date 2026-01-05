@@ -44,9 +44,9 @@ class TestTGMTypeLS(unittest.TestCase):
         self.assertIn("Number:1", result)
         self.assertIn("GMtype:'Residential'", result)
         self.assertIn("Indicator:'RES'", result)
+        self.assertIn("CosPhi:", result)
 
         # Should skip default values
-        self.assertNotIn("CosPhi:", result)  # 0.98 is default
         self.assertNotIn("Correlation:", result)  # 0.0 is default
 
         # Should not contain GM distribution sections
@@ -261,9 +261,9 @@ class TestTGMTypeLS(unittest.TestCase):
         self.assertIn("Number:1", result)
         self.assertIn("GMtype:'Test'", result)
         self.assertIn("Indicator:'TST'", result)
+        self.assertIn("CosPhi:", result)  # 0.98 is default
 
         # Should skip default values
-        self.assertNotIn("CosPhi:", result)  # 0.98 is default
         self.assertNotIn("Correlation:", result)  # 0.0 is default
 
     def test_gm_type_general_serialize_with_non_defaults(self) -> None:
@@ -329,7 +329,7 @@ class TestTGMTypeLS(unittest.TestCase):
         result = gm_dist.serialize()
 
         # Should be empty string for default values
-        self.assertEqual(result, "")
+        self.assertEqual(result, " ")
 
     def test_gm_distribution_serialize_with_values(self) -> None:
         """Test GMDistribution serialization with values."""

@@ -35,7 +35,7 @@ class TestTComment(unittest.TestCase):
         comment = CommentLV(comment=Comment(text="This is a test comment"))
 
         result = comment.serialize()
-        expected = "#Comment Text:'This is a test comment'"
+        expected = "#Comment Text:This is a test comment"
 
         self.assertEqual(result, expected)
 
@@ -44,7 +44,7 @@ class TestTComment(unittest.TestCase):
         comment = CommentLV(comment=Comment(text=""))
 
         result = comment.serialize()
-        expected = "#Comment "
+        expected = "#Comment Text:"
 
         self.assertEqual(result, expected)
 
@@ -53,7 +53,7 @@ class TestTComment(unittest.TestCase):
         comment = CommentLV(comment=Comment(text="Test with 'quotes' and symbols!@#$%"))
 
         result = comment.serialize()
-        expected = "#Comment Text:'Test with 'quotes' and symbols!@#$%'"
+        expected = "#Comment Text:Test with 'quotes' and symbols!@#$%"
 
         self.assertEqual(result, expected)
 

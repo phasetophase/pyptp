@@ -199,27 +199,24 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Load properties to a string."""
-            return (
-                serialize_properties(
-                    write_double("P1", self.p1),
-                    write_double("Q1", self.q1),
-                    write_double("Pa", self.pa),
-                    write_double("Qa", self.qa),
-                    write_double("Pb", self.pb),
-                    write_double("Qb", self.qb),
-                    write_double("Pc", self.pc),
-                    write_double("Qc", self.qc),
-                    write_double("Pab", self.pab),
-                    write_double("Qab", self.qab),
-                    write_double("Pac", self.pac),
-                    write_double("Qac", self.qac),
-                    write_double("Pbc", self.pbc),
-                    write_double("Qbc", self.qbc),
-                    write_quote_string("BehaviourSort", self.behaviour_sort),
-                    write_double("SwitchOnFrequency", self.switch_on_frequency),
-                    write_guid("Profile", self.profile),
-                )
-                + " "
+            return serialize_properties(
+                write_double("P1", self.p1),
+                write_double("Q1", self.q1),
+                write_double("Pa", self.pa),
+                write_double("Qa", self.qa),
+                write_double("Pb", self.pb),
+                write_double("Qb", self.qb),
+                write_double("Pc", self.pc),
+                write_double("Qc", self.qc),
+                write_double("Pab", self.pab),
+                write_double("Qab", self.qab),
+                write_double("Pac", self.pac),
+                write_double("Qac", self.qac),
+                write_double("Pbc", self.pbc),
+                write_double("Qbc", self.qbc),
+                write_quote_string("BehaviourSort", self.behaviour_sort),
+                write_double("SwitchOnFrequency", self.switch_on_frequency),
+                write_guid("Profile", self.profile),
             )
 
         @classmethod
@@ -312,13 +309,10 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize PL properties to a string."""
-            return (
-                serialize_properties(
-                    write_integer("NumberOf", self.number_of, skip=0),
-                    write_integer("Phases", self.phases, skip=1),
-                    write_quote_string("PLType", self.pl_type),
-                )
-                + " "
+            return serialize_properties(
+                write_integer("NumberOf", self.number_of, skip=0),
+                write_integer("Phases", self.phases, skip=1),
+                write_quote_string("PLType", self.pl_type),
             )
 
         @classmethod
@@ -340,13 +334,10 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize PLType properties to a string."""
-            return (
-                serialize_properties(
-                    write_double("Unom", self.unom),
-                    write_double("Inom", self.inom),
-                    write_double("CosNom", self.cosnom),
-                )
-                + " "
+            return serialize_properties(
+                write_double("Unom", self.unom),
+                write_double("Inom", self.inom),
+                write_double("CosNom", self.cosnom),
             )
 
         @classmethod
@@ -371,16 +362,13 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Heatpump properties to a string."""
-            return (
-                serialize_properties(
-                    write_integer("NumberOf", self.number_of, skip=0),
-                    write_quote_string("Sort", self.sort),
-                    write_quote_string("HouseType", self.house_type, skip="Apartment"),
-                    write_double("HouseArea", self.house_area),
-                    write_double("Cosnom", self.cosnom),
-                    write_guid("Profile", self.profile),
-                )
-                + " "
+            return serialize_properties(
+                write_integer("NumberOf", self.number_of, skip=0),
+                write_quote_string("Sort", self.sort),
+                write_quote_string("HouseType", self.house_type, skip="Apartment"),
+                write_double("HouseArea", self.house_area),
+                write_double("Cosnom", self.cosnom),
+                write_guid("Profile", self.profile),
             )
 
         @classmethod
@@ -443,51 +431,48 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize PV properties to a string."""
-            return (
-                serialize_properties(
-                    write_double_no_skip("Scaling", self.scaling),
-                    write_guid("Profile", self.profile),
-                    write_double_no_skip("Panel1Pnom", self.panel1_pnom),
-                    write_double_no_skip("Panel1Orientation", self.panel1_orientation),
-                    write_double_no_skip("Panel1Slope", self.panel1_slope),
-                    write_double_no_skip("Panel2Pnom", self.panel2_pnom),
-                    write_double_no_skip("Panel2Orientation", self.panel2_orientation),
-                    write_double_no_skip("Panel2Slope", self.panel2_slope),
-                    write_double_no_skip("Panel3Pnom", self.panel3_pnom),
-                    write_double_no_skip("Panel3Orientation", self.panel3_orientation),
-                    write_double_no_skip("Panel3Slope", self.panel3_slope),
-                    write_double("InverterSnom", self.inverter_snom),
-                    write_quote_string("EfficiencyType", self.efficiency_type),
-                    write_integer("Phases", self.phases, skip=1),
-                    write_double("Uout", self.u_out),
-                    write_integer("PcontrolSort", self.p_controlsort),
-                    write_double_no_skip("PControlInput1", self.p_control_input1),
-                    write_double_no_skip("PControlOutput1", self.p_control_output1),
-                    write_double_no_skip("PControlInput2", self.p_control_input2),
-                    write_double_no_skip("PControlOutput2", self.p_control_output2),
-                    write_double_no_skip("PControlInput3", self.p_control_input3),
-                    write_double_no_skip("PControlOutput3", self.p_control_output3),
-                    write_double_no_skip("PControlInput4", self.p_control_input4),
-                    write_double_no_skip("PControlOutput4", self.p_control_output4),
-                    write_double_no_skip("PControlInput5", self.p_control_input5),
-                    write_double_no_skip("PControlOutput5", self.p_control_output5),
-                    write_double_no_skip("QControlCosRef", self.q_control_cosref),
-                    write_boolean("QControlNoPnoQ", value=self.q_control_no_p_no_q),
-                    write_double_no_skip("QControlInput1", self.q_control_input1),
-                    write_double_no_skip("QControlOutput1", self.q_control_output1),
-                    write_double_no_skip("QControlInput2", self.q_control_input2),
-                    write_double_no_skip("QControlOutput2", self.q_control_output2),
-                    write_double_no_skip("QControlInput3", self.q_control_input3),
-                    write_double_no_skip("QControlOutput3", self.q_control_output3),
-                    write_double_no_skip("QControlInput4", self.q_control_input4),
-                    write_double_no_skip("QControlOutput4", self.q_control_output4),
-                    write_double_no_skip("QControlInput5", self.q_control_input5),
-                    write_double_no_skip("QControlOutput5", self.q_control_output5),
-                    write_integer("QControlSort", self.q_controlsort, skip=0),
-                    write_double("Intersection", self.intersection),
-                    write_double_no_skip("Length", self.length),
-                )
-                + " "
+            return serialize_properties(
+                write_double_no_skip("Scaling", self.scaling),
+                write_guid("Profile", self.profile),
+                write_double_no_skip("Panel1Pnom", self.panel1_pnom),
+                write_double_no_skip("Panel1Orientation", self.panel1_orientation),
+                write_double_no_skip("Panel1Slope", self.panel1_slope),
+                write_double_no_skip("Panel2Pnom", self.panel2_pnom),
+                write_double_no_skip("Panel2Orientation", self.panel2_orientation),
+                write_double_no_skip("Panel2Slope", self.panel2_slope),
+                write_double_no_skip("Panel3Pnom", self.panel3_pnom),
+                write_double_no_skip("Panel3Orientation", self.panel3_orientation),
+                write_double_no_skip("Panel3Slope", self.panel3_slope),
+                write_double("InverterSnom", self.inverter_snom),
+                write_quote_string("EfficiencyType", self.efficiency_type),
+                write_integer("Phases", self.phases, skip=1),
+                write_double("Uout", self.u_out),
+                write_integer("PcontrolSort", self.p_controlsort),
+                write_double_no_skip("PControlInput1", self.p_control_input1),
+                write_double_no_skip("PControlOutput1", self.p_control_output1),
+                write_double_no_skip("PControlInput2", self.p_control_input2),
+                write_double_no_skip("PControlOutput2", self.p_control_output2),
+                write_double_no_skip("PControlInput3", self.p_control_input3),
+                write_double_no_skip("PControlOutput3", self.p_control_output3),
+                write_double_no_skip("PControlInput4", self.p_control_input4),
+                write_double_no_skip("PControlOutput4", self.p_control_output4),
+                write_double_no_skip("PControlInput5", self.p_control_input5),
+                write_double_no_skip("PControlOutput5", self.p_control_output5),
+                write_double_no_skip("QControlCosRef", self.q_control_cosref),
+                write_boolean("QControlNoPnoQ", value=self.q_control_no_p_no_q),
+                write_double_no_skip("QControlInput1", self.q_control_input1),
+                write_double_no_skip("QControlOutput1", self.q_control_output1),
+                write_double_no_skip("QControlInput2", self.q_control_input2),
+                write_double_no_skip("QControlOutput2", self.q_control_output2),
+                write_double_no_skip("QControlInput3", self.q_control_input3),
+                write_double_no_skip("QControlOutput3", self.q_control_output3),
+                write_double_no_skip("QControlInput4", self.q_control_input4),
+                write_double_no_skip("QControlOutput4", self.q_control_output4),
+                write_double_no_skip("QControlInput5", self.q_control_input5),
+                write_double_no_skip("QControlOutput5", self.q_control_output5),
+                write_integer("QControlSort", self.q_controlsort, skip=0),
+                write_double("Intersection", self.intersection),
+                write_double_no_skip("Length", self.length),
             )
 
         @classmethod
@@ -560,26 +545,23 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Generation properties to a string."""
-            return (
-                serialize_properties(
-                    write_double("P1", self.p1),
-                    write_double("Q1", self.q1),
-                    write_double("Pa", self.pa),
-                    write_double("Qa", self.qa),
-                    write_double("Pb", self.pb),
-                    write_double("Qb", self.qb),
-                    write_double("Pc", self.pc),
-                    write_double("Qc", self.qc),
-                    write_double("Pab", self.pab),
-                    write_double("Qab", self.qab),
-                    write_double("Pac", self.pac),
-                    write_double("Qac", self.qac),
-                    write_double("Pbc", self.pbc),
-                    write_double("Qbc", self.qbc),
-                    write_quote_string("BehaviourSort", self.behaviour_sort),
-                    write_guid("Profile", self.profile),
-                )
-                + " "
+            return serialize_properties(
+                write_double("P1", self.p1),
+                write_double("Q1", self.q1),
+                write_double("Pa", self.pa),
+                write_double("Qa", self.qa),
+                write_double("Pb", self.pb),
+                write_double("Qb", self.qb),
+                write_double("Pc", self.pc),
+                write_double("Qc", self.qc),
+                write_double("Pab", self.pab),
+                write_double("Qab", self.qab),
+                write_double("Pac", self.pac),
+                write_double("Qac", self.qac),
+                write_double("Pbc", self.pbc),
+                write_double("Qbc", self.qbc),
+                write_quote_string("BehaviourSort", self.behaviour_sort),
+                write_guid("Profile", self.profile),
             )
 
         @classmethod
@@ -634,33 +616,30 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize WindTurbine properties to a string."""
-            return (
-                serialize_properties(
-                    write_double("WindSpeed", self.windspeed),
-                    write_guid("Profile", self.profile),
-                    write_double("Pnom", self.pnom),
-                    write_integer("Sort", self.sort, skip=0),
-                    write_double("InverterSnom", self.inverter_snom),
-                    write_quote_string("EfficiencyType", self.efficiency_type),
-                    write_integer("Phases", self.phases, skip=0),
-                    write_double("Uout", self.u_out),
-                    write_integer("QControlSort", self.q_controlsort, skip=0),
-                    write_double("QControlCosRef", self.q_control_cosref),
-                    write_boolean("QControlNoPnoQ", value=self.q_control_no_p_no_q),
-                    write_double_no_skip("QControlInput1", self.q_control_input1),
-                    write_double_no_skip("QControlOutput1", self.q_control_output1),
-                    write_double_no_skip("QControlInput2", self.q_control_input2),
-                    write_double_no_skip("QControlOutput2", self.q_control_output2),
-                    write_double_no_skip("QControlInput3", self.q_control_input3),
-                    write_double_no_skip("QControlOutput3", self.q_control_output3),
-                    write_double_no_skip("QControlInput4", self.q_control_input4),
-                    write_double_no_skip("QControlOutput4", self.q_control_output4),
-                    write_double_no_skip("QControlInput5", self.q_control_input5),
-                    write_double_no_skip("QControlOutput5", self.q_control_output5),
-                    write_double("Intersection", self.intersection),
-                    write_double_no_skip("Length", self.length),
-                )
-                + " "
+            return serialize_properties(
+                write_double("WindSpeed", self.windspeed),
+                write_guid("Profile", self.profile),
+                write_double("Pnom", self.pnom),
+                write_integer("Sort", self.sort, skip=0),
+                write_double("InverterSnom", self.inverter_snom),
+                write_quote_string("EfficiencyType", self.efficiency_type),
+                write_integer("Phases", self.phases, skip=0),
+                write_double("Uout", self.u_out),
+                write_integer("QControlSort", self.q_controlsort, skip=0),
+                write_double("QControlCosRef", self.q_control_cosref),
+                write_boolean("QControlNoPnoQ", value=self.q_control_no_p_no_q),
+                write_double_no_skip("QControlInput1", self.q_control_input1),
+                write_double_no_skip("QControlOutput1", self.q_control_output1),
+                write_double_no_skip("QControlInput2", self.q_control_input2),
+                write_double_no_skip("QControlOutput2", self.q_control_output2),
+                write_double_no_skip("QControlInput3", self.q_control_input3),
+                write_double_no_skip("QControlOutput3", self.q_control_output3),
+                write_double_no_skip("QControlInput4", self.q_control_input4),
+                write_double_no_skip("QControlOutput4", self.q_control_output4),
+                write_double_no_skip("QControlInput5", self.q_control_input5),
+                write_double_no_skip("QControlOutput5", self.q_control_output5),
+                write_double("Intersection", self.intersection),
+                write_double_no_skip("Length", self.length),
             )
 
         @classmethod
@@ -709,20 +688,17 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Battery properties to a string."""
-            return (
-                serialize_properties(
-                    write_double("Pref", self.pref),
-                    write_double("StateOfCharge", self.state_of_charge),
-                    write_guid("Profile", self.profile),
-                    write_double("Capacity", self.capacity),
-                    write_double("Crate", self.crate, skip=0.5),
-                    write_integer("Sort", self.sort, skip=0),
-                    write_double("InverterSnom", self.inverter_snom),
-                    write_quote_string("ChargeEfficiencyType", self.charge_efficiency_type),
-                    write_quote_string("DischargeEfficiencyType", self.discharge_efficiency_type),
-                    write_double("InverterCosRef", self.inverter_cosref),
-                )
-                + " "
+            return serialize_properties(
+                write_double("Pref", self.pref),
+                write_double("StateOfCharge", self.state_of_charge),
+                write_guid("Profile", self.profile),
+                write_double("Capacity", self.capacity),
+                write_double("Crate", self.crate, skip=0.5),
+                write_integer("Sort", self.sort, skip=0),
+                write_double("InverterSnom", self.inverter_snom),
+                write_quote_string("ChargeEfficiencyType", self.charge_efficiency_type),
+                write_quote_string("DischargeEfficiencyType", self.discharge_efficiency_type),
+                write_double("InverterCosRef", self.inverter_cosref),
             )
 
         @classmethod
@@ -752,14 +728,11 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize HEMS properties to a string."""
-            return (
-                serialize_properties(
-                    write_quote_string("Regime", self.regime),
-                    write_double("Parameter1", self.parameter1),
-                    write_double("Parameter2", self.parameter2),
-                    write_double("Parameter3", self.parameter3),
-                )
-                + " "
+            return serialize_properties(
+                write_quote_string("Regime", self.regime),
+                write_double("Parameter1", self.parameter1),
+                write_double("Parameter2", self.parameter2),
+                write_double("Parameter3", self.parameter3),
             )
 
         @classmethod
@@ -809,7 +782,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         lines = []
 
         # Add ProtectionType to General serialization if available
-        general_line = f"#General {self.general.serialize()} "
+        general_line = f"#General {self.general.serialize()}"
         lines.append(general_line)
 
         if self.connection_cable:
@@ -847,9 +820,10 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#BatteryDischargeEfficiency {self.battery_discharge_efficiency.serialize()}")
         if self.hems:
             lines.append(f"#Hems {self.hems.serialize()}")
-        lines.extend(f"#Presentation {p.serialize()} " for p in self.presentations)
-        lines.extend(f"#Extra Text:{extra.text} " for extra in self.extras)
-        lines.extend(f"#Note Text:{note.text} " for note in self.notes)
+
+        lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
+        lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(f"#Presentation {p.serialize()}" for p in self.presentations)
         return "\n".join(lines)
 
     @classmethod

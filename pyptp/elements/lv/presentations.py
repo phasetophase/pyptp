@@ -363,7 +363,7 @@ class SecundairPresentation(DataClassJsonMixin):
             write_string_no_skip("Sheet", encode_guid(self.sheet)),
             write_integer("Distance", self.distance, skip=0),
             write_boolean("Otherside", value=self.otherside),
-            write_delphi_color_no_skip("Color", self.color),
+            write_delphi_color("Color", self.color),
             write_integer("Size", self.size, skip=1),
             write_integer("Width", self.width, skip=1),
             write_delphi_color("TextColor", self.text_color),

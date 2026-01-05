@@ -58,7 +58,7 @@ class GMTypeLV:
                 write_integer("Number", self.number),
                 write_quote_string("GMtype", self.type),
                 write_quote_string("Indicator", self.indicator),
-                write_double("CosPhi", self.cos_phi, skip=0.98),
+                write_double_no_skip("CosPhi", self.cos_phi),
                 write_double("Correlation", self.correlation, skip=0.0),
             )
 
@@ -247,17 +247,17 @@ class GMTypeLV:
                 workdays_props = serialize_properties(
                     *[write_double_no_skip(f"f{i + 1}", v) for i, v in enumerate(gm.work_days)],
                 )
-                lines.append(f"#WorkDays{idx} {workdays_props}")
+                lines.append(f"#WorkDays{idx} {workdays_props} ")
             if gm.weekend_days:
                 weekenddays_props = serialize_properties(
                     *[write_double_no_skip(f"f{i + 1}", v) for i, v in enumerate(gm.weekend_days)],
                 )
-                lines.append(f"#WeekendDays{idx} {weekenddays_props}")
+                lines.append(f"#WeekendDays{idx} {weekenddays_props} ")
             if gm.Months:
                 months_props = serialize_properties(
                     *[write_double_no_skip(f"f{i + 1}", v) for i, v in enumerate(gm.Months)],
                 )
-                lines.append(f"#Months{idx} {months_props}")
+                lines.append(f"#Months{idx} {months_props} ")
         if self.trend.work_days:
             trend_workdays_props = serialize_properties(
                 *[write_double_no_skip(f"f{i + 1}", v) for i, v in enumerate(self.trend.work_days)],
@@ -267,12 +267,12 @@ class GMTypeLV:
             trend_weekenddays_props = serialize_properties(
                 *[write_double_no_skip(f"f{i + 1}", v) for i, v in enumerate(self.trend.weekend_days)],
             )
-            lines.append(f"#TrendWeekendDays {trend_weekenddays_props}")
+            lines.append(f"#TrendWeekendDays {trend_weekenddays_props} ")
         if self.trend.months:
             trend_months_props = serialize_properties(
                 *[write_double_no_skip(f"f{i + 1}", v) for i, v in enumerate(self.trend.months)],
             )
-            lines.append(f"#TrendMonths {trend_months_props}")
+            lines.append(f"#TrendMonths {trend_months_props} ")
         return "\n".join(lines)
 
     @classmethod

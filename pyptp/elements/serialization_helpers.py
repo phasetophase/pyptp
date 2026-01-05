@@ -147,7 +147,7 @@ def write_double_no_skip(prop: str, value: float) -> str:
     return f"{prop}:{value}"
 
 
-def write_boolean(prop: str, *, value: bool, skip: bool = False) -> str:
+def write_boolean(prop: str, value: bool, skip: bool = False) -> str:  # noqa: FBT001, FBT002
     """Serialize boolean property with optional skipping.
 
     Args:
@@ -164,7 +164,7 @@ def write_boolean(prop: str, *, value: bool, skip: bool = False) -> str:
     return ""
 
 
-def write_boolean_no_skip(prop: str, *, value: bool) -> str:
+def write_boolean_no_skip(prop: str, value: bool) -> str:  # noqa: FBT001
     """Serialize boolean property without skipping.
 
     Args:
@@ -312,7 +312,7 @@ def serialize_properties(*props: str) -> str:
         Space-separated property string with empty strings filtered out.
 
     """
-    return " ".join(prop for prop in props if prop)
+    return " ".join(prop for prop in props if prop) + " "
 
 
 def write_optional_field(prop: str, value: str | bool | float | None, skip: str | bool | float | None = None) -> str:

@@ -87,54 +87,51 @@ class CableType(DataClassJsonMixin):
 
     def serialize(self) -> str:
         """Serialize CableType properties to a string."""
-        return (
-            serialize_properties(
-                write_quote_string("ShortName", self.short_name),
-                write_double("Unom", self.unom, 0),
-                write_double_no_skip("Price", self.price),
-                write_double("C", self.C, 0),
-                write_double("C0", self.C0, 0),
-                write_integer("Inom0", self.Inom0, 0),
-                write_double("G1", self.G1, 0),
-                write_integer("Inom1", self.Inom1, 0),
-                write_double("G2", self.G2, 0),
-                write_integer("Inom2", self.Inom2, 0),
-                write_double("G3", self.G3, 0),
-                write_integer("Inom3", self.Inom3, 0),
-                write_double("Ik1s", self.Ik1s, 0),
-                write_integer_no_skip("TR", self.TR),
-                write_double("TInom", self.TInom, 0),
-                write_double("TIk1s", self.TIk1s, 0),
-                write_double("Frequency", self.frequency, 0),
-                write_double("R_c", self.R_c, 0),
-                write_double("X_c", self.X_c, 0),
-                write_double("R_cc_n", self.R_cc_n, 0),
-                write_double("X_cc_n", self.X_cc_n, 0),
-                write_double("R_cc_o", self.R_cc_o, 0),
-                write_double("X_cc_o", self.X_cc_o, 0),
-                write_double("R_e", self.R_e, 0),
-                write_double("X_e", self.X_e, 0),
-                write_double("R_ce", self.R_ce, 0),
-                write_double("X_ce", self.X_ce, 0),
-                write_double("R_h", self.R_h, 0),
-                write_double("X_h", self.X_h, 0),
-                write_double("R_ch_n", self.R_ch_n, 0),
-                write_double("X_ch_n", self.X_ch_n, 0),
-                write_double("R_ch_o", self.R_ch_o, 0),
-                write_double("X_ch_o", self.X_ch_o, 0),
-                write_double("R_hh_n", self.R_hh_n, 0),
-                write_double("X_hh_n", self.X_hh_n, 0),
-                write_double("R_hh_o", self.R_hh_o, 0),
-                write_double("X_hh_o", self.X_hh_o, 0),
-                write_double("R_he", self.R_he, 0),
-                write_double("X_he", self.X_he, 0),
-                write_double("Inom_e", self.Inom_e, 0),
-                write_double("Ik1s_e", self.Ik1s_e, 0),
-                write_double("Inom_h", self.Inom_h, 0),
-                write_double("Ik1s_h", self.Ik1s_h, 0),
-                write_double("R_c/R_n", self.R_cR_n, 1.0),
-            )
-            + " "
+        return serialize_properties(
+            write_quote_string("ShortName", self.short_name),
+            write_double("Unom", self.unom, 0),
+            write_double_no_skip("Price", self.price),
+            write_double("C", self.C, 0),
+            write_double("C0", self.C0, 0),
+            write_integer("Inom0", self.Inom0, 0),
+            write_double("G1", self.G1, 0),
+            write_integer("Inom1", self.Inom1, 0),
+            write_double("G2", self.G2, 0),
+            write_integer("Inom2", self.Inom2, 0),
+            write_double("G3", self.G3, 0),
+            write_integer("Inom3", self.Inom3, 0),
+            write_double("Ik1s", self.Ik1s, 0),
+            write_integer_no_skip("TR", self.TR),
+            write_double("TInom", self.TInom, 0),
+            write_double("TIk1s", self.TIk1s, 0),
+            write_double("Frequency", self.frequency, 0),
+            write_double("R_c", self.R_c, 0),
+            write_double("X_c", self.X_c, 0),
+            write_double("R_cc_n", self.R_cc_n, 0),
+            write_double("X_cc_n", self.X_cc_n, 0),
+            write_double("R_cc_o", self.R_cc_o, 0),
+            write_double("X_cc_o", self.X_cc_o, 0),
+            write_double("R_e", self.R_e, 0),
+            write_double("X_e", self.X_e, 0),
+            write_double("R_ce", self.R_ce, 0),
+            write_double("X_ce", self.X_ce, 0),
+            write_double("R_h", self.R_h, 0),
+            write_double("X_h", self.X_h, 0),
+            write_double("R_ch_n", self.R_ch_n, 0),
+            write_double("X_ch_n", self.X_ch_n, 0),
+            write_double("R_ch_o", self.R_ch_o, 0),
+            write_double("X_ch_o", self.X_ch_o, 0),
+            write_double("R_hh_n", self.R_hh_n, 0),
+            write_double("X_hh_n", self.X_hh_n, 0),
+            write_double("R_hh_o", self.R_hh_o, 0),
+            write_double("X_hh_o", self.X_hh_o, 0),
+            write_double("R_he", self.R_he, 0),
+            write_double("X_he", self.X_he, 0),
+            write_double("Inom_e", self.Inom_e, 0),
+            write_double("Ik1s_e", self.Ik1s_e, 0),
+            write_double("Inom_h", self.Inom_h, 0),
+            write_double("Ik1s_h", self.Ik1s_h, 0),
+            write_double("R_c/R_n", self.R_cR_n, 1.0),
         )
 
     @classmethod
@@ -430,7 +427,7 @@ class EfficiencyType(DataClassJsonMixin):
         for i in range(1, 6):
             props.append(f"Input{i}:{getattr(self, f'input{i}')}")
             props.append(f"Output{i}:{getattr(self, f'output{i}')}")
-        return " ".join(props) + " "
+        return " ".join(props)
 
     @classmethod
     def deserialize(cls, data: dict) -> EfficiencyType:
@@ -593,7 +590,7 @@ class HarmonicsType(DataClassJsonMixin):
             for i, value in enumerate(self.angle, start=1):
                 if value != 0:
                     props.append(f"Angle{i}:{value}")
-        return " ".join(props)
+        return " ".join(props) + " "
 
     @classmethod
     def deserialize(cls, data: dict) -> HarmonicsType:

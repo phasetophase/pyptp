@@ -132,62 +132,59 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
                 Space-separated property string for GNF file section.
 
             """
-            return (
-                serialize_properties(
-                    write_guid_no_skip("GUID", self.guid),
-                    write_double_no_skip("CreationTime", self.creation_time),
-                    write_integer("MutationDate", self.mutation_date),
-                    write_double("RevisionDate", self.revision_date),
-                    write_guid("Node1", self.node1, skip=NIL_GUID),
-                    write_guid("Node2", self.node2, skip=NIL_GUID),
-                    write_quote_string("Name", self.name),
-                    write_boolean_no_skip("SwitchState1_L1", value=self.switch_state1_L1),
-                    write_boolean_no_skip("SwitchState1_L2", value=self.switch_state1_L2),
-                    write_boolean_no_skip("SwitchState1_L3", value=self.switch_state1_L3),
-                    write_boolean_no_skip("SwitchState1_N", value=self.switch_state1_N),
-                    write_boolean_no_skip("SwitchState1_PE", value=self.switch_state1_PE),
-                    write_boolean_no_skip("SwitchState2_L1", value=self.switch_state2_L1),
-                    write_boolean_no_skip("SwitchState2_L2", value=self.switch_state2_L2),
-                    write_boolean_no_skip("SwitchState2_L3", value=self.switch_state2_L3),
-                    write_boolean_no_skip("SwitchState2_N", value=self.switch_state2_N),
-                    write_boolean_no_skip("SwitchState2_PE", value=self.switch_state2_PE),
-                    write_quote_string("FieldName1", self.field_name1),
-                    write_quote_string("FieldName2", self.field_name2),
-                    write_double("FailureFrequency", self.failure_frequency),
-                    write_boolean("New", value=self.new),
-                    write_double("LoadrateMax", self.loadrate_max),
-                    write_integer_no_skip("k1_L1", self.k1_L1),
-                    write_integer_no_skip("k1_L2", self.k1_L2),
-                    write_integer_no_skip("k1_L3", self.k1_L3),
-                    write_integer_no_skip("k1_h1", self.k1_h1),
-                    write_integer_no_skip("k1_h2", self.k1_h2),
-                    write_integer_no_skip("k1_h3", self.k1_h3),
-                    write_integer_no_skip("k1_h4", self.k1_h4),
-                    write_integer_no_skip("k2_L1", self.k2_L1),
-                    write_integer_no_skip("k2_L2", self.k2_L2),
-                    write_integer_no_skip("k2_L3", self.k2_L3),
-                    write_integer_no_skip("k2_h1", self.k2_h1),
-                    write_integer_no_skip("k2_h2", self.k2_h2),
-                    write_integer_no_skip("k2_h3", self.k2_h3),
-                    write_integer_no_skip("k2_h4", self.k2_h4),
-                    write_boolean_no_skip("SwitchState1_h1", value=self.switch_state1_h1),
-                    write_boolean_no_skip("SwitchState1_h2", value=self.switch_state1_h2),
-                    write_boolean_no_skip("SwitchState1_h3", value=self.switch_state1_h3),
-                    write_boolean_no_skip("SwitchState1_h4", value=self.switch_state1_h4),
-                    write_boolean_no_skip("SwitchState2_h1", value=self.switch_state2_h1),
-                    write_boolean_no_skip("SwitchState2_h2", value=self.switch_state2_h2),
-                    write_boolean_no_skip("SwitchState2_h3", value=self.switch_state2_h3),
-                    write_boolean_no_skip("SwitchState2_h4", value=self.switch_state2_h4),
-                    write_quote_string("ProtectionType1_h1", self.protection_type1_h1),
-                    write_quote_string("ProtectionType1_h2", self.protection_type1_h2),
-                    write_quote_string("ProtectionType1_h3", self.protection_type1_h3),
-                    write_quote_string("ProtectionType1_h4", self.protection_type1_h4),
-                    write_quote_string("ProtectionType2_h1", self.protection_type2_h1),
-                    write_quote_string("ProtectionType2_h2", self.protection_type2_h2),
-                    write_quote_string("ProtectionType2_h3", self.protection_type2_h3),
-                    write_quote_string("ProtectionType2_h4", self.protection_type2_h4),
-                )
-                + " "
+            return serialize_properties(
+                write_guid_no_skip("GUID", self.guid),
+                write_double_no_skip("CreationTime", self.creation_time),
+                write_integer("MutationDate", self.mutation_date),
+                write_double("RevisionDate", self.revision_date),
+                write_guid("Node1", self.node1, skip=NIL_GUID),
+                write_guid("Node2", self.node2, skip=NIL_GUID),
+                write_quote_string("Name", self.name),
+                write_boolean_no_skip("SwitchState1_L1", value=self.switch_state1_L1),
+                write_boolean_no_skip("SwitchState1_L2", value=self.switch_state1_L2),
+                write_boolean_no_skip("SwitchState1_L3", value=self.switch_state1_L3),
+                write_boolean_no_skip("SwitchState1_N", value=self.switch_state1_N),
+                write_boolean_no_skip("SwitchState1_PE", value=self.switch_state1_PE),
+                write_boolean_no_skip("SwitchState2_L1", value=self.switch_state2_L1),
+                write_boolean_no_skip("SwitchState2_L2", value=self.switch_state2_L2),
+                write_boolean_no_skip("SwitchState2_L3", value=self.switch_state2_L3),
+                write_boolean_no_skip("SwitchState2_N", value=self.switch_state2_N),
+                write_boolean_no_skip("SwitchState2_PE", value=self.switch_state2_PE),
+                write_quote_string("FieldName1", self.field_name1),
+                write_quote_string("FieldName2", self.field_name2),
+                write_double("FailureFrequency", self.failure_frequency),
+                write_boolean("New", value=self.new),
+                write_double("LoadrateMax", self.loadrate_max),
+                write_integer_no_skip("k1_L1", self.k1_L1),
+                write_integer_no_skip("k1_L2", self.k1_L2),
+                write_integer_no_skip("k1_L3", self.k1_L3),
+                write_integer_no_skip("k1_h1", self.k1_h1),
+                write_integer_no_skip("k1_h2", self.k1_h2),
+                write_integer_no_skip("k1_h3", self.k1_h3),
+                write_integer_no_skip("k1_h4", self.k1_h4),
+                write_integer_no_skip("k2_L1", self.k2_L1),
+                write_integer_no_skip("k2_L2", self.k2_L2),
+                write_integer_no_skip("k2_L3", self.k2_L3),
+                write_integer_no_skip("k2_h1", self.k2_h1),
+                write_integer_no_skip("k2_h2", self.k2_h2),
+                write_integer_no_skip("k2_h3", self.k2_h3),
+                write_integer_no_skip("k2_h4", self.k2_h4),
+                write_boolean_no_skip("SwitchState1_h1", value=self.switch_state1_h1),
+                write_boolean_no_skip("SwitchState1_h2", value=self.switch_state1_h2),
+                write_boolean_no_skip("SwitchState1_h3", value=self.switch_state1_h3),
+                write_boolean_no_skip("SwitchState1_h4", value=self.switch_state1_h4),
+                write_boolean_no_skip("SwitchState2_h1", value=self.switch_state2_h1),
+                write_boolean_no_skip("SwitchState2_h2", value=self.switch_state2_h2),
+                write_boolean_no_skip("SwitchState2_h3", value=self.switch_state2_h3),
+                write_boolean_no_skip("SwitchState2_h4", value=self.switch_state2_h4),
+                write_quote_string("ProtectionType1_h1", self.protection_type1_h1),
+                write_quote_string("ProtectionType1_h2", self.protection_type1_h2),
+                write_quote_string("ProtectionType1_h3", self.protection_type1_h3),
+                write_quote_string("ProtectionType1_h4", self.protection_type1_h4),
+                write_quote_string("ProtectionType2_h1", self.protection_type2_h1),
+                write_quote_string("ProtectionType2_h2", self.protection_type2_h2),
+                write_quote_string("ProtectionType2_h3", self.protection_type2_h3),
+                write_quote_string("ProtectionType2_h4", self.protection_type2_h4),
             )
 
         @classmethod
@@ -274,12 +271,9 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
                 Space-separated property string for GNF file section.
 
             """
-            return (
-                serialize_properties(
-                    write_double_no_skip("Length", self.length),
-                    write_quote_string("CableType", self.type),
-                )
-                + " "
+            return serialize_properties(
+                write_double_no_skip("Length", self.length),
+                write_quote_string("CableType", self.type),
             )
 
         @classmethod
@@ -318,14 +312,11 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
                 Space-separated property string for GNF file section.
 
             """
-            return (
-                serialize_properties(
-                    write_integer_no_skip("FirstDistance", self.first_distance),
-                    write_integer_no_skip("BetweenDistance", self.between_distance),
-                    write_integer_no_skip("RemainingDistance", self.remaining_distance),
-                    write_integer_no_skip("NumberOf", self.number_of),
-                )
-                + " "
+            return serialize_properties(
+                write_integer_no_skip("FirstDistance", self.first_distance),
+                write_integer_no_skip("BetweenDistance", self.between_distance),
+                write_integer_no_skip("RemainingDistance", self.remaining_distance),
+                write_integer_no_skip("NumberOf", self.number_of),
             )
 
         @classmethod
@@ -393,39 +384,36 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
                 Space-separated property string for GNF file section.
 
             """
-            return (
-                serialize_properties(
-                    write_quote_string_no_skip("Name", self.name),
-                    write_boolean_no_skip("s_L1", value=self.s_L1),
-                    write_boolean_no_skip("s_L2", value=self.s_L2),
-                    write_boolean_no_skip("s_L3", value=self.s_L3),
-                    write_boolean_no_skip("s_N", value=self.s_N),
-                    write_quote_string("FieldName", self.field_name),
-                    write_boolean_no_skip("s_PE", value=self.s_PE),
-                    write_integer_no_skip("k_L1", self.k_L1),
-                    write_integer_no_skip("k_L2", self.k_L2),
-                    write_integer_no_skip("k_L3", self.k_L3),
-                    write_double_no_skip("Length", self.length),
-                    write_quote_string("CableType", self.cable_type),
-                    write_quote_string("EarthingConfiguration", self.earthing_configuration),
-                    write_boolean("s_Nh_PEh", value=self.s_Nh_PEh),
-                    write_boolean("s_PEh_PEh", value=self.s_PEh_PEh),
-                    write_boolean("s_PEh_e", value=self.s_PEh_e),
-                    write_double("Re", self.re),
-                    write_boolean("s_Hh", value=self.s_Hh),
-                    write_quote_string("ProtectionType", value=self.protection_type),
-                    write_boolean("s_h1_h3", value=self.s_h1_h3),
-                    write_boolean("s_h2_h4", value=self.s_h2_h4),
-                    write_integer_no_skip("Phases", self.phases),
-                    write_quote_string("Sort", self.sort),
-                    write_quote_string("ConnectionValue", value=self.connection_value),
-                    write_integer("Iearthleak", value=self.iearthleak),
-                    write_boolean("Risk", value=self.risk),
-                    write_quote_string("Address", self.address),
-                    write_quote_string("PostalCode", self.postal_code),
-                    write_quote_string("City", self.city),
-                )
-                + " "
+            return serialize_properties(
+                write_quote_string_no_skip("Name", self.name),
+                write_boolean_no_skip("s_L1", value=self.s_L1),
+                write_boolean_no_skip("s_L2", value=self.s_L2),
+                write_boolean_no_skip("s_L3", value=self.s_L3),
+                write_boolean_no_skip("s_N", value=self.s_N),
+                write_quote_string("FieldName", self.field_name),
+                write_boolean_no_skip("s_PE", value=self.s_PE),
+                write_integer_no_skip("k_L1", self.k_L1),
+                write_integer_no_skip("k_L2", self.k_L2),
+                write_integer_no_skip("k_L3", self.k_L3),
+                write_double_no_skip("Length", self.length),
+                write_quote_string("CableType", self.cable_type),
+                write_quote_string("EarthingConfiguration", self.earthing_configuration),
+                write_boolean("s_Nh_PEh", value=self.s_Nh_PEh),
+                write_boolean("s_PEh_PEh", value=self.s_PEh_PEh),
+                write_boolean("s_PEh_e", value=self.s_PEh_e),
+                write_double("Re", self.re),
+                write_boolean("s_Hh", value=self.s_Hh),
+                write_quote_string("ProtectionType", value=self.protection_type),
+                write_boolean("s_h1_h3", value=self.s_h1_h3),
+                write_boolean("s_h2_h4", value=self.s_h2_h4),
+                write_integer_no_skip("Phases", self.phases),
+                write_quote_string("Sort", self.sort),
+                write_quote_string("ConnectionValue", value=self.connection_value),
+                write_integer("Iearthleak", value=self.iearthleak),
+                write_boolean("Risk", value=self.risk),
+                write_quote_string("Address", self.address),
+                write_quote_string("PostalCode", self.postal_code),
+                write_quote_string("City", self.city),
             )
 
         @classmethod
@@ -679,9 +667,9 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.battery_discharge_efficiency:
             lines.append(f"#BatteryDischargeEfficiency {self.battery_discharge_efficiency.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()} " for presentation in self.presentations)
-        lines.extend(f"#Extra Text:{extra.text} " for extra in self.safe_extras)
-        lines.extend(f"#Note Text:{note.text} " for note in self.safe_notes)
+        lines.extend(f"#Extra Text:{extra.text}" for extra in self.safe_extras)
+        lines.extend(f"#Note Text:{note.text}" for note in self.safe_notes)
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

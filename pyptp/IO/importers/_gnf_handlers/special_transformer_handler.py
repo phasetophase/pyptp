@@ -18,6 +18,7 @@ class SpecialTransformerHandler(DeclarativeHandler[NetworkLV]):
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation ", required=True),
         SectionConfig("type", "#SpecialTransformerType "),
+        SectionConfig("voltage_control", "#VoltageControl "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]
@@ -32,4 +33,8 @@ class SpecialTransformerHandler(DeclarativeHandler[NetworkLV]):
             from pyptp.elements.lv.special_transformer import SpecialTransformerLV
 
             return SpecialTransformerLV.SpecialTransformerType
+        if kwarg_name == "voltage_control":
+            from pyptp.elements.lv.special_transformer import SpecialTransformerLV
+
+            return SpecialTransformerLV.VoltageControl
         return None

@@ -27,6 +27,7 @@ from pyptp.elements.serialization_helpers import (
     write_boolean,
     write_double,
     write_double_no_skip,
+    write_guid,
     write_integer,
     write_quote_string,
 )
@@ -69,16 +70,12 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(
-                write_quote_string("GUID", f"{{{str(self.guid).upper()}}}"),
+                write_guid("GUID", self.guid),
                 write_double_no_skip("CreationTime", self.creation_time),
                 write_integer("MutationDate", self.mutation_date, skip=0),
                 write_double("RevisionDate", self.revision_date, skip=0.0),
                 write_quote_string("Name", self.name),
-                (
-                    write_quote_string("InObject", f"{{{str(self.in_object).upper()}}}")
-                    if self.in_object != NIL_GUID
-                    else ""
-                ),
+                write_guid("InObject", self.in_object),
                 write_integer("Side", self.side),
                 write_boolean("Standardizable", value=self.standardizable),
                 write_quote_string("FuseType", self.type),
@@ -135,10 +132,9 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.type:
             lines.append(f"#FuseType {self.type.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

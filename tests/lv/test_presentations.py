@@ -546,7 +546,6 @@ class TestSecundairPresentation(unittest.TestCase):
 
         # Should include required fields
         self.assertIn(f"Sheet:{encode_guid(NIL_GUID)}", result)
-        self.assertIn(f"Color:{CL_BLACK}", result)
 
         # Should skip default values
         self.assertNotIn("Distance:", result)  # Default 0 should be skipped

@@ -16,6 +16,7 @@ class MeasureFieldHandler(DeclarativeHandler[NetworkLV]):
 
     COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
         SectionConfig("general", "#General ", required=True),
+        SectionConfig("measurements", "#Measurement "),
         SectionConfig("presentations", "#Presentation ", required=True),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
@@ -27,4 +28,6 @@ class MeasureFieldHandler(DeclarativeHandler[NetworkLV]):
             from pyptp.elements.lv.presentations import SecundairPresentation
 
             return SecundairPresentation
+        if kwarg_name == "measurements":
+            return MeasureFieldLV.Measurement
         return None

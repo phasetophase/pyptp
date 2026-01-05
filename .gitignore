@@ -192,6 +192,7 @@ pyptp/__history/
 **/__pycache__
 /tests/private
 **/.ruff_cache
+/release_notes/
 # Internal files (GitHub protection)
 .gitlab-ci.yml
 .claude/

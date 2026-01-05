@@ -1,17 +1,22 @@
-"""Handler for parsing GNF Comment sections using a declarative recipe."""
+"""Handler for parsing GNF Comment sections."""
 
-from typing import ClassVar
+from typing import TYPE_CHECKING
 
-from pyptp.elements.lv.shared import Comment
-from pyptp.IO.importers._base_handler import DeclarativeHandler, SectionConfig
-from pyptp.network_lv import NetworkLV
+from pyptp.IO.importers._shared_handlers import CommentParser
+
+if TYPE_CHECKING:
+    from pyptp.network_lv import NetworkLV
 
 
-class CommentHandler(DeclarativeHandler[NetworkLV]):
-    """Parses GNF comments using a declarative recipe."""
+class CommentHandler:
+    """Handler for GNF COMMENTS sections using shared parsing logic."""
 
-    COMPONENT_CLS = Comment
+    def handle(self, network: "NetworkLV", chunk: str) -> None:
+        """Parse and register comments from a COMMENTS section chunk.
 
-    COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
-        SectionConfig("text", "#Comment"),
-    ]
+        Args:
+            network: Target network for registration.
+            chunk: Raw text content from COMMENTS section.
+
+        """
+        CommentParser.parse_and_register(network, chunk)

@@ -165,7 +165,7 @@ class TestRailsRegistration(unittest.TestCase):
         node = RailSystemMV.Node(guid=self.node_guid)
         serialized = node.serialize()
 
-        self.assertEqual(serialized, f"GUID:'{{{str(self.node_guid).upper()}}}'")
+        self.assertEqual(serialized, f"GUID:'{{{str(self.node_guid).upper()}}}' ")
 
     def test_rails_general_serialization_works(self) -> None:
         """Test that rails general serialization works correctly."""

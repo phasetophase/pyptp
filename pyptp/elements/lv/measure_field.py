@@ -17,6 +17,18 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.serialization_helpers import (
+    serialize_properties,
+    write_boolean,
+    write_boolean_no_skip,
+    write_double,
+    write_double_no_skip,
+    write_guid,
+    write_integer,
+    write_integer_no_skip,
+    write_quote_string,
+    write_string_no_skip,
+)
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
@@ -55,27 +67,24 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize General properties."""
-            props = []
-            props.append(f"GUID:'{{{str(self.guid).upper()}}}'")
-            props.append(f"CreationTime:{self.creation_time}")
-            if self.mutation_date != 0:
-                props.append(f"MutationDate:{self.mutation_date}")
-            if self.revision_date != 0.0:
-                props.append(f"RevisionDate:{self.revision_date}")
-            props.append(f"Name:'{self.name}'")
-            if self.in_object is not NIL_GUID:
-                props.append(f"InObject:'{{{str(self.in_object).upper()}}}'")
-            props.append(f"Side:{self.side}")
-            props.append(f"Standardizable:{str(self.standardizable).lower()}")
-            props.append(f"VoltageMeasureTransformerPresent:{str(self.voltage_measure_transformer_present).lower()}")
-            props.append(f"VoltageMeasureTransformerFunction:'{self.voltage_measure_transformer_function}'")
-            props.append(f"CurrentMeasureTransformer1Present:{str(self.current_measure_transformer1_present).lower()}")
-            props.append(f"CurrentMeasureTransformer1Function:'{self.current_measure_transformer1_function}'")
-            props.append(f"CurrentMeasureTransformer2Present:{str(self.current_measure_transformer2_present).lower()}")
-            props.append(f"CurrentMeasureTransformer2Function:'{self.current_measure_transformer2_function}'")
-            props.append(f"CurrentMeasureTransformer3Present:{str(self.current_measure_transformer3_present).lower()}")
-            props.append(f"CurrentMeasureTransformer3Function:'{self.current_measure_transformer3_function}'")
-            return " ".join(props)
+            return serialize_properties(
+                write_guid("GUID", self.guid),
+                write_double_no_skip("CreationTime", self.creation_time),
+                write_integer("MutationDate", self.mutation_date, skip=0),
+                write_double("RevisionDate", self.revision_date),
+                write_quote_string("Name", self.name),
+                write_guid("InObject", self.in_object),
+                write_integer_no_skip("Side", self.side),
+                write_boolean_no_skip("Standardizable", value=self.standardizable),
+                write_boolean("VoltageMeasureTransformerPresent", value=self.voltage_measure_transformer_present),
+                write_quote_string("VoltageMeasureTransformerFunction", self.voltage_measure_transformer_function),
+                write_boolean("CurrentMeasureTransformer1Present", value=self.current_measure_transformer1_present),
+                write_quote_string("CurrentMeasureTransformer1Function", self.current_measure_transformer1_function),
+                write_boolean("CurrentMeasureTransformer2Present", value=self.current_measure_transformer2_present),
+                write_quote_string("CurrentMeasureTransformer2Function", self.current_measure_transformer2_function),
+                write_boolean("CurrentMeasureTransformer3Present", value=self.current_measure_transformer3_present),
+                write_quote_string("CurrentMeasureTransformer3Function", self.current_measure_transformer3_function),
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> MeasureFieldLV.General:
@@ -100,6 +109,25 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
             )
 
     @dataclass
+    class Measurement(DataClassJsonMixin):
+        """Measurement."""
+
+        text: str = string_field()
+
+        def serialize(self) -> str:
+            """Serialize Measurement properties."""
+            return serialize_properties(
+                write_string_no_skip("Text", self.text),
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> MeasureFieldLV.Measurement:
+            """Deserialize Measurement properties."""
+            return cls(
+                text=data.get("Text", ""),
+            )
+
+    @dataclass
     class MeasurementsFile(DataClassJsonMixin):
         """Reference to measurement files."""
 
@@ -108,10 +136,10 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize MeasurementsFile properties."""
-            props = []
-            props.append(f"FileName:'{self.file_name}'")
-            props.append(f"Column:'{self.column}'")
-            return " ".join(props)
+            return serialize_properties(
+                write_quote_string("FileName", self.file_name),
+                write_quote_string("Column", self.column),
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> MeasureFieldLV.MeasurementsFile:
@@ -124,6 +152,7 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
     general: General
     presentations: list[SecundairPresentation]
     measurement_file: MeasurementsFile | None = None
+    measurements: list[Measurement] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Initialize element after dataclass creation."""
@@ -145,6 +174,8 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
         """
         lines = []
         lines.append(f"#General {self.general.serialize()}")
+
+        lines.extend(f"#Measurement {measurement.serialize()}" for measurement in self.measurements)
 
         if self.measurement_file:
             lines.append(f"#MeasurementFile {self.measurement_file.serialize()}")
@@ -170,6 +201,9 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
         general = cls.General.deserialize(general_data)
 
+        measurements_data = data.get("measurements", [])
+        measurements = [cls.Measurement.deserialize(meas_data) for meas_data in measurements_data]
+
         measurement_file = None
         if data.get("measurementFile"):
             measurement_file = cls.MeasurementsFile.deserialize(data["measurementFile"][0])
@@ -185,5 +219,6 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
         return cls(
             general=general,
             presentations=presentations,
+            measurements=measurements,
             measurement_file=measurement_file,
         )
