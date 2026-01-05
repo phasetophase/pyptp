@@ -1,21 +1,22 @@
-"""Handler for parsing GNF Properties sections using a declarative recipe."""
+"""Handler for parsing GNF Properties sections."""
 
-from typing import ClassVar
+from typing import TYPE_CHECKING
 
-from pyptp.elements.lv.properties import PropertiesLV
-from pyptp.IO.importers._base_handler import DeclarativeHandler, SectionConfig
-from pyptp.network_lv import NetworkLV
+from pyptp.IO.importers._shared_handlers import PropertiesParser
+
+if TYPE_CHECKING:
+    from pyptp.network_lv import NetworkLV
 
 
-class PropertiesHandler(DeclarativeHandler[NetworkLV]):
-    COMPONENT_CLS = PropertiesLV
+class PropertiesHandler:
+    """Handler for GNF PROPERTIES sections using shared parsing logic."""
 
-    COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
-        SectionConfig("system", "#System ", required=False),
-        SectionConfig("network", "#Network ", required=False),
-        SectionConfig("general", "#General ", required=False),
-        SectionConfig("invisible", "#Invisible ", required=False),
-        SectionConfig("history", "#History ", required=False),
-        SectionConfig("history_items", "#HistoryItems ", required=False),
-        SectionConfig("users", "#Users ", required=False),
-    ]
+    def handle(self, network: "NetworkLV", chunk: str) -> None:
+        """Parse and register properties from a PROPERTIES section chunk.
+
+        Args:
+            network: Target network for registration.
+            chunk: Raw text content from PROPERTIES section.
+
+        """
+        PropertiesParser.parse_and_register(network, chunk)

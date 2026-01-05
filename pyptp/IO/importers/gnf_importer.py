@@ -45,8 +45,11 @@ from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from re import Pattern
+    from typing import Any
 
     from pyptp.IO.importers._base_handler import DeclarativeHandler
+
+    GnfHandler = DeclarativeHandler[NetworkLV] | Any
 
 
 def make_section_pattern(name: str) -> re.Pattern[str]:
@@ -74,7 +77,7 @@ class GnfImporter:
     to a specific handler, enabling extensible parsing without tight coupling.
     """
 
-    _HANDLERS: ClassVar[dict[str, DeclarativeHandler]] = {
+    _HANDLERS: ClassVar[dict[str, GnfHandler]] = {
         "COMMENTS": CommentHandler(),
         "PROPERTIES": PropertiesHandler(),
         "SHEET": SheetHandler(),

@@ -241,26 +241,29 @@ class PropertiesLV:
     def serialize(self) -> str:
         """Serialize the network properties to a string."""
         lines = []
+
         if self.system:
             lines.append(f"#System {self.system.serialize()}")
+        else:
+            lines.append(f"#System {self.System().serialize()}")
 
-        if self.network:
-            lines.append(f"#Network {self.network.serialize()}")
+        network_serialize = self.network.serialize() if self.network else ""
+        lines.append(f"#Network {network_serialize}")
 
-        if self.general:
-            lines.append(f"#General {self.general.serialize()}")
+        general_serialize = self.general.serialize() if self.general else ""
+        lines.append(f"#General {general_serialize}")
 
-        if self.invisible:
-            lines.append(f"#Invisible {self.invisible.serialize()}")
+        invisible_serialize = self.invisible.serialize() if self.invisible else ""
+        lines.append(f"#Invisible {invisible_serialize}")
 
-        if self.history:
-            lines.append(f"#History {self.history.serialize()}")
+        history_serialize = self.history.serialize() if self.history else ""
+        lines.append(f"#History {history_serialize}")
 
-        if self.history_items:
-            lines.append(f"#HistoryItems {self.history_items.serialize()}")
+        history_items_serialize = self.history_items.serialize() if self.history_items else ""
+        lines.append(f"#HistoryItems {history_items_serialize}")
 
-        if self.users:
-            lines.append(f"#Users {self.users.serialize()}")
+        users_serialize = self.users.serialize() if self.users else ""
+        lines.append(f"#Users {users_serialize}")
 
         return "\n".join(lines)
 

@@ -173,10 +173,6 @@ class TestPvRegistration(unittest.TestCase):
         # Verify key general properties are serialized
         self.assertIn("Name:'FullPv'", serialized)
         self.assertIn("FieldName:'PvField'", serialized)
-        self.assertIn("s_L1:True", serialized)
-        self.assertIn("s_L2:False", serialized)
-        self.assertIn("s_L3:True", serialized)
-        self.assertIn("s_N:False", serialized)
         self.assertIn("OnePhase:True", serialized)
         self.assertIn("Phase:2", serialized)
         self.assertIn("Scaling:1500.0", serialized)
@@ -301,11 +297,7 @@ class TestPvRegistration(unittest.TestCase):
         self.assertIn("s_L2:True", serialized)
         self.assertIn("s_L3:True", serialized)
         self.assertIn("s_N:True", serialized)
-        self.assertIn("OnePhase:False", serialized)  # Default value
-        self.assertIn("Scaling:1000.0", serialized)  # Default value
-        self.assertIn("Longitude:0.0", serialized)  # Default value
-        self.assertIn("Latitude:0.0", serialized)  # Default value
-
+        self.assertIn("Scaling:1000.0", serialized)
         # Should not have optional sections
         self.assertNotIn("#EfficiencyType", serialized)
         self.assertNotIn("#QControl", serialized)

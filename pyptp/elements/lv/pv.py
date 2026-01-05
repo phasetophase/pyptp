@@ -20,6 +20,15 @@ from pyptp.elements.element_utils import (
 )
 from pyptp.elements.lv.shared import EfficiencyType
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.serialization_helpers import (
+    serialize_properties,
+    write_boolean,
+    write_double,
+    write_double_no_skip,
+    write_guid,
+    write_integer,
+    write_quote_string,
+)
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
@@ -73,39 +82,35 @@ class PVLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize General properties."""
-            props = []
-            if self.node != NIL_GUID:
-                props.append(f"Node:'{{{str(self.node).upper()}}}'")
-            props.append(f"GUID:'{{{str(self.guid).upper()}}}'")
-            props.append(f"CreationTime:{self.creation_time}")
-            if self.mutation_date != 0:
-                props.append(f"MutationDate:{self.mutation_date}")
-            if self.revision_date != 0.0:
-                props.append(f"RevisionDate:{self.revision_date}")
-            props.append(f"Name:'{self.name}'")
-            props.append(f"s_L1:{self.s_L1!s}")
-            props.append(f"s_L2:{self.s_L2!s}")
-            props.append(f"s_L3:{self.s_L3!s}")
-            props.append(f"s_N:{self.s_N!s}")
-            props.append(f"FieldName:'{self.field_name}'")
-            props.append(f"OnePhase:{self.single_phase!s}")
-            props.append(f"Phase:{self.phase}")
-            props.append(f"Scaling:{self.scaling}")
-            if self.profile != DEFAULT_PROFILE_GUID:
-                props.append(f"Profile:'{{{str(self.profile).upper()}}}'")
-            props.append(f"Longitude:{self.longitude}")
-            props.append(f"Latitude:{self.latitude}")
-            props.append(f"Panel1Pnom:{self.panel1_pnom}")
-            props.append(f"Panel1Orientation:{self.panel1_orientation}")
-            props.append(f"Panel1Slope:{self.panel1_slope}")
-            props.append(f"Panel2Pnom:{self.panel2_pnom}")
-            props.append(f"Panel2Orientation:{self.panel2_orientation}")
-            props.append(f"Panel2Slope:{self.panel2_slope}")
-            props.append(f"Panel3Pnom:{self.panel3_pnom}")
-            props.append(f"Panel3Orientation:{self.panel3_orientation}")
-            props.append(f"Panel3Slope:{self.panel3_slope}")
-            props.append(f"HarmonicsType:'{self.harmonics_type}'")
-            return " ".join(props)
+            return serialize_properties(
+                write_guid("Node", self.node),
+                write_guid("GUID", self.guid),
+                write_double_no_skip("CreationTime", self.creation_time),
+                write_integer("MutationDate", self.mutation_date),
+                write_double("RevisionDate", self.revision_date),
+                write_quote_string("Name", self.name),
+                write_boolean("s_L1", self.s_L1),
+                write_boolean("s_L2", self.s_L2),
+                write_boolean("s_L3", self.s_L3),
+                write_boolean("s_N", self.s_N),
+                write_boolean("OnePhase", self.single_phase),
+                write_quote_string("FieldName", self.field_name),
+                write_integer("Phase", self.phase),
+                write_double("Scaling", self.scaling),
+                write_guid("Profile", self.profile),
+                write_double("Longitude", self.longitude),
+                write_double("Latitude", self.latitude),
+                write_double("Panel1Pnom", self.panel1_pnom),
+                write_double("Panel1Orientation", self.panel1_orientation),
+                write_double("Panel1Slope", self.panel1_slope),
+                write_double("Panel2Pnom", self.panel2_pnom),
+                write_double("Panel2Orientation", self.panel2_orientation),
+                write_double("Panel2Slope", self.panel2_slope),
+                write_double("Panel3Pnom", self.panel3_pnom),
+                write_double("Panel3Orientation", self.panel3_orientation),
+                write_double("Panel3Slope", self.panel3_slope),
+                write_quote_string("HarmonicsType", self.harmonics_type),
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> PVLV.General:
@@ -151,11 +156,11 @@ class PVLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Inverter properties."""
-            props = []
-            props.append(f"Snom:{self.snom}")
-            props.append(f"EfficiencyType:'{self.efficiency_type}'")
-            props.append(f"Uoff:{self.u_off}")
-            return " ".join(props)
+            return serialize_properties(
+                write_double("Snom", self.snom, 12.5),
+                write_quote_string("EfficiencyType", self.efficiency_type),
+                write_double("Uoff", self.u_off),
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> PVLV.Inverter:
@@ -187,22 +192,21 @@ class PVLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize QControl properties."""
-            props = []
-            if self.sort != 0:
-                props.append(f"Sort:{self.sort}")
-            props.append(f"CosRef:{self.cos_ref}")
-            props.append(f"NoPNoQ:{self.no_p_no_q!s}")
-            props.append(f"Input1:{self.input1}")
-            props.append(f"Output1:{self.output1}")
-            props.append(f"Input2:{self.input2}")
-            props.append(f"Output2:{self.output2}")
-            props.append(f"Input3:{self.input3}")
-            props.append(f"Output3:{self.output3}")
-            props.append(f"Input4:{self.input4}")
-            props.append(f"Output4:{self.output4}")
-            props.append(f"Input5:{self.input5}")
-            props.append(f"Output5:{self.output5}")
-            return " ".join(props)
+            return serialize_properties(
+                write_integer("Sort", self.sort),
+                write_double_no_skip("CosRef", self.cos_ref),
+                write_double_no_skip("NoPNoQ", self.no_p_no_q),
+                write_double_no_skip("Input1", self.input1),
+                write_double_no_skip("Output1", self.output1),
+                write_double_no_skip("Input2", self.input2),
+                write_double_no_skip("Output2", self.output2),
+                write_double_no_skip("Input3", self.input3),
+                write_double_no_skip("Output3", self.output3),
+                write_double_no_skip("Input4", self.input4),
+                write_double_no_skip("Output4", self.output4),
+                write_double_no_skip("Input5", self.input5),
+                write_double_no_skip("Output5", self.output5),
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> PVLV.QControl:
@@ -241,18 +245,18 @@ class PVLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize PUControl properties."""
-            props = []
-            props.append(f"Input1:{self.input1}")
-            props.append(f"Output1:{self.output1}")
-            props.append(f"Input2:{self.input2}")
-            props.append(f"Output2:{self.output2}")
-            props.append(f"Input3:{self.input3}")
-            props.append(f"Output3:{self.output3}")
-            props.append(f"Input4:{self.input4}")
-            props.append(f"Output4:{self.output4}")
-            props.append(f"Input5:{self.input5}")
-            props.append(f"Output5:{self.output5}")
-            return " ".join(props)
+            return serialize_properties(
+                write_double_no_skip("Input1", self.input1),
+                write_double_no_skip("Output1", self.output1),
+                write_double_no_skip("Input2", self.input2),
+                write_double_no_skip("Output2", self.output2),
+                write_double_no_skip("Input3", self.input3),
+                write_double_no_skip("Output3", self.output3),
+                write_double_no_skip("Input4", self.input4),
+                write_double_no_skip("Output4", self.output4),
+                write_double_no_skip("Input5", self.input5),
+                write_double_no_skip("Output5", self.output5),
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> PVLV.PUControl:

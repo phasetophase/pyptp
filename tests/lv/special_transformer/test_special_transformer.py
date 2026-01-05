@@ -154,7 +154,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
 
         voltage_control = SpecialTransformerLV.VoltageControl(
             present=True,
-            status=1,
+            status=True,
             measure_side=1,
             setpoint=0.38,
             deadband=0.02,
@@ -271,7 +271,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
 
         # Verify voltage control properties
         self.assertIn("Present:True", serialized)
-        self.assertIn("Status:1", serialized)
+        self.assertIn("Status:True", serialized)
         self.assertIn("MeasureSide:1", serialized)
         self.assertIn("Setpoint:0.38", serialized)
         self.assertIn("Deadband:0.02", serialized)
@@ -569,7 +569,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
 
         # CompoundingAtGeneration defaults to True and is not skipped
         self.assertEqual(
-            result, "CompoundingAtGeneration:True"
+            result, "CompoundingAtGeneration:True "
         )  # Default VoltageControl shows non-skipped values
 
     def test_special_transformer_round_trip_serialization(self) -> None:
@@ -597,7 +597,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
 
         original_voltage_control = SpecialTransformerLV.VoltageControl(
             present=True,
-            status=1,
+            status=True,
             setpoint=0.38,
         )
 

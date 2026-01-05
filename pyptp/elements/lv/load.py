@@ -24,6 +24,15 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.serialization_helpers import (
+    serialize_properties,
+    write_boolean_no_skip,
+    write_double,
+    write_double_no_skip,
+    write_guid,
+    write_integer,
+    write_quote_string,
+)
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
@@ -94,52 +103,35 @@ class LoadLV(ExtrasNotesMixin, HasPresentationsMixin):
                 Space-separated property string for GNF file section.
 
             """
-            props = []
-            if self.node != NIL_GUID:
-                props.append(f"Node:'{{{str(self.node).upper()}}}'")
-            props.append(f"GUID:'{{{str(self.guid).upper()}}}'")
-            props.append(f"CreationTime:{self.creation_time}")
-            if self.mutation_date != 0:
-                props.append(f"MutationDate:{self.mutation_date}")
-            if self.revision_date != 0.0:
-                props.append(f"RevisionDate:{self.revision_date}")
-            props.append(f"Name:'{self.name}'")
-            props.append(f"s_L1:{self.s_L1!s}")
-            props.append(f"s_L2:{self.s_L2!s}")
-            props.append(f"s_L3:{self.s_L3!s}")
-            props.append(f"s_N:{self.s_N!s}")
-            props.append(f"FieldName:'{self.field_name}'")
-            if self.pa != 0:
-                props.append(f"Pa:{self.pa}")
-            if self.qa != 0:
-                props.append(f"Qa:{self.qa}")
-            if self.pb != 0:
-                props.append(f"Pb:{self.pb}")
-            if self.qb != 0:
-                props.append(f"Qb:{self.qb}")
-            if self.pc != 0:
-                props.append(f"Pc:{self.pc}")
-            if self.qc != 0:
-                props.append(f"Qc:{self.qc}")
-            if self.pab != 0:
-                props.append(f"Pab:{self.pab}")
-            if self.qab != 0:
-                props.append(f"Qab:{self.qab}")
-            if self.pac != 0:
-                props.append(f"Pac:{self.pac}")
-            if self.qac != 0:
-                props.append(f"Qac:{self.qac}")
-            if self.pbc != 0:
-                props.append(f"Pbc:{self.pbc}")
-            if self.qbc != 0:
-                props.append(f"Qbc:{self.qbc}")
-            props.append(f"BehaviourSort:'{self.behaviour_sort}'")
-            if self.profile != DEFAULT_PROFILE_GUID:
-                props.append(f"Profile:'{{{str(self.profile).upper()}}}'")
-            if self.switch_on_frequency != 0:
-                props.append(f"SwitchOnFrequency:{self.switch_on_frequency}")
-            props.append(f"HarmonicsType:'{self.harmonics_type}'")
-            return " ".join(props)
+            return serialize_properties(
+                write_guid("Node", self.node),
+                write_guid("GUID", self.guid),
+                write_double_no_skip("CreationTime", self.creation_time),
+                write_integer("MutationDate", self.mutation_date, skip=0),
+                write_double("RevisionDate", self.revision_date, skip=0.0),
+                write_quote_string("Name", self.name),
+                write_boolean_no_skip("s_L1", value=self.s_L1),
+                write_boolean_no_skip("s_L2", value=self.s_L2),
+                write_boolean_no_skip("s_L3", value=self.s_L3),
+                write_boolean_no_skip("s_N", value=self.s_N),
+                write_quote_string("FieldName", self.field_name),
+                write_double("Pa", self.pa),
+                write_double("Qa", self.qa),
+                write_double("Pb", self.pb),
+                write_double("Qb", self.qb),
+                write_double("Pc", self.pc),
+                write_double("Qc", self.qc),
+                write_double("Pab", self.pab),
+                write_double("Qab", self.qab),
+                write_double("Pac", self.pac),
+                write_double("Qac", self.qac),
+                write_double("Pbc", self.pbc),
+                write_double("Qbc", self.qbc),
+                write_quote_string("BehaviourSort", self.behaviour_sort),
+                write_guid("Profile", self.profile),
+                write_double("SwitchOnFrequency", self.switch_on_frequency),
+                write_quote_string("HarmonicsType", self.harmonics_type),
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> LoadLV.General:
@@ -219,10 +211,10 @@ class LoadLV(ExtrasNotesMixin, HasPresentationsMixin):
         lines = []
         lines.append(f"#General {self.general.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         if self.harmonics:
             lines.append(f"#HarmonicsType {self.harmonics.serialize()}")
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         # Serialize extras and notes using safe accessors
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.safe_extras)
@@ -262,6 +254,6 @@ class LoadLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         return cls(
             general=general,
-            presentations=presentations,
             harmonics=harmonics,
+            presentations=presentations,
         )

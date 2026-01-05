@@ -82,7 +82,7 @@ class SynchronousGeneratorLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_quote_string("FieldName", self.field_name),
                 write_double("Pref", self.pref, skip=0.8),
                 write_quote_string("ControlSort", self.control_sort),
-                write_double("CosRef", self.cos_ref, skip=0.95),
+                write_double("CosRef", self.cos_ref),
                 write_double("Uref", self.uref, skip=0),
                 write_guid("Profile", self.profile),
                 write_quote_string("SynchronousGeneratorType", self.type),
@@ -142,11 +142,11 @@ class SynchronousGeneratorLV(ExtrasNotesMixin, HasPresentationsMixin):
             return cls(
                 unom=data.get("Unom", 0),
                 snom=data.get("Snom", 0),
-                cos_nom=data.get("Cosnom", 0),
+                cos_nom=data.get("CosNom", 0),
                 q_min=data.get("Qmin", 0),
                 q_max=data.get("Qmax", 0),
                 rg=data.get("Rg", 0),
-                xd2sat=data.get("Xd2Sat", 0),
+                xd2sat=data.get("Xd2sat", 0),
             )
 
     general: General
@@ -170,10 +170,11 @@ class SynchronousGeneratorLV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.append(f"#General {self.general.serialize()}")
         if self.type:
             lines.append(f"#SynchronousGeneratorType {self.type.serialize()}")
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(str(line) for line in lines)
 

@@ -1,30 +1,22 @@
-"""Handler for parsing VNF Comment sections with custom parsing logic."""
+"""Handler for parsing VNF Comment sections."""
 
-import re
 from typing import TYPE_CHECKING
 
-from pyptp.elements.mv.comment import CommentMV
-from pyptp.elements.mv.shared import Comment
+from pyptp.IO.importers._shared_handlers import CommentParser
 
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
 
 
 class CommentHandler:
-    """Custom handler for VNF comments that handles unquoted text properly."""
+    """Handler for VNF COMMENTS sections using shared parsing logic."""
 
     def handle(self, network: "NetworkMV", chunk: str) -> None:
         """Parse and register comments from a COMMENTS section chunk.
 
         Args:
-            network: Target network for registration
-            chunk: Raw text content from COMMENTS section
+            network: Target network for registration.
+            chunk: Raw text content from COMMENTS section.
 
         """
-        comment_pattern = re.compile(r"^#Comment\s+Text:(.*)$", re.MULTILINE)
-
-        for match in comment_pattern.finditer(chunk):
-            comment_text = match.group(1)
-            comment = Comment(text=comment_text)
-            comment_element = CommentMV(comment=comment)
-            comment_element.register(network)
+        CommentParser.parse_and_register(network, chunk)

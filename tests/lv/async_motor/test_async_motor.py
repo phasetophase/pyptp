@@ -199,7 +199,7 @@ class TestAsyncMotorRegistration(unittest.TestCase):
         self.assertIn("Poles:4", serialized)
         self.assertIn("Rpm:1500.0", serialized)
         self.assertIn("CriticalTorque:2.5", serialized)
-        self.assertIn("CosNom:0.85", serialized)
+        self.assertIn("Cosnom:0.85", serialized)
         self.assertIn("Efficiency:0.95", serialized)
         self.assertIn("p2:80.0", serialized)
         self.assertIn("cos2:0.8", serialized)

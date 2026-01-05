@@ -1,8 +1,10 @@
 [project]
 name = "pyptp"
-version = "0.0.16"
+version = "0.0.17"
 description = "Open-source Python SDK for electrical grid calculations and modelling"
-authors = [{ name = "Phase to Phase", email = "pyptp@phasetophase.com" }]
+authors = [
+    { name = "Phase to Phase", email = "pyptp@phasetophase.com" },
+]
 license = { text = "GPL-3.0-or-later" }
 requires-python = ">=3.11"
 readme = "README.md"
@@ -50,40 +52,52 @@ dev = [
 ]
 
 [tool.hatch.build.targets.sdist]
-include = ["pyptp"]
+include = [
+    "pyptp",
+]
 
 [tool.hatch.build.targets.wheel]
-include = ["pyptp"]
+include = [
+    "pyptp",
+]
 
 [build-system]
-requires = ["hatchling"]
+requires = [
+    "hatchling",
+]
 build-backend = "hatchling.build"
 
 # Ruff configuration
 [tool.ruff]
 line-length = 120
-include = ["*.py"]
-exclude = ["docs"]
+include = [
+    "*.py",
+]
+exclude = [
+    "docs",
+]
 output-format = "concise"
 
 [tool.ruff.lint]
-select = ["ALL"]
+select = [
+    "ALL",
+]
 ignore = [
-    "E402",   # Module level import not at top of file
-    "S101",   # Use of assert detected
-    "PT027",  # Use of pytest raises without match
-    "PT009",  # Use of unittest-style assertions
-    "D203",   # 1 blank line required before class docstring (conflicts with D211)
-    "D213",   # Multi-line docstring summary should start at the second line (conflicts with D212)
-    "TRY300", # Consider moving this statement to an else block
-    "COM812", # Trailing comma missing (conflicts with formatter)
+    "E402",    # Module level import not at top of file
+    "S101",    # Use of assert detected
+    "PT027",   # Use of pytest raises without match
+    "PT009",   # Use of unittest-style assertions
+    "D203",    # 1 blank line required before class docstring (conflicts with D211)
+    "D213",    # Multi-line docstring summary should start at the second line (conflicts with D212)
+    "TRY300",  # Consider moving this statement to an else block
+    "COM812",  # Trailing comma missing (conflicts with formatter)
     "PLC0415", # Import statements outside of a module's top-level scope
 ]
 
 [tool.ruff.lint.pylint]
-max-args = 10
-max-returns = 12
-max-branches = 20
+max-args       = 10
+max-returns    = 12
+max-branches   = 20
 max-statements = 100
 
 [tool.ruff.lint.mccabe]
@@ -93,7 +107,10 @@ max-complexity = 24
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
-include = ["pyptp", "tests"]
+include = [
+    "pyptp",
+    "tests",
+]
 exclude = [
     "**/__pycache__",
     "**/.venv",

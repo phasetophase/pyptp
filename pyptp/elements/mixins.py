@@ -222,19 +222,6 @@ class ExtrasNotesMixin:
             return []
         return self.notes
 
-    def _encode_extras_notes(self) -> list[dict[str, Any]]:
-        """Encode extras and notes as GNF/VNF format sections.
-
-        Returns:
-            List of section dictionaries with '#Extra' and '#Note' keys
-            for GNF/VNF serialization.
-
-        """
-        out: list[dict[str, Any]] = []
-        out.extend({"#Extra": e.encode()} for e in self.extras)
-        out.extend({"#Note": n.encode()} for n in self.notes)
-        return out
-
 
 class HasPresentationsMixin:
     """Mixin ensuring presentations attribute is always a list.

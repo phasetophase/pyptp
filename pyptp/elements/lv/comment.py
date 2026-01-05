@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from pyptp.elements.serialization_helpers import write_quote_string
+from pyptp.elements.serialization_helpers import write_unquoted_string_no_skip
 
 if TYPE_CHECKING:
     from pyptp.elements.lv.shared import Comment
@@ -44,7 +44,7 @@ class CommentLV:
             Single line string with comment text for GNF file.
 
         """
-        return f"#Comment {write_quote_string('Text', self.comment.text)}"
+        return f"#Comment {write_unquoted_string_no_skip('Text', self.comment.text)}"
 
     @classmethod
     def deserialize(cls, data: dict) -> CommentLV:

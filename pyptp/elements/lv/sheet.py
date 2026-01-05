@@ -18,6 +18,7 @@ from pyptp.elements.element_utils import (
 )
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
+    write_delphi_color,
     write_double,
     write_guid_no_skip,
     write_quote_string,
@@ -47,57 +48,33 @@ class SheetLV:
         name: str = string_field()
         color: DelphiColor = field(default=DelphiColor("$ff00ff"))
 
-        coarse_grid_width: int | None = optional_field()
-        coarse_grid_height: int | None = optional_field()
-        map_sheet_width: int | None = optional_field()
-        map_sheet_height: int | None = optional_field()
-        map_sheet_grid_width: int | None = optional_field()
-        map_sheet_grid_height: int | None = optional_field()
-        map_sheet_grid_left: int | None = optional_field()
-        map_sheet_grid_top: int | None = optional_field()
-        map_sheet_numbering: int | None = optional_field()
-        map_sheet_number_offset: int | None = optional_field()
+        coarse_grid_width: int = optional_field(0)
+        coarse_grid_height: int = optional_field(0)
+        map_sheet_width: int = optional_field(0)
+        map_sheet_height: int = optional_field(0)
+        map_sheet_grid_width: int = optional_field(0)
+        map_sheet_grid_height: int = optional_field(0)
+        map_sheet_grid_left: int = optional_field(0)
+        map_sheet_grid_top: int = optional_field(0)
+        map_sheet_numbering: int = optional_field(0)
+        map_sheet_number_offset: int = optional_field(0)
 
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(
                 write_guid_no_skip("GUID", self.guid),
                 write_quote_string("Name", self.name),
-                write_quote_string("Color", str(self.color)),
-                write_double("CoarseGridWidth", self.coarse_grid_width) if self.coarse_grid_width is not None else "",
-                (
-                    write_double("CoarseGridHeight", self.coarse_grid_height)
-                    if self.coarse_grid_height is not None
-                    else ""
-                ),
-                write_double("MapSheetWidth", self.map_sheet_width) if self.map_sheet_width is not None else "",
-                write_double("MapSheetHeight", self.map_sheet_height) if self.map_sheet_height is not None else "",
-                (
-                    write_double("MapSheetGridWidth", self.map_sheet_grid_width)
-                    if self.map_sheet_grid_width is not None
-                    else ""
-                ),
-                (
-                    write_double("MapSheetGridHeight", self.map_sheet_grid_height)
-                    if self.map_sheet_grid_height is not None
-                    else ""
-                ),
-                (
-                    write_double("MapSheetGridLeft", self.map_sheet_grid_left)
-                    if self.map_sheet_grid_left is not None
-                    else ""
-                ),
-                write_double("MapSheetGridTop", self.map_sheet_grid_top) if self.map_sheet_grid_top is not None else "",
-                (
-                    write_double("MapSheetNumbering", self.map_sheet_numbering)
-                    if self.map_sheet_numbering is not None
-                    else ""
-                ),
-                (
-                    write_double("MapSheetNumberOffset", self.map_sheet_number_offset)
-                    if self.map_sheet_number_offset is not None
-                    else ""
-                ),
+                write_delphi_color("Color", self.color),
+                write_double("CoarseGridWidth", self.coarse_grid_width),
+                write_double("CoarseGridHeight", self.coarse_grid_height),
+                write_double("MapSheetWidth", self.map_sheet_width),
+                write_double("MapSheetHeight", self.map_sheet_height),
+                write_double("MapSheetGridWidth", self.map_sheet_grid_width),
+                write_double("MapSheetGridHeight", self.map_sheet_grid_height),
+                write_double("MapSheetGridLeft", self.map_sheet_grid_left),
+                write_double("MapSheetGridTop", self.map_sheet_grid_top),
+                write_double("MapSheetNumbering", self.map_sheet_numbering),
+                write_double("MapSheetNumberOffset", self.map_sheet_number_offset),
             )
 
         @classmethod
@@ -106,17 +83,17 @@ class SheetLV:
             return cls(
                 guid=decode_guid(data.get("GUID", str(uuid4()))),
                 name=data.get("Name", ""),
-                color=DelphiColor(data.get("Color", "$ff00ff")),
-                coarse_grid_width=data.get("CoarseGridWidth"),
-                coarse_grid_height=data.get("CoarseGridHeight"),
-                map_sheet_width=data.get("MapSheetWidth"),
-                map_sheet_height=data.get("MapSheetHeight"),
-                map_sheet_grid_width=data.get("MapSheetGridWidth"),
-                map_sheet_grid_height=data.get("MapSheetGridHeight"),
-                map_sheet_grid_left=data.get("MapSheetGridLeft"),
-                map_sheet_grid_top=data.get("MapSheetGridTop"),
-                map_sheet_numbering=data.get("MapSheetNumbering"),
-                map_sheet_number_offset=data.get("MapSheetNumberOffset"),
+                color=DelphiColor(data.get("Color", "$00C0C0C0")),
+                coarse_grid_width=data.get("CoarseGridWidth", 0),
+                coarse_grid_height=data.get("CoarseGridHeight", 0),
+                map_sheet_width=data.get("MapSheetWidth", 0),
+                map_sheet_height=data.get("MapSheetHeight", 0),
+                map_sheet_grid_width=data.get("MapSheetGridWidth", 0),
+                map_sheet_grid_height=data.get("MapSheetGridHeight", 0),
+                map_sheet_grid_left=data.get("MapSheetGridLeft", 0),
+                map_sheet_grid_top=data.get("MapSheetGridTop", 0),
+                map_sheet_numbering=data.get("MapSheetNumbering", 0),
+                map_sheet_number_offset=data.get("MapSheetNumberOffset", 0),
             )
 
     general: General

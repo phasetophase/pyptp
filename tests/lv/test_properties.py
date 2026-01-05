@@ -37,7 +37,7 @@ class TestTPropertiesLS(unittest.TestCase):
         self.assertNotEqual(self.network.properties, original_properties)
 
     def test_properties_with_minimal_properties_serializes_correctly(self) -> None:
-        """Test serialization with minimal properties."""
+        """Test serialization with minimal properties outputs all sections."""
         system = PropertiesLV.System()
         properties = PropertiesLV(system=system)
 
@@ -47,12 +47,13 @@ class TestTPropertiesLS(unittest.TestCase):
         self.assertIn("#System", result)
         self.assertIn("Currency:'EUR'", result)
 
-        # Should not contain optional sections
-        self.assertNotIn("#Network", result)
-        self.assertNotIn("#General", result)
-        self.assertNotIn("#History", result)
-        self.assertNotIn("#HistoryItems", result)
-        self.assertNotIn("#Users", result)
+        # All sections should be present even when empty (GNF format requirement)
+        self.assertIn("#Network", result)
+        self.assertIn("#General", result)
+        self.assertIn("#Invisible", result)
+        self.assertIn("#History", result)
+        self.assertIn("#HistoryItems", result)
+        self.assertIn("#Users", result)
 
     def test_properties_with_full_properties_serializes_correctly(self) -> None:
         """Test serialization with all properties set."""
@@ -331,7 +332,7 @@ class TestTPropertiesLS(unittest.TestCase):
         result = invisible.serialize()
 
         # Should be empty string for empty list
-        self.assertEqual(result, "")
+        self.assertEqual(result, " ")
 
     def test_invisible_serialize_with_properties(self) -> None:
         """Test Invisible class serialization with properties."""
@@ -371,7 +372,7 @@ class TestTPropertiesLS(unittest.TestCase):
         result = history.serialize()
 
         # Default False values are skipped, resulting in empty string
-        self.assertEqual(result, "")
+        self.assertEqual(result, " ")
 
     def test_history_serialize_with_values(self) -> None:
         """Test History class serialization with values."""
@@ -403,7 +404,7 @@ class TestTPropertiesLS(unittest.TestCase):
         result = history_items.serialize()
 
         # Should be empty string for empty list
-        self.assertEqual(result, "")
+        self.assertEqual(result, " ")
 
     def test_history_items_serialize_with_texts(self) -> None:
         """Test HistoryItems class serialization with texts."""
@@ -430,7 +431,7 @@ class TestTPropertiesLS(unittest.TestCase):
         result = users.serialize()
 
         # Should be empty string for empty list
-        self.assertEqual(result, "")
+        self.assertEqual(result, " ")
 
     def test_users_serialize_with_users(self) -> None:
         """Test Users class serialization with users."""

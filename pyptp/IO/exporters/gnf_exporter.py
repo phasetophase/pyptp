@@ -4,15 +4,18 @@ Exports TNetworkLS instances to GNF v8.9 format with optional presentation
 solving for proper visual layout in electrical design software.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyptp.elements.element_utils import Guid, guid_to_string
-from pyptp.network_lv import NetworkLV
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from pyptp.network_lv import NetworkLV
 
 
 class GnfExporter:
@@ -182,7 +185,7 @@ class GnfExporter:
 
         min_x, min_y, max_x, max_y = GnfExporter.__compute_bounds(network, sheet_guid)
         if min_x == float("inf") or min_y == float("inf") or max_x == float("-inf") or max_y == float("-inf"):
-            msg: str = f"No valid presentation coordinates found for sheet: {guid_to_string(sheet_guid)}"
+            msg = f"No valid presentation coordinates found for sheet: {guid_to_string(sheet_guid)}"
             raise ValueError(msg)
 
         scale: float = GnfExporter.__calculate_scale(min_x, min_y, max_x, max_y)
@@ -205,7 +208,7 @@ class GnfExporter:
 
         """
         out_path: Path = Path(output_path)
-        with out_path.open("w", encoding="utf-8-sig") as fh:
+        with out_path.open("w", encoding="utf-8") as fh:
             fh.write("G8.9\nNETWORK\n\n")
 
             fh.write("[PROPERTIES]\n")
@@ -237,8 +240,10 @@ class GnfExporter:
                 ("HOME", network.homes.values()),
                 ("BATTERY", network.batteries.values()),
                 ("PV", network.pvs.values()),
+                ("MEASURE FIELD", network.measure_fields.values()),
                 ("FUSE", network.fuses.values()),
                 ("CIRCUIT BREAKER", network.circuit_breakers.values()),
+                ("LOAD SWITCH", network.load_switches.values()),
                 ("FRAME", network.frames.values()),
                 ("LEGEND", network.legends.values()),
                 ("SELECTION", network.selections),

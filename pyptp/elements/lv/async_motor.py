@@ -32,6 +32,7 @@ from pyptp.elements.serialization_helpers import (
     write_guid,
     write_guid_no_skip,
     write_integer,
+    write_integer_no_skip,
     write_quote_string,
 )
 from pyptp.ptp_log import logger
@@ -98,11 +99,11 @@ class AsynchronousMotorLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_boolean_no_skip("s_L3", value=self.s_L3),
                 write_boolean_no_skip("s_N", value=self.s_N),
                 write_quote_string("FieldName", self.field_name),
-                write_integer("Phase", self.phase),
+                write_integer_no_skip("Phase", self.phase),
                 write_double("Pmechanic", self.p_mechanic),
                 write_integer("Istart/Inom", self.istart_inom),
                 write_integer("ta", self.ta, skip=0),
-                write_guid("Profile", self.profile, skip=DEFAULT_PROFILE_GUID),
+                write_guid("Profile", self.profile),
                 write_quote_string("AsynchronousMotorType", self.type),
                 write_quote_string("HarmonicsType", self.harmonics_type),
                 write_integer("SwitchOnFrequency", self.switch_on_frequency, skip=0),
@@ -192,7 +193,7 @@ class AsynchronousMotorLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer("Poles", self.poles),
                 write_double("Rpm", self.rpm_nom),
                 write_double("CriticalTorque", self.critical_torque),
-                write_double("CosNom", self.cos_nom),
+                write_double("Cosnom", self.cos_nom),
                 write_double("Efficiency", self.efficiency),
                 write_double("p2", self.p2),
                 write_double("cos2", self.cos2),
@@ -220,7 +221,7 @@ class AsynchronousMotorLV(ExtrasNotesMixin, HasPresentationsMixin):
                 poles=data.get("Poles", 0),
                 rpm_nom=data.get("Rpm", 0.0),
                 critical_torque=data.get("CriticalTorque", 0.0),
-                cos_nom=data.get("CosNom", 0.0),
+                cos_nom=data.get("Cosnom", 0.0),
                 efficiency=data.get("Efficiency", 0.0),
                 p2=data.get("p2", 0.0),
                 cos2=data.get("cos2", 0.0),
@@ -309,6 +310,6 @@ class AsynchronousMotorLV(ExtrasNotesMixin, HasPresentationsMixin):
         return cls(
             general=general,
             presentations=presentations,
-            type=motor_type,
             harmonics=harmonics,
+            type=motor_type,
         )
