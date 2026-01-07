@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import ctypes
 import sys
+import tempfile
+import time
 from collections.abc import Callable
 from pathlib import Path
 
@@ -27,7 +29,7 @@ MESSAGES: dict[int, str] = {
     ERR_INVALID_VERSION: "Invalid version string provided.",
 }
 
-__all__ = ["save_as"]
+__all__ = ["migrate_and_read", "save_as"]
 
 LoaderType = Callable[[str], ctypes.CDLL]
 
@@ -164,3 +166,109 @@ def save_as(
         logger.error("Migration failed: %s", return_message)
 
     return return_message
+
+
+def _wait_for_file(
+    path: Path,
+    timeout: float = 2.0,
+    poll_interval: float = 0.1,
+) -> bool:
+    """Wait for a file to exist and be readable.
+
+    Args:
+        path: Path to the file to wait for.
+        timeout: Maximum time to wait in seconds.
+        poll_interval: Time between existence checks in seconds.
+
+    Returns:
+        True if file became available, False if timeout exceeded.
+
+    """
+    elapsed = 0.0
+    while elapsed < timeout:
+        if path.exists():
+            try:
+                # Try to open and read a byte to confirm it's accessible
+                with path.open("rb") as f:
+                    f.read(1)
+                return True
+            except OSError:
+                pass
+        time.sleep(poll_interval)
+        elapsed += poll_interval
+    return False
+
+
+def migrate_and_read(
+    input_path: Path,
+    version: str,
+    encoding: str = "utf-8",
+    *,
+    max_retries: int = 3,
+    file_wait_timeout: float = 2.0,
+) -> str:
+    """Migrate a network file and return its content with retry logic.
+
+    Handles potential race conditions with antivirus software or file system
+    delays by waiting for the output file to become available and retrying
+    the migration if needed.
+
+    Args:
+        input_path: Path to the input .gnf or .vnf file.
+        version: Target version (e.g., "G8.9" or "V9.9").
+        encoding: Encoding to use when reading the migrated file.
+        max_retries: Maximum number of migration attempts.
+        file_wait_timeout: Seconds to wait for output file per attempt.
+
+    Returns:
+        Content of the migrated file as a string.
+
+    Raises:
+        RuntimeError: If migration fails after all retries.
+
+    """
+    last_error = ""
+
+    for attempt in range(1, max_retries + 1):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir)
+            output_file = output_dir / input_path.name
+
+            result = save_as(
+                input_path=str(input_path),
+                output_path=str(output_dir),
+                output_file=input_path.name,
+                version=version,
+            )
+
+            if "successful" not in str(result).lower():
+                last_error = result
+                logger.warning(
+                    "Migration attempt %d/%d failed for '%s': %s",
+                    attempt,
+                    max_retries,
+                    input_path.name,
+                    result,
+                )
+                if attempt < max_retries:
+                    time.sleep(0.5 * attempt)  # Exponential backoff
+                continue
+
+            # Wait for file to be available (handles AV scans, flush delays)
+            if not _wait_for_file(output_file, timeout=file_wait_timeout):
+                last_error = "Output file not available after migration reported success"
+                logger.warning(
+                    "Migration attempt %d/%d: file not ready for '%s'",
+                    attempt,
+                    max_retries,
+                    input_path.name,
+                )
+                if attempt < max_retries:
+                    time.sleep(0.5 * attempt)
+                continue
+
+            logger.debug("Migration successful on attempt %d.", attempt)
+            return output_file.read_text(encoding=encoding, errors="ignore")
+
+    msg = f"Failed to migrate '{input_path.name}' after {max_retries} attempts. Last error: {last_error}"
+    raise RuntimeError(msg)

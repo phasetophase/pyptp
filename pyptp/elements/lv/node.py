@@ -224,7 +224,7 @@ class NodeLV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.append(f"#General {self.general.serialize()} ")
 
         if self.fields:
-            lines.append(f"#Fields {self.fields.serialize()} ")
+            lines.append(f"#Fields {self.fields.serialize()}")
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.safe_extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.safe_notes)

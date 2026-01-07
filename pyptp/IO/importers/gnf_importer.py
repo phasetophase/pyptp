@@ -7,11 +7,10 @@ declarative handlers for component creation and network registration.
 from __future__ import annotations
 
 import re
-import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
-from pyptp.convert.version_migrator import save_as
+from pyptp.convert.version_migrator import migrate_and_read
 from pyptp.IO.importers._gnf_handlers.async_generator_handler import AsyncGeneratorHandler
 from pyptp.IO.importers._gnf_handlers.async_motor_handler import AsyncMotorHandler
 from pyptp.IO.importers._gnf_handlers.battery_handler import BatteryHandler
@@ -120,39 +119,22 @@ class GnfImporter:
             File content as string, either original or migrated to supported version.
 
         Raises:
-            RuntimeError: If version migration fails.
+            RuntimeError: If version migration fails after retries.
 
         """
         with Path.open(path, encoding="utf-8-sig", errors="ignore") as f:
             file_version = f.readline().strip()
 
         supported_versions = {"G8.9", "G8.9a"}
-        path_to_read = path
 
         if file_version not in supported_versions:
             logger.debug(
-                "Legacy GNF version '%s' detected. Attempting migration to G8.9a...",
+                "Legacy GNF version '%s' detected. Attempting migration to G8.9...",
                 file_version,
             )
+            return migrate_and_read(path, version="G8.9", encoding="utf-8-sig")
 
-            with tempfile.TemporaryDirectory() as temp_dir:
-                output_path = Path(temp_dir)
-                result = save_as(
-                    input_path=str(path),
-                    output_path=str(output_path),
-                    output_file=path.name,
-                    version="G8.9",
-                )
-
-                if "successful" not in str(result):
-                    msg = f"Failed to migrate GNF file '{path.name}': {result}"
-                    raise RuntimeError(msg)
-
-                logger.debug("Migration successful.")
-                path_to_read = output_path / path.name
-                return path_to_read.read_text(encoding="utf-8-sig", errors="ignore")
-
-        return path_to_read.read_text(encoding="utf-8-sig", errors="ignore")
+        return path.read_text(encoding="utf-8-sig", errors="ignore")
 
     def _dispatch_to_handlers(self, network: NetworkLV, raw_text: str) -> None:
         """Parse file content and dispatch sections to registered handlers.

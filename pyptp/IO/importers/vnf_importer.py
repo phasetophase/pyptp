@@ -7,11 +7,10 @@ declarative handlers for component creation and network registration.
 from __future__ import annotations
 
 import re
-import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
-from pyptp.convert.version_migrator import save_as
+from pyptp.convert.version_migrator import migrate_and_read
 from pyptp.IO.importers._vnf_handlers.async_generator_handler import AsyncGeneratorHandler
 from pyptp.IO.importers._vnf_handlers.async_motor_handler import AsyncMotorHandler
 from pyptp.IO.importers._vnf_handlers.battery_handler import BatteryHandler
@@ -152,39 +151,22 @@ class VnfImporter:
             File content as string, either original or migrated to supported version.
 
         Raises:
-            RuntimeError: If version migration fails.
+            RuntimeError: If version migration fails after retries.
 
         """
         with Path.open(path, encoding="utf-8", errors="ignore") as f:
             file_version = f.readline().strip()
 
         supported_versions = {"V9.9", "V9.10a"}
-        path_to_read = path
 
         if file_version not in supported_versions:
             logger.debug(
                 "Legacy VNF version '%s' detected. Attempting migration to V9.9...",
                 file_version,
             )
+            return migrate_and_read(path, version="V9.9", encoding="utf-8")
 
-            with tempfile.TemporaryDirectory() as temp_dir:
-                output_path = Path(temp_dir)
-                result = save_as(
-                    input_path=str(path),
-                    output_path=str(output_path),
-                    output_file=path.name,
-                    version="V9.9",
-                )
-
-                if "successful" not in str(result):
-                    msg = f"Failed to migrate VNF file '{path.name}': {result}"
-                    raise RuntimeError(msg)
-
-                logger.debug("Migration successful.")
-                path_to_read = output_path / path.name
-                return path_to_read.read_text(encoding="utf-8", errors="ignore")
-
-        return path_to_read.read_text(encoding="utf-8", errors="ignore")
+        return path.read_text(encoding="utf-8", errors="ignore")
 
     def _dispatch_to_handlers(self, network: NetworkMV, raw_text: str) -> None:
         """Parse file content and dispatch sections to registered handlers.
