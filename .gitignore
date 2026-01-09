@@ -193,6 +193,8 @@ pyptp/__history/
 /tests/private
 **/.ruff_cache
 /release_notes/
+tests/input_files/AllComponents.~gnf
+
 # Internal files (GitHub protection)
 .gitlab-ci.yml
 .claude/

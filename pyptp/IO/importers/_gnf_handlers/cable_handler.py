@@ -27,6 +27,7 @@ class CableHandler(DeclarativeHandler[NetworkLV]):
         SectionConfig("cable_part", "#CablePart "),
         SectionConfig("cable_type", "#CableType "),
         SectionConfig("cablepart_geography", "#GeoCablePart "),
+        SectionConfig("geography", "#Geo "),
         SectionConfig("cable_connections", "#CableConnections "),
         SectionConfig("cable_connection", "#CableConnection "),
         SectionConfig("load", "#Load "),
@@ -89,6 +90,8 @@ class CableHandler(DeclarativeHandler[NetworkLV]):
         if kwarg_name in ("cable_type", "connection_cable_type"):
             return CableType
         if kwarg_name == "cablepart_geography":
+            return GeoCablePart
+        if kwarg_name == "geography":
             return GeoCablePart
         if kwarg_name == "fields":
             return Fields

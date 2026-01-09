@@ -471,6 +471,7 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
     cable_part: CablePart
     cable_type: CableType | None = None
 
+    geography: GeoCablePart | None = None
     cablepart_geography: GeoCablePart | None = None
 
     fuse_type: FuseType | None = None
@@ -574,7 +575,10 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#CableType {self.cable_type.serialize()}")
 
         if self.cablepart_geography:
-            lines.append(f"#Geo {self.cablepart_geography.serialize()}")
+            lines.append(f"#GeoCablePart {self.cablepart_geography.serialize()}")
+
+        if self.geography:
+            lines.append(f"#Geo {self.geography.serialize()}")
 
         if self.fuse1_h1 is not None:
             lines.append(f"#FuseType1_h1 {self.fuse1_h1.serialize()}")

@@ -6,6 +6,8 @@ with consistent formatting and optional default value skipping for minimal file 
 
 from __future__ import annotations
 
+from pyptp.ptp_log import logger
+
 from .color_utils import CL_BLACK, DelphiColor
 from .element_utils import NIL_GUID, Guid
 
@@ -41,8 +43,38 @@ def write_guid_no_skip(prop: str, value: Guid) -> str:
     return f"{prop}:'{{{str(value).upper()}}}'"
 
 
+def sanitize_quoted_string(value: str, prop: str | None = None) -> str:
+    """Sanitize string for quoted serialization by replacing illegal characters.
+
+    Single quotes in quoted strings would break the GNF/VNF file format since
+    quoted properties use the format `Property:'value'`. This function replaces
+    single quotes with underscores and logs a warning when sanitization occurs.
+
+    Args:
+        value: String value to sanitize.
+        prop: Optional property name for warning context.
+
+    Returns:
+        Sanitized string safe for quoted serialization.
+
+    """
+    if "'" in value:
+        sanitized = value.replace("'", "_")
+        context = f" for property '{prop}'" if prop else ""
+        logger.warning(
+            "Sanitized single quote in quoted string%s: '%s' -> '%s'",
+            context,
+            value,
+            sanitized,
+        )
+        return sanitized
+    return value
+
+
 def write_quote_string(prop: str, value: str, skip: str = "") -> str:
     """Serialize quoted string property with optional skipping.
+
+    Automatically sanitizes single quotes to prevent format corruption.
 
     Args:
         prop: Property name.
@@ -54,12 +86,15 @@ def write_quote_string(prop: str, value: str, skip: str = "") -> str:
 
     """
     if value != skip:
-        return f"{prop}:'{value}'"
+        sanitized = sanitize_quoted_string(value, prop)
+        return f"{prop}:'{sanitized}'"
     return ""
 
 
 def write_quote_string_no_skip(prop: str, value: str) -> str:
     """Serialize quoted string property without skipping.
+
+    Automatically sanitizes single quotes to prevent format corruption.
 
     Args:
         prop: Property name.
@@ -69,7 +104,8 @@ def write_quote_string_no_skip(prop: str, value: str) -> str:
         Formatted property string.
 
     """
-    return f"{prop}:'{value}'"
+    sanitized = sanitize_quoted_string(value, prop)
+    return f"{prop}:'{sanitized}'"
 
 
 def write_string_no_skip(prop: str, value: str) -> str:
@@ -313,27 +349,6 @@ def serialize_properties(*props: str) -> str:
 
     """
     return " ".join(prop for prop in props if prop) + " "
-
-
-def write_optional_field(prop: str, value: str | bool | float | None, skip: str | bool | float | None = None) -> str:
-    """Serialize optional field with None value handling.
-
-    Args:
-        prop: Property name.
-        value: Field value to serialize.
-        skip: Value to skip (default: None).
-
-    Returns:
-        Formatted property string or empty string if skipped.
-
-    """
-    if value is not None and value != skip:
-        if isinstance(value, str):
-            return f"{prop}:'{value}'"
-        if isinstance(value, bool):
-            return f"{prop}:{value!s}"
-        return f"{prop}:{value}"
-    return ""
 
 
 def write_section_if_not_empty(section_name: str, serialized_content: str | None) -> str:

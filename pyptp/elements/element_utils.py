@@ -217,21 +217,17 @@ def encode_float_coords(coords: FloatCoords) -> str:
     if not coords:
         return "''"
 
-    # Normalize coordinate format to ensure (x, y) tuples
-    min_coord_length = 2
     processed_coords = []
-    for coord in coords:
-        if isinstance(coord, (list, tuple)) and len(coord) >= min_coord_length:
-            processed_coords.append((coord[0], coord[1]))
-        elif isinstance(coord, (int, float)):
-            logger.warning("Single coordinate value %r found, skipping", coord)
-        else:
-            logger.warning("Unknown coordinate format %r, skipping", coord)
+
+    for x, y in coords:
+        xs = f"{x:.15G}".replace("E-0", "E-")
+        ys = f"{y:.15G}".replace("E-0", "E-")
+        processed_coords.append(f"({xs} {ys})")
 
     if not processed_coords:
         return "''"
 
-    inner = " ".join(f"({str(x).replace('.', ',')} {str(y).replace('.', ',')})" for x, y in processed_coords)
+    inner = " ".join(processed_coords)
     return f"'{{{inner} }}'"
 
 

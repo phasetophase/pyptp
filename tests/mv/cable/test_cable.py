@@ -432,7 +432,7 @@ class TestCableRegistration(unittest.TestCase):
         cable_type = CableType(short_name="TestType", unom=10.0)
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
-        geo = CableMV.Geo(coordinates=[(100.0, 200.0), (300.0, 400.0), (500.0, 600.0)])
+        geo = CableMV.Geo(coordinates=[(1e-9, 23978293.1), (20, 30)])
 
         cable = CableMV(general, [cable_part], [cable_type], [presentation], geo=geo)
         cable.register(self.network)
@@ -443,9 +443,8 @@ class TestCableRegistration(unittest.TestCase):
         self.assertIn("#Geo", serialized)
         self.assertIn("Coordinates:", serialized)
         # Check that coordinates are properly formatted with coordinate pairs
-        self.assertIn("(100,0 200,0)", serialized)
-        self.assertIn("(300,0 400,0)", serialized)
-        self.assertIn("(500,0 600,0)", serialized)
+        self.assertIn("(1E-9 23978293.1)", serialized)
+        self.assertIn(" (20 30)", serialized)
 
     def test_cable_with_dynamic_properties_serializes_correctly(self) -> None:
         """Test that cables with dynamic properties serialize correctly."""

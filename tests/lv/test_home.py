@@ -480,11 +480,11 @@ class TestTHomeLS(unittest.TestCase):
 
     def test_home_geography_serialize_with_coordinates(self) -> None:
         """Test Geography class serialization with coordinates."""
-        geo = ConnectionLV.Geography(coordinates=[(100.0, 200.0), (300.0, 400.0)])
+        geo = ConnectionLV.Geography(coordinates=[(1e-9, 23978293.1), (20, 30)])
 
         result = geo.serialize()
 
-        self.assertEqual(result, "Coordinates:'{(100,0 200,0) (300,0 400,0) }'")
+        self.assertEqual(result, "Coordinates:'{(1E-9 23978293.1) (20 30) }'")
 
     def test_home_round_trip_serialization(self) -> None:
         """Test that serialization and deserialization are consistent."""
