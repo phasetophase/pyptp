@@ -262,10 +262,9 @@ class LinkLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.current_protection2_h4 is not None:
             lines.append(f"#CurrentType2_h4 {self.current_protection2_h4.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

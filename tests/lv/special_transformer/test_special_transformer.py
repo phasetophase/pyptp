@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import SpecialTransformerSort
 from pyptp.elements.lv.node import NodeLV
 from pyptp.elements.lv.presentations import BranchPresentation, NodePresentation
 from pyptp.elements.lv.sheet import SheetLV
@@ -111,7 +112,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
         )
 
         special_transformer_type = SpecialTransformerLV.SpecialTransformerType(
-            sort=1,
+            sort=SpecialTransformerSort.AUTO_YD11,
             short_name="TestSpecialTransformerType",
             snom=1000.0,
             unom1=10.0,

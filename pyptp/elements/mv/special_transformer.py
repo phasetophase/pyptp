@@ -9,6 +9,7 @@ from uuid import uuid4
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
 from pyptp.elements.element_utils import NIL_GUID, Guid, decode_guid, encode_guid, string_field
+from pyptp.elements.enums import SpecialTransformerSort
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
@@ -338,7 +339,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
     class SpecialTransformerType(DataClassJsonMixin):
         """Electrotechnical properties of the special transformer."""
 
-        sort: str = string_field()
+        sort: SpecialTransformerSort = SpecialTransformerSort.NONE
         short_name: str = string_field()
         snom: float | int = 0
         unom1: float | int = 0
@@ -365,7 +366,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize SpecialTransformerType properties."""
             return serialize_properties(
-                write_quote_string_no_skip("Sort", self.sort),
+                write_integer_no_skip("Sort", int(self.sort)),
                 write_quote_string_no_skip("ShortName", self.short_name),
                 write_double_no_skip("Snom", self.snom),
                 write_double_no_skip("Unom1", self.unom1),
@@ -394,7 +395,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         def deserialize(cls, data: dict) -> SpecialTransformerMV.SpecialTransformerType:
             """Deserialize SpecialTransformerType properties."""
             return cls(
-                sort=data.get("Sort", ""),
+                sort=SpecialTransformerSort(int(data.get("Sort", 0))),
                 short_name=data.get("ShortName", ""),
                 snom=data.get("Snom", 0),
                 unom1=data.get("Unom1", 0),

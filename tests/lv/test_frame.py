@@ -370,7 +370,7 @@ class TestTFrameLS(unittest.TestCase):
 
         result = geo.serialize()
 
-        self.assertEqual(result, "Coordinates:'{(100,0 200,0) (300,0 400,0) }'")
+        self.assertEqual(result, "Coordinates:'{(100 200) (300 400) }'")
 
     def test_frame_round_trip_serialization(self) -> None:
         """Test that serialization and deserialization are consistent."""

@@ -7,11 +7,13 @@ for consistent GNF/VNF property serialization.
 from __future__ import annotations
 
 import unittest
+from unittest.mock import patch
 from uuid import UUID
 
 from pyptp.elements.color_utils import CL_RED
 from pyptp.elements.element_utils import NIL_GUID, Guid
 from pyptp.elements.serialization_helpers import (
+    sanitize_quoted_string,
     write_boolean,
     write_boolean_no_skip,
     write_color,
@@ -79,6 +81,58 @@ class TestSerializationHelpers(unittest.TestCase):
         self.assertEqual(result, "TestProp:'test_value'")
         result = write_quote_string_no_skip("TestProp", "")
         self.assertEqual(result, "TestProp:''")
+
+    def test_sanitize_quoted_string_no_quotes(self):
+        """Validate that strings without quotes pass through unchanged."""
+        result = sanitize_quoted_string("normal_string")
+        self.assertEqual(result, "normal_string")
+        result = sanitize_quoted_string("string with spaces")
+        self.assertEqual(result, "string with spaces")
+        result = sanitize_quoted_string("")
+        self.assertEqual(result, "")
+
+    def test_sanitize_quoted_string_with_quotes(self):
+        """Validate that single quotes are replaced with underscores."""
+        result = sanitize_quoted_string("Bob's Node")
+        self.assertEqual(result, "Bob_s Node")
+        result = sanitize_quoted_string("It's a 'test'")
+        self.assertEqual(result, "It_s a _test_")
+        result = sanitize_quoted_string("'")
+        self.assertEqual(result, "_")
+        result = sanitize_quoted_string("'''")
+        self.assertEqual(result, "___")
+
+    def test_write_quote_string_sanitizes_quotes(self):
+        """Validate that write_quote_string sanitizes single quotes."""
+        result = write_quote_string("Name", "Bob's Node")
+        self.assertEqual(result, "Name:'Bob_s Node'")
+        result = write_quote_string("Name", "It's a 'test'")
+        self.assertEqual(result, "Name:'It_s a _test_'")
+
+    def test_write_quote_string_no_skip_sanitizes_quotes(self):
+        """Validate that write_quote_string_no_skip sanitizes single quotes."""
+        result = write_quote_string_no_skip("Name", "Bob's Node")
+        self.assertEqual(result, "Name:'Bob_s Node'")
+        result = write_quote_string_no_skip("Name", "It's a 'test'")
+        self.assertEqual(result, "Name:'It_s a _test_'")
+
+    def test_sanitize_quoted_string_logs_warning(self):
+        """Validate that sanitization logs a warning with context."""
+        with patch("pyptp.elements.serialization_helpers.logger.warning") as mock_log:
+            result = sanitize_quoted_string("Bob's Node", "Name")
+            self.assertEqual(result, "Bob_s Node")
+            mock_log.assert_called_once()
+            call_args = mock_log.call_args[0]
+            self.assertIn("Name", str(call_args))
+            self.assertIn("Bob's Node", str(call_args))
+            self.assertIn("Bob_s Node", str(call_args))
+
+    def test_sanitize_quoted_string_no_warning_for_clean_strings(self):
+        """Validate that clean strings do not trigger warnings."""
+        with patch("pyptp.elements.serialization_helpers.logger.warning") as mock_log:
+            result = sanitize_quoted_string("Clean String", "Name")
+            self.assertEqual(result, "Clean String")
+            mock_log.assert_not_called()
 
     def test_write_string_no_skip(self):
         """Validate unquoted string serialization."""

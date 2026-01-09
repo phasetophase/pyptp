@@ -373,7 +373,7 @@ class GeoCablePart(DataClassJsonMixin):
         props = []
         if self.coordinates:
             props.append(f"Coordinates:{encode_float_coords(self.coordinates)}")
-        return " ".join(props)
+        return " ".join(props) + " "
 
     @classmethod
     def deserialize(cls, data: dict) -> GeoCablePart:
