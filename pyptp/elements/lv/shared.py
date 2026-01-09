@@ -427,7 +427,7 @@ class EfficiencyType(DataClassJsonMixin):
         for i in range(1, 6):
             props.append(f"Input{i}:{getattr(self, f'input{i}')}")
             props.append(f"Output{i}:{getattr(self, f'output{i}')}")
-        return " ".join(props)
+        return " ".join(props) + " "
 
     @classmethod
     def deserialize(cls, data: dict) -> EfficiencyType:
