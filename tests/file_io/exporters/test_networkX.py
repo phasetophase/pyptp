@@ -42,13 +42,13 @@ class TestNetworkxConverterLV(unittest.TestCase):
             self.root / "input_files" / "AllComponents.vnf"
         )
 
-        self.truth_lv = open(
-            self.root / "output_files" / "network_x" / "truth_lv_graph.txt", "r"
-        ).read()
+        self.truth_lv = (
+            self.root / "output_files" / "network_x" / "truth_lv_graph.txt"
+        ).read_text()
 
-        self.truth_mv = open(
-            self.root / "output_files" / "network_x" / "truth_mv_graph.txt", "r"
-        ).read()
+        self.truth_mv = (
+            self.root / "output_files" / "network_x" / "truth_mv_graph.txt"
+        ).read_text()
 
     def test_networkX_lv_graph(self):
         """NetworkX graph LV test"""

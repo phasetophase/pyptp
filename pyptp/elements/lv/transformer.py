@@ -392,12 +392,12 @@ class TransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.type:
             lines.append(f"#TransformerType {self.type.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         # Serialize extras and notes using safe accessors
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.safe_extras)
 
         lines.extend(f"#Note Text:{note.text}" for note in self.safe_notes)
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

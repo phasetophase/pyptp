@@ -105,7 +105,7 @@ class SynchronousGeneratorLV(ExtrasNotesMixin, HasPresentationsMixin):
                 field_name=data.get("FieldName", ""),
                 pref=data.get("Pref", 0.8),
                 control_sort=data.get("ControlSort", ""),
-                cos_ref=data.get("Cosref", 0.95),
+                cos_ref=data.get("CosRef", 0.95),
                 uref=data.get("Uref", 0),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
                 type=data.get("SynchronousGeneratorType", ""),

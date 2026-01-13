@@ -48,7 +48,7 @@ class NodePresentation(DataClassJsonMixin):
     style: str = "Solid"  # Line style: Solid, Dash, Dot, DashDot, DashDotDot
     text_color: DelphiColor = field(default=CL_BLACK)
     text_size: int = optional_field(10)
-    font: str = field(default="Arial")
+    font: str = string_field("Arial")
     text_style: int = optional_field(0)
     is_text_hidden: bool = False
     is_text_upside_down: bool = False
@@ -171,7 +171,7 @@ class BranchPresentation(DataClassJsonMixin):
 
     text_size: int = 7
     """Size of the text."""
-    font: str = field(default="Arial")
+    font: str = string_field("Arial")
     text_style: int = 1
     no_text: bool = False
     """Hides all text when True."""
@@ -425,7 +425,7 @@ class ElementPresentation(DataClassJsonMixin):
     """Color of the text."""
     text_size: int = 7
     """Size of the text."""
-    font: str = field(default="Arial")
+    font: str = string_field("Arial")
     """Font for the text by the object."""
     text_style: int = 1
     """Text style (cursive, bold, etc.)."""

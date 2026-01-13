@@ -114,7 +114,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_boolean("Variant", value=self.variant),
                 write_guid_no_skip("Node1", self.node1),
                 write_guid_no_skip("Node2", self.node2),
-                write_quote_string_no_skip("Name", self.name),
+                write_quote_string("Name", self.name),
                 write_integer_no_skip("SwitchState1", self.switch_state1),
                 write_integer_no_skip("SwitchState2", self.switch_state2),
                 write_quote_string("FieldName1", self.field_name1),

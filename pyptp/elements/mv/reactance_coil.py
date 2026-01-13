@@ -13,11 +13,11 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
-    write_boolean_as_byte_no_skip,
     write_double,
     write_double_no_skip,
     write_guid_no_skip,
     write_integer,
+    write_integer_no_skip,
     write_quote_string,
 )
 from pyptp.ptp_log import logger
@@ -49,8 +49,8 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         name: str = string_field()
-        switch_state1: bool = False
-        switch_state2: bool = False
+        switch_state1: int = 1
+        switch_state2: int = 1
         field_name1: str = string_field()
         field_name2: str = string_field()
         subnet_border: bool = False
@@ -74,8 +74,8 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_guid_no_skip("Node1", self.node1),
                 write_guid_no_skip("Node2", self.node2),
                 write_quote_string("Name", self.name),
-                write_boolean_as_byte_no_skip("SwitchState1", value=self.switch_state1),
-                write_boolean_as_byte_no_skip("SwitchState2", value=self.switch_state2),
+                write_integer_no_skip("SwitchState1", value=self.switch_state1),
+                write_integer_no_skip("SwitchState2", value=self.switch_state2),
                 write_quote_string("FieldName1", self.field_name1),
                 write_quote_string("FieldName2", self.field_name2, skip=""),
                 write_boolean("SubnetBorder", value=self.subnet_border),
@@ -101,8 +101,8 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
                 node1=decode_guid(data.get("Node1", str(NIL_GUID))),
                 node2=decode_guid(data.get("Node2", str(NIL_GUID))),
                 name=data.get("Name", ""),
-                switch_state1=data.get("SwitchState1", False),
-                switch_state2=data.get("SwitchState2", False),
+                switch_state1=data.get("SwitchState1", 1),
+                switch_state2=data.get("SwitchState2", 1),
                 field_name1=data.get("FieldName1", ""),
                 field_name2=data.get("FieldName2", ""),
                 subnet_border=data.get("SubnetBorder", False),
@@ -136,14 +136,14 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize ReactanceCoilType properties."""
             return serialize_properties(
                 write_quote_string("ShortName", self.short_name, skip=""),
-                write_double_no_skip("Unom", self.unom),
-                write_double_no_skip("Inom", self.inom),
-                write_double_no_skip("R", self.R),
-                write_double_no_skip("X", self.X),
-                write_double_no_skip("R0", self.R0),
-                write_double_no_skip("X0", self.X0),
-                write_double_no_skip("R2", self.R2),
-                write_double_no_skip("X2", self.X2),
+                write_double("Unom", self.unom),
+                write_double("Inom", self.inom),
+                write_double("R", self.R),
+                write_double("X", self.X),
+                write_double("R0", self.R0),
+                write_double("X0", self.X0),
+                write_double("R2", self.R2),
+                write_double("X2", self.X2),
                 write_double("Ik2s", self.Ik2s),
             )
 

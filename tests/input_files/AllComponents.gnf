@@ -28,14 +28,14 @@ NETWORK
 []
 
 [NODE]
-#General GUID:'{B52309AB-B77A-3135-A4B1-B84F2E21BB13}' CreationTime:0 Name:'Node1' Unom:0,4 
-#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Symbol:11 Font:'' UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
-#General GUID:'{D44E7EA7-B4BF-363B-8A74-5B2D7D3AA750}' CreationTime:0 Name:'Node2' Unom:0,4 
-#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:400 Symbol:11 Font:'' UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
+#General GUID:'{B52309AB-B77A-3135-A4B1-B84F2E21BB13}' CreationTime:0 MutationDate:46035 Name:'Node1' Unom:0,4 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Symbol:11 UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
+#General GUID:'{D44E7EA7-B4BF-363B-8A74-5B2D7D3AA750}' CreationTime:0 MutationDate:46035 Name:'Node2' Unom:0,4 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:400 Symbol:11 Font:'Arial Black' UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
 #General GUID:'{158A5123-DA5E-3F14-8DF9-87E6A9E084B5}' CreationTime:0 Name:'Node3' Unom:0,4 
-#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:800 Symbol:11 Font:'' UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:800 Symbol:11 UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
 #General GUID:'{56FF597F-8EFA-3730-B884-92940F0FBFDB}' CreationTime:0 Name:'Node4' Unom:10 
-#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Y:400 Symbol:11 Font:'' UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
+#Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' Y:400 Symbol:11 UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
 #General GUID:'{172BAF58-3BA3-389C-B0F3-2B39E9914E21}' CreationTime:0 Name:'Node5' Unom:10 
 #Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' X:400 Y:400 Symbol:11 Font:'' UpstringsX:8 UpstringsY:-8 FaultStringsX:-20 FaultStringsY:20 NoteX:5 NoteY:5 
 #General GUID:'{7796663B-4610-3B8C-A1B1-175162FD61BC}' CreationTime:0 Name:'Node6' Unom:0,4 
@@ -44,7 +44,7 @@ NETWORK
 
 [LINK]
 #General GUID:'{1FB1AE9C-F101-3B4E-8E4A-0DBB763037D6}' CreationTime:0 Node1:'{D44E7EA7-B4BF-363B-8A74-5B2D7D3AA750}' Node2:'{158A5123-DA5E-3F14-8DF9-87E6A9E084B5}' SwitchState1_L1:1 SwitchState1_L2:1 SwitchState1_L3:1 SwitchState1_N:1 SwitchState1_PE:1 SwitchState2_L1:1 SwitchState2_L2:1 SwitchState2_L3:1 SwitchState2_N:1 SwitchState2_PE:1 SwitchState1_h1:1 SwitchState1_h2:1 SwitchState1_h3:1 SwitchState1_h4:1 SwitchState2_h1:1 SwitchState2_h2:1 SwitchState2_h3:1 SwitchState2_h4:1 
-#Note Text:Link 
+#Note Text:Link
 #Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' Strings1X:12 Strings1Y:6 Strings2X:-15 Strings2Y:6 MidStringsY:4 FaultStringsX:-20 FaultStringsY:20 NoteY:5 FirstCorners:'{(400 0) }' SecondCorners:'{(800 0) }' 
 []
 

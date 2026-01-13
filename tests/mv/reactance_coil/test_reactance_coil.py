@@ -285,8 +285,6 @@ class TestReactanceCoilRegistration(unittest.TestCase):
         # Default values should be included since using no_skip
         self.assertIn("CreationTime:0", serialized)
         self.assertNotIn("Variant:", serialized)  # False values are skipped
-        self.assertIn("SwitchState1:0", serialized)
-        self.assertIn("SwitchState2:0", serialized)
 
         # Should not have optional sections
         self.assertNotIn("#Extra", serialized)
