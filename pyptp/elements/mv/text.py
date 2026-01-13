@@ -139,7 +139,7 @@ class TextMV(ExtrasNotesMixin):
 
         text_size: int = 10
         """Size of the text."""
-        font: str = "Arial"
+        font: str = string_field("Arial")
         text_style: int = 0
         upside_down_text: bool = False
         """Makes text upside down when True."""

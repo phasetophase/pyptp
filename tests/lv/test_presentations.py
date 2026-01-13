@@ -31,10 +31,7 @@ class TestNodePresentation(unittest.TestCase):
 
         # Should include required fields
         self.assertIn(f"Sheet:{encode_guid(NIL_GUID)}", result)
-        self.assertIn("X:0", result)
-        self.assertIn("Y:0", result)
         self.assertIn("Symbol:11", result)
-        self.assertIn(f"Color:{CL_BLACK}", result)
 
         # Should skip default values
         self.assertNotIn("Size:", result)  # Default 1 should be skipped
@@ -380,7 +377,7 @@ class TestBranchPresentation(unittest.TestCase):
         self.assertEqual(branch_presentation.size, 1)
         self.assertEqual(branch_presentation.width, 1)
         self.assertEqual(branch_presentation.text_color, CL_BLACK)
-        self.assertEqual(branch_presentation.text_size, 7)
+        self.assertEqual(branch_presentation.text_size, 10)
         self.assertEqual(branch_presentation.font, "Arial")
         self.assertEqual(branch_presentation.text_style, 0)
         self.assertEqual(branch_presentation.no_text, False)
@@ -406,9 +403,6 @@ class TestElementPresentation(unittest.TestCase):
 
         # Should include required fields
         self.assertIn(f"Sheet:{encode_guid(NIL_GUID)}", result)
-        self.assertIn("X:0", result)
-        self.assertIn("Y:0", result)
-
         # Should skip default values
         self.assertNotIn("Size:", result)  # Default 1 should be skipped
         self.assertNotIn("Width:", result)  # Default 1 should be skipped
@@ -526,7 +520,7 @@ class TestElementPresentation(unittest.TestCase):
         self.assertEqual(element_presentation.size, 1)
         self.assertEqual(element_presentation.width, 1)
         self.assertEqual(element_presentation.text_color, CL_BLACK)
-        self.assertEqual(element_presentation.text_size, 7)
+        self.assertEqual(element_presentation.text_size, 10)
         self.assertEqual(element_presentation.font, "Arial")
         self.assertEqual(element_presentation.text_style, 0)
         self.assertEqual(element_presentation.no_text, False)
@@ -655,8 +649,8 @@ class TestSecundairPresentation(unittest.TestCase):
         self.assertEqual(secundair_presentation.size, 1)
         self.assertEqual(secundair_presentation.width, 1)
         self.assertEqual(secundair_presentation.text_color, CL_BLACK)
-        self.assertEqual(secundair_presentation.text_size, 7)
-        self.assertEqual(secundair_presentation.font, "")
+        self.assertEqual(secundair_presentation.text_size, 10)
+        self.assertEqual(secundair_presentation.font, "Arial")
         self.assertEqual(secundair_presentation.text_style, 0)
         self.assertEqual(secundair_presentation.no_text, False)
         self.assertEqual(secundair_presentation.upside_down_text, False)

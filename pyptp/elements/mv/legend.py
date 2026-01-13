@@ -14,6 +14,7 @@ from pyptp.elements.element_utils import (
     decode_guid,
     encode_guid,
     optional_field,
+    string_field,
 )
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
@@ -89,7 +90,7 @@ class LegendPresentation(DataClassJsonMixin):
 
     text_size: int = optional_field(10)
     """Size of the text."""
-    font: str = field(default="Arial")
+    font: str = string_field("Arial")
     text_style: int = optional_field(0)
     no_text: bool = False
     """Hides all text when True."""

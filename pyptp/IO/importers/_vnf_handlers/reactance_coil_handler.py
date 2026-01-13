@@ -27,9 +27,9 @@ class ReactanceCoilHandler(DeclarativeHandler[TNetworkMSType]):
         if kwarg_name == "general":
             return ReactanceCoilMV.General
         if kwarg_name == "presentations":
-            from pyptp.elements.mv.presentations import ElementPresentation
+            from pyptp.elements.mv.presentations import BranchPresentation
 
-            return ElementPresentation
+            return BranchPresentation
         if kwarg_name == "type":
             return ReactanceCoilMV.ReactanceCoilType
         if kwarg_name == "extras":

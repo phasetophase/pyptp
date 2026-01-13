@@ -50,7 +50,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         creation_time: float | int = 0.0
         mutation_date: int = 0
         revision_date: int = 0
-        variant: bool = True
+        variant: bool = False
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         name: str = string_field()
@@ -155,7 +155,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 creation_time=data.get("CreationTime", 0.0),
                 mutation_date=data.get("MutationDate", 0),
                 revision_date=data.get("RevisionDate", 0),
-                variant=data.get("Variant", True),
+                variant=data.get("Variant", False),
                 node1=decode_guid(data.get("Node1", str(NIL_GUID))),
                 node2=decode_guid(data.get("Node2", str(NIL_GUID))),
                 name=data.get("Name", ""),

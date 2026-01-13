@@ -187,8 +187,8 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
             return serialize_properties(
                 write_double("Length", self.length),
                 write_quote_string_no_skip("CableType", self.cable_type),
-                write_quote_string("Year", self.year) if self.year else "",
                 write_integer_no_skip("ParallelCableCount", self.parallel_cable_count),
+                write_quote_string("Year", self.year) if self.year else "",
                 write_integer_no_skip("GroundResistivityIndex", self.ground_resistivity_index),
                 write_integer_no_skip("AmpacityFactor", self.ampacity_factor),
             )

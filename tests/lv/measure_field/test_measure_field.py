@@ -143,7 +143,6 @@ class TestMeasureFieldRegistration(unittest.TestCase):
         self.assertIn(f"Sheet:{encode_guid(self.sheet_guid)}", serialized)
         self.assertIn("Size:2", serialized)
         self.assertIn("Width:3", serialized)
-        self.assertIn("TextSize:10", serialized)
         self.assertIn("NoText:True", serialized)
         self.assertIn("UpsideDownText:True", serialized)
 

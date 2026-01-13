@@ -28,7 +28,6 @@ from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
     write_delphi_color,
-    write_delphi_color_no_skip,
     write_integer,
     write_integer_no_skip,
     write_quote_string,
@@ -54,7 +53,7 @@ class NodePresentation(DataClassJsonMixin):
     """Color of the text."""
     text_size: int = optional_field(10)
     """Size of the text."""
-    font: str = "Arial"
+    font: str = string_field("Arial")
     text_style: int = optional_field(0)
     no_text: bool = False
     """Hides all text when True."""
@@ -108,10 +107,10 @@ class NodePresentation(DataClassJsonMixin):
         """Serialize NodePresentation properties to a string."""
         return serialize_properties(
             write_string_no_skip("Sheet", encode_guid(self.sheet)),
-            write_integer_no_skip("X", self.x),
-            write_integer_no_skip("Y", self.y),
-            write_integer_no_skip("Symbol", int(self.symbol)),
-            write_delphi_color_no_skip("Color", self.color),
+            write_integer("X", self.x),
+            write_integer("Y", self.y),
+            write_integer_no_skip("Symbol", self.symbol),
+            write_delphi_color("Color", self.color),
             write_integer("Size", self.size, skip=1),
             write_integer("Width", self.width, skip=1),
             write_delphi_color("TextColor", self.text_color),
@@ -168,9 +167,9 @@ class BranchPresentation(DataClassJsonMixin):
     """Thickness of the lines that draw the symbol."""
     text_color: DelphiColor = field(default=CL_BLACK)
     """Color of the text."""
-    text_size: int = 7
+    text_size: int = 10
     """Size of the text."""
-    font: str = "Arial"
+    font: str = string_field("Arial")
     text_style: int = optional_field(0)
     no_text: bool = False
     """Hides all text when True."""
@@ -209,7 +208,7 @@ class BranchPresentation(DataClassJsonMixin):
             write_integer("Size", self.size, skip=1),
             write_integer("Width", self.width, skip=1),
             write_delphi_color("TextColor", self.text_color),
-            write_integer("TextSize", self.text_size, skip=7),
+            write_integer("TextSize", self.text_size, skip=10),
             write_quote_string("Font", self.font, skip="Arial"),
             write_integer("TextStyle", self.text_style),
             write_boolean("NoText", value=self.no_text),
@@ -257,7 +256,7 @@ class BranchPresentation(DataClassJsonMixin):
             size=data.get("Size", 1),
             width=data.get("Width", 1),
             text_color=data.get("TextColor", CL_BLACK),
-            text_size=data.get("TextSize", 7),
+            text_size=data.get("TextSize", 10),
             font=data.get("Font", "Arial"),
             text_style=data.get("TextStyle", 0),
             no_text=data.get("NoText", False),
@@ -293,9 +292,9 @@ class ElementPresentation(DataClassJsonMixin):
     """Thickness of the lines that draw the symbol."""
     text_color: DelphiColor = field(default=CL_BLACK)
     """Color of the text."""
-    text_size: int = 7
+    text_size: int = 10
     """Size of the text."""
-    font: str = "Arial"
+    font: str = string_field("Arial")
     text_style: int = optional_field(0)
     no_text: bool = False
     """Hides all text when True."""
@@ -317,13 +316,13 @@ class ElementPresentation(DataClassJsonMixin):
         """Serialize ElementPresentation properties to a string."""
         return serialize_properties(
             write_string_no_skip("Sheet", encode_guid(self.sheet)),
-            write_integer_no_skip("X", self.x),
-            write_integer_no_skip("Y", self.y),
+            write_integer("X", self.x),
+            write_integer("Y", self.y),
             write_delphi_color("Color", self.color),
             write_integer("Size", self.size, skip=1),
             write_integer("Width", self.width, skip=1),
             write_delphi_color("TextColor", self.text_color),
-            write_integer("TextSize", self.text_size, skip=7),
+            write_integer("TextSize", self.text_size, skip=10),
             write_quote_string("Font", self.font, skip="Arial"),
             write_integer("TextStyle", self.text_style),
             write_boolean("NoText", value=self.no_text),
@@ -348,7 +347,7 @@ class ElementPresentation(DataClassJsonMixin):
             size=data.get("Size", 1),
             width=data.get("Width", 1),
             text_color=data.get("TextColor", CL_BLACK),
-            text_size=data.get("TextSize", 7),
+            text_size=data.get("TextSize", 10),
             font=data.get("Font", "Arial"),
             text_style=data.get("TextStyle", 0),
             no_text=data.get("NoText", False),
@@ -377,9 +376,9 @@ class SecundairPresentation(DataClassJsonMixin):
     """Thickness of the lines that draw the symbol."""
     text_color: DelphiColor = field(default=CL_BLACK)
     """Color of the text."""
-    text_size: int = 7
+    text_size: int = 10
     """Size of the text."""
-    font: str = string_field()
+    font: str = string_field("Arial")
     text_style: int = optional_field(0)
     no_text: bool = False
     """Hides all text when True."""
@@ -404,8 +403,8 @@ class SecundairPresentation(DataClassJsonMixin):
             write_integer("Size", self.size, skip=1),
             write_integer("Width", self.width, skip=1),
             write_delphi_color("TextColor", self.text_color),
-            write_integer("TextSize", self.text_size, skip=7),
-            write_quote_string("Font", self.font),
+            write_integer("TextSize", self.text_size, skip=10),
+            write_quote_string("Font", self.font, "Arial"),
             write_integer("TextStyle", self.text_style),
             write_boolean("NoText", value=self.no_text),
             write_boolean("UpsideDownText", value=self.upside_down_text),
@@ -426,8 +425,8 @@ class SecundairPresentation(DataClassJsonMixin):
             size=data.get("Size", 1),
             width=data.get("Width", 1),
             text_color=data.get("TextColor", CL_BLACK),
-            text_size=data.get("TextSize", 7),
-            font=data.get("Font", ""),
+            text_size=data.get("TextSize", 10),
+            font=data.get("Font", "Arial"),
             text_style=data.get("TextStyle", 0),
             no_text=data.get("NoText", False),
             upside_down_text=data.get("UpsideDownText", False),

@@ -3,7 +3,7 @@ NETWORK
 
 [PROPERTIES]
 #System Currency:'€' 
-#Network GUID:'{A10CF066-D64D-4666-A81B-95FC39774DFB}' State:'{A7BDCF5B-F2D0-46D3-889E-00900F511F26}' SaveDateTime:46015.5710270023 
+#Network GUID:'{77FAC3A0-BB0F-4D8F-8052-2F3D2CE5268B}' State:'{B94BCDCB-4B4D-4B68-9B58-BC226CBE9514}' SaveDateTime:46035.6367232176 
 #General 
 #Invisible 
 #History 
@@ -38,13 +38,14 @@ NETWORK
 [CABLE]
 #General GUID:'{F40AEAC2-EDB3-4831-81D7-1DC385CF43F7}' CreationTime:45783.4035219097 Node1:'{E0E2BC23-850E-490F-85CC-7F1CC321F480}' Node2:'{848B288A-B1B4-4800-8AA0-BA855CCF2710}' SwitchState1:1 SwitchState2:1 DynModel:'P' DynSection:1 
 #CablePart Length:10 CableType:'3*120 CU GPLK   8/10' ParallelCableCount:1 GroundResistivityIndex:1 AmpacityFactor:1 
-#CableType ShortName:'120 Cu' Unom:10 R:0.154 X:0.08 C:0.38 C0:0.23 TanDelta:0.003 R0:2.54 X0:0.13 Inom0:190 G1:0.5 Inom1:305 G2:0.75 Inom2:275 G3:1 Inom3:255 Ik1s:15.5 TR:20 TInom:50 TIk1s:160 Frequency:50 PulseVelocity:167 
+#CableType ShortName:'120 Cu' Unom:10 R:0.154 X:0.08 C:0.38 TanDelta:0.003 R0:2.54 X0:0.13 C0:0.23 Inom0:190 G1:0.5 Inom1:305 G2:0.75 Inom2:275 G3:1 Inom3:255 Ik1s:15.5 TR:20 TInom:50 TIk1s:160 Frequency:50 PulseVelocity:167 
 #Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' Strings1X:12 Strings1Y:6 Strings2X:-15 Strings2Y:6 MidStringsY:4 FaultStringsX:-20 FaultStringsY:20 NoteY:5 FirstCorners:'{(15000 15000) }' SecondCorners:'{(15260 15000) }' 
 []
 
 [TRANSFORMER]
-#General GUID:'{C71A2F68-47EF-44C6-B53E-332A2762CD73}' CreationTime:45783.4046713773 Node1:'{848B288A-B1B4-4800-8AA0-BA855CCF2710}' Node2:'{699DB406-4798-4382-B680-3CBC62AD813A}' Name:'' SwitchState1:1 SwitchState2:1 TransformerType:'11750|10000|380|1600|8' ClockNumber:0 Earthing1:0 Earthing2:1 TapPosition:4 
+#General GUID:'{C71A2F68-47EF-44C6-B53E-332A2762CD73}' CreationTime:45783.4046713773 Node1:'{848B288A-B1B4-4800-8AA0-BA855CCF2710}' Node2:'{699DB406-4798-4382-B680-3CBC62AD813A}' SwitchState1:1 SwitchState2:1 TransformerType:'11750|10000|380|1600|8' ClockNumber:0 Earthing1:0 Earthing2:1 TapPosition:4 
 #TransformerType ShortName:'1600 kVA' Snom:1.6 Unom1:11 Unom2:0.38 Uk:6 Pk:14 Po:1.2 R0:0.001 Z0:0.0066 Ik2s:36.7 WindingConnection1:'D' WindingConnection2:'yn' ClockNumber:5 TapSide:1 TapSize:0.25 TapMin:8 TapNom:4 TapMax:1 Ki:10 Tau:0.4 
+#Dynamics KneeFluxLeg1:1.04 KneeFluxLeg2:1.04 KneeFluxLeg3:1.04 MagnetizingInductanceRatioLeg1:1000 MagnetizingInductanceRatioLeg2:1000 MagnetizingInductanceRatioLeg3:1000 RemanentFluxLeg1:0.7 RemanentFluxLeg2:0.7 RemanentFluxLeg3:0.7 
 #Presentation Sheet:'{AE5569E2-0ABC-4A8B-A376-09BF27E342CB}' Strings1X:-15 Strings1Y:6 Strings2X:-15 Strings2Y:6 MidStringsX:24 FaultStringsX:-20 FaultStringsY:20 NoteX:5 FirstCorners:'{(15260 15020) (15180 15020) }' SecondCorners:'{(15260 15140) (15180 15140) }' 
 []
 

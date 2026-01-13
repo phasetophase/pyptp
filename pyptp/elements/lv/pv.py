@@ -101,14 +101,14 @@ class PVLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Longitude", self.longitude),
                 write_double("Latitude", self.latitude),
                 write_double("Panel1Pnom", self.panel1_pnom),
-                write_double("Panel1Orientation", self.panel1_orientation),
-                write_double("Panel1Slope", self.panel1_slope),
+                write_double_no_skip("Panel1Orientation", self.panel1_orientation),
+                write_double_no_skip("Panel1Slope", self.panel1_slope),
                 write_double("Panel2Pnom", self.panel2_pnom),
-                write_double("Panel2Orientation", self.panel2_orientation),
-                write_double("Panel2Slope", self.panel2_slope),
+                write_double_no_skip("Panel2Orientation", self.panel2_orientation),
+                write_double_no_skip("Panel2Slope", self.panel2_slope),
                 write_double("Panel3Pnom", self.panel3_pnom),
-                write_double("Panel3Orientation", self.panel3_orientation),
-                write_double("Panel3Slope", self.panel3_slope),
+                write_double_no_skip("Panel3Orientation", self.panel3_orientation),
+                write_double_no_skip("Panel3Slope", self.panel3_slope),
                 write_quote_string("HarmonicsType", self.harmonics_type),
             )
 
@@ -157,7 +157,7 @@ class PVLV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize Inverter properties."""
             return serialize_properties(
-                write_double("Snom", self.snom, 12.5),
+                write_double_no_skip("Snom", self.snom),
                 write_quote_string("EfficiencyType", self.efficiency_type),
                 write_double("Uoff", self.u_off),
             )
@@ -318,10 +318,9 @@ class PVLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.harmonics:
             lines.append(f"#HarmonicsType {self.harmonics.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

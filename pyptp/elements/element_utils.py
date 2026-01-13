@@ -94,7 +94,7 @@ def string_field(default: str = "") -> str:
         default: Default string value (typically empty).
 
     Returns:
-        Configured string field with GNF encoding and empty string exclusion.
+        Configured string field with proper encoding and empty string exclusion.
 
     """
     return field(
