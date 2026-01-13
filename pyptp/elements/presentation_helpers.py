@@ -8,10 +8,146 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
+from pyptp.elements.enums import NodePresentationSymbol
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from pyptp.elements.element_utils import Guid
+
+
+COORDINATE_GRID_SIZE: int = 20
+"""Grid size used for coordinate snapping in Gaia/Vision file formats."""
+
+
+def round_to_grid(value: int, grid_size: int = COORDINATE_GRID_SIZE) -> int:
+    """Round a coordinate value to the nearest grid point.
+
+    Args:
+        value: Coordinate value to round.
+        grid_size: Grid alignment size (default: COORDINATE_GRID_SIZE).
+
+    Returns:
+        Value rounded to nearest multiple of grid_size.
+
+    """
+    return grid_size * round(value / grid_size)
+
+
+def points_match_on_grid(
+    point1: tuple[int, int],
+    point2: tuple[int, int],
+    grid_size: int = COORDINATE_GRID_SIZE,
+) -> bool:
+    """Check if two points will match after grid rounding.
+
+    Useful for validating whether coordinates that differ slightly will
+    resolve to the same position when saved to file format.
+
+    Args:
+        point1: First (x, y) coordinate tuple.
+        point2: Second (x, y) coordinate tuple.
+        grid_size: Grid alignment size (default: COORDINATE_GRID_SIZE).
+
+    Returns:
+        True if both points round to the same grid position.
+
+    """
+    return round_to_grid(point1[0], grid_size) == round_to_grid(point2[0], grid_size) and round_to_grid(
+        point1[1], grid_size
+    ) == round_to_grid(point2[1], grid_size)
+
+
+NODE_SIZE_PIXEL_MULTIPLIER: int = 10
+"""Base pixel size per size unit in Gaia/Vision rendering.
+
+Used to calculate the visual extent of line-type node symbols (VERTICAL_LINE,
+HORIZONTAL_LINE) where the connection area extends beyond a single point.
+The actual extent is calculated as: size * NODE_SIZE_PIXEL_MULTIPLIER pixels.
+"""
+
+
+def point_in_node_bounds(
+    point: tuple[int, int],
+    node_x: int,
+    node_y: int,
+    symbol: NodePresentationSymbol,
+    size: int,
+) -> bool:
+    """Check if a coordinate point falls within a node's visual bounds.
+
+    Handles special node symbols where the valid connection area extends
+    beyond a single point:
+
+    - VERTICAL_LINE: Line extends along Y-axis by size * NODE_SIZE_PIXEL_MULTIPLIER
+      pixels in each direction. Point must have matching X and Y within the range.
+    - HORIZONTAL_LINE: Line extends along X-axis by size * NODE_SIZE_PIXEL_MULTIPLIER
+      pixels in each direction. Point must have matching Y and X within the range.
+    - Other symbols (circles, squares, etc.): Point must match (node_x, node_y) exactly.
+
+    Args:
+        point: (x, y) coordinate tuple to check.
+        node_x: X coordinate of the node presentation.
+        node_y: Y coordinate of the node presentation.
+        symbol: The node's presentation symbol type.
+        size: The node's presentation size.
+
+    Returns:
+        True if the point falls within the node's visual bounds.
+
+    """
+    point_x, point_y = point
+
+    if symbol == NodePresentationSymbol.VERTICAL_LINE:
+        extent = size * NODE_SIZE_PIXEL_MULTIPLIER
+        return point_x == node_x and (node_y - extent) <= point_y <= (node_y + extent)
+
+    if symbol == NodePresentationSymbol.HORIZONTAL_LINE:
+        extent = size * NODE_SIZE_PIXEL_MULTIPLIER
+        return point_y == node_y and (node_x - extent) <= point_x <= (node_x + extent)
+
+    return point_x == node_x and point_y == node_y
+
+
+def clamp_point_to_node(
+    point: tuple[int, int],
+    node_x: int,
+    node_y: int,
+    symbol: NodePresentationSymbol,
+    size: int,
+) -> tuple[int, int]:
+    """Clamp a point to the nearest valid connection position on a node.
+
+    For line-type symbols, finds the closest point on the line segment.
+    For other symbols, returns the node's center coordinates.
+
+    This function requires the node presentation to be fully defined with
+    valid coordinates, symbol, and size before calling.
+
+    Args:
+        point: (x, y) coordinate tuple to clamp.
+        node_x: X coordinate of the node presentation.
+        node_y: Y coordinate of the node presentation.
+        symbol: The node's presentation symbol type.
+        size: The node's presentation size.
+
+    Returns:
+        The clamped (x, y) coordinate on the node's visual bounds.
+
+    """
+    point_x, point_y = point
+
+    if symbol == NodePresentationSymbol.VERTICAL_LINE:
+        extent = size * NODE_SIZE_PIXEL_MULTIPLIER
+        clamped_y = max(node_y - extent, min(point_y, node_y + extent))
+        return (node_x, clamped_y)
+
+    if symbol == NodePresentationSymbol.HORIZONTAL_LINE:
+        extent = size * NODE_SIZE_PIXEL_MULTIPLIER
+        clamped_x = max(node_x - extent, min(point_x, node_x + extent))
+        return (clamped_x, node_y)
+
+    return (node_x, node_y)
 
 
 class HasPresentation(Protocol):

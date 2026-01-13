@@ -7,9 +7,13 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import NodePresentationSymbol
 from pyptp.elements.presentation_helpers import (
+    NODE_SIZE_PIXEL_MULTIPLIER,
     calculate_auto_scale,
+    clamp_point_to_node,
     compute_presentation_bounds,
+    point_in_node_bounds,
     transform_corners,
     transform_point,
 )
@@ -225,6 +229,348 @@ class TestTransformCorners(unittest.TestCase):
         )
         expected = [(100, -120), (20, -40), (60, -80)]
         self.assertEqual(corners, expected)
+
+
+class TestPointInNodeBounds(unittest.TestCase):
+    """Test point_in_node_bounds function."""
+
+    def test_circle_node_exact_match(self) -> None:
+        """Test that exact point matches circle node center."""
+        result = point_in_node_bounds(
+            (100, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.CLOSED_CIRCLE,
+            size=1,
+        )
+        self.assertTrue(result)
+
+    def test_circle_node_mismatch(self) -> None:
+        """Test that offset point does not match circle node."""
+        result = point_in_node_bounds(
+            (101, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.CLOSED_CIRCLE,
+            size=1,
+        )
+        self.assertFalse(result)
+
+    def test_vertical_line_point_within_range(self) -> None:
+        """Test point within vertical line extent."""
+        # size=2 means extent = 20 pixels, line from (100, 180) to (100, 220)
+        result = point_in_node_bounds(
+            (100, 210),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertTrue(result)
+
+    def test_vertical_line_point_at_edge(self) -> None:
+        """Test point exactly at vertical line edge."""
+        # size=2 means extent = 20, so y=220 is exactly at the edge
+        result = point_in_node_bounds(
+            (100, 220),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertTrue(result)
+
+    def test_vertical_line_point_outside_range(self) -> None:
+        """Test point beyond vertical line extent."""
+        result = point_in_node_bounds(
+            (100, 221),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertFalse(result)
+
+    def test_vertical_line_wrong_x(self) -> None:
+        """Test point with wrong X on vertical line."""
+        result = point_in_node_bounds(
+            (101, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertFalse(result)
+
+    def test_horizontal_line_point_within_range(self) -> None:
+        """Test point within horizontal line extent."""
+        # size=2 means extent = 20 pixels, line from (80, 200) to (120, 200)
+        result = point_in_node_bounds(
+            (110, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertTrue(result)
+
+    def test_horizontal_line_point_at_edge(self) -> None:
+        """Test point exactly at horizontal line edge."""
+        result = point_in_node_bounds(
+            (120, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertTrue(result)
+
+    def test_horizontal_line_point_outside_range(self) -> None:
+        """Test point beyond horizontal line extent."""
+        result = point_in_node_bounds(
+            (121, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertFalse(result)
+
+    def test_horizontal_line_wrong_y(self) -> None:
+        """Test point with wrong Y on horizontal line."""
+        result = point_in_node_bounds(
+            (100, 201),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertFalse(result)
+
+
+class TestClampPointToNode(unittest.TestCase):
+    """Test clamp_point_to_node function."""
+
+    def test_circle_node_clamps_to_center(self) -> None:
+        """Test that any point clamps to circle node center."""
+        result = clamp_point_to_node(
+            (150, 250),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.CLOSED_CIRCLE,
+            size=1,
+        )
+        self.assertEqual(result, (100, 200))
+
+    def test_circle_node_already_at_center_unchanged(self) -> None:
+        """Test idempotence: point at center stays at center."""
+        result = clamp_point_to_node(
+            (100, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.CLOSED_CIRCLE,
+            size=1,
+        )
+        self.assertEqual(result, (100, 200))
+
+    def test_vertical_line_point_within_range_unchanged(self) -> None:
+        """Test idempotence: point on vertical line stays unchanged."""
+        # size=2 means extent = 20, line from (100, 180) to (100, 220)
+        result = clamp_point_to_node(
+            (100, 210),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (100, 210))
+
+    def test_vertical_line_point_at_center_unchanged(self) -> None:
+        """Test idempotence: point at vertical line center unchanged."""
+        result = clamp_point_to_node(
+            (100, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (100, 200))
+
+    def test_vertical_line_point_at_edge_unchanged(self) -> None:
+        """Test idempotence: point at vertical line edge unchanged."""
+        result = clamp_point_to_node(
+            (100, 220),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (100, 220))
+
+    def test_vertical_line_clamps_y_above_range(self) -> None:
+        """Test vertical line clamps Y above range to upper edge."""
+        result = clamp_point_to_node(
+            (100, 250),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (100, 220))
+
+    def test_vertical_line_clamps_y_below_range(self) -> None:
+        """Test vertical line clamps Y below range to lower edge."""
+        result = clamp_point_to_node(
+            (100, 150),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (100, 180))
+
+    def test_vertical_line_clamps_x_to_node_x(self) -> None:
+        """Test vertical line always sets X to node X."""
+        result = clamp_point_to_node(
+            (150, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (100, 200))
+
+    def test_horizontal_line_point_within_range_unchanged(self) -> None:
+        """Test idempotence: point on horizontal line stays unchanged."""
+        # size=2 means extent = 20, line from (80, 200) to (120, 200)
+        result = clamp_point_to_node(
+            (110, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (110, 200))
+
+    def test_horizontal_line_point_at_center_unchanged(self) -> None:
+        """Test idempotence: point at horizontal line center unchanged."""
+        result = clamp_point_to_node(
+            (100, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (100, 200))
+
+    def test_horizontal_line_point_at_edge_unchanged(self) -> None:
+        """Test idempotence: point at horizontal line edge unchanged."""
+        result = clamp_point_to_node(
+            (120, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (120, 200))
+
+    def test_horizontal_line_clamps_x_above_range(self) -> None:
+        """Test horizontal line clamps X above range to right edge."""
+        result = clamp_point_to_node(
+            (150, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (120, 200))
+
+    def test_horizontal_line_clamps_x_below_range(self) -> None:
+        """Test horizontal line clamps X below range to left edge."""
+        result = clamp_point_to_node(
+            (50, 200),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (80, 200))
+
+    def test_horizontal_line_clamps_y_to_node_y(self) -> None:
+        """Test horizontal line always sets Y to node Y."""
+        result = clamp_point_to_node(
+            (100, 250),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.HORIZONTAL_LINE,
+            size=2,
+        )
+        self.assertEqual(result, (100, 200))
+
+    def test_size_affects_extent(self) -> None:
+        """Test that size parameter correctly affects line extent."""
+        # size=5 means extent = 50 pixels
+        extent = 5 * NODE_SIZE_PIXEL_MULTIPLIER
+        self.assertEqual(extent, 50)
+
+        # Point at y=250 should be valid for size=5 (range 150-250)
+        result = clamp_point_to_node(
+            (100, 250),
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=5,
+        )
+        self.assertEqual(result, (100, 250))  # Within range, unchanged
+
+    def test_clamp_is_idempotent(self) -> None:
+        """Test that clamping twice gives same result as clamping once."""
+        original = (150, 250)
+
+        # Clamp once
+        first_clamp = clamp_point_to_node(
+            original,
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+
+        # Clamp again
+        second_clamp = clamp_point_to_node(
+            first_clamp,
+            node_x=100,
+            node_y=200,
+            symbol=NodePresentationSymbol.VERTICAL_LINE,
+            size=2,
+        )
+
+        self.assertEqual(first_clamp, second_clamp)
+
+    def test_all_symbol_types_clamp_to_center(self) -> None:
+        """Test that non-line symbols all clamp to center point."""
+        non_line_symbols = [
+            NodePresentationSymbol.CLOSED_CIRCLE,
+            NodePresentationSymbol.OPEN_CIRCLE,
+            NodePresentationSymbol.HALF_OPEN_CIRCLE,
+            NodePresentationSymbol.CLOSED_SQUARE,
+            NodePresentationSymbol.OPEN_SQUARE,
+            NodePresentationSymbol.HALF_OPEN_SQUARE,
+            NodePresentationSymbol.CLOSED_TRIANGLE,
+            NodePresentationSymbol.OPEN_TRIANGLE,
+            NodePresentationSymbol.CLOSED_DIAMOND,
+            NodePresentationSymbol.OPEN_DIAMOND,
+            NodePresentationSymbol.CLOSED_RECTANGLE,
+            NodePresentationSymbol.OPEN_RECTANGLE,
+            NodePresentationSymbol.HALF_OPEN_RECTANGLE,
+        ]
+
+        for symbol in non_line_symbols:
+            with self.subTest(symbol=symbol):
+                result = clamp_point_to_node(
+                    (999, 888), node_x=100, node_y=200, symbol=symbol, size=5
+                )
+                self.assertEqual(result, (100, 200))
 
 
 if __name__ == "__main__":

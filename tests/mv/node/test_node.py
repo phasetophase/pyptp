@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import CL_BLACK, CL_SILVER, DelphiColor
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import NodePresentationSymbol
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import NodePresentation
@@ -83,7 +84,7 @@ class TestNodeRegistration(unittest.TestCase):
             sheet=self.sheet_guid,
             x=100,
             y=200,
-            symbol=15,
+            symbol=NodePresentationSymbol.HALF_OPEN_SQUARE,
             color=DelphiColor("$FF0000"),
             size=2,
             width=3,
@@ -258,7 +259,7 @@ class TestNodeRegistration(unittest.TestCase):
         self.assertIn(f"Sheet:'{{{str(self.sheet_guid).upper()}}}'", serialized)
         self.assertIn("X:100", serialized)
         self.assertIn("Y:200", serialized)
-        self.assertIn("Symbol:15", serialized)
+        self.assertIn("Symbol:23", serialized)  # HALF_OPEN_SQUARE
         self.assertIn("Color:$FF0000", serialized)
         self.assertIn("Size:2", serialized)
         self.assertIn("Width:3", serialized)
@@ -342,14 +343,14 @@ class TestNodeRegistration(unittest.TestCase):
             x=100,
             y=200,
             color=DelphiColor("$FF0000"),
-            symbol=11,
+            symbol=NodePresentationSymbol.CLOSED_CIRCLE,
         )
         pres2 = NodePresentation(
             sheet=self.sheet_guid,
             x=300,
             y=400,
             color=DelphiColor("$00FF00"),
-            symbol=12,
+            symbol=NodePresentationSymbol.OPEN_CIRCLE,
         )
 
         node = NodeMV(general, [pres1, pres2])
