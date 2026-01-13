@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid, encode_guid
+from pyptp.elements.enums import NodePresentationSymbol
 from pyptp.elements.lv.node import NodeLV
 from pyptp.elements.lv.presentations import NodePresentation
 from pyptp.elements.lv.shared import Fields
@@ -84,7 +85,7 @@ class TestNodeRegistration(unittest.TestCase):
             sheet=self.sheet_guid,
             x=100,
             y=200,
-            symbol=7,
+            symbol=NodePresentationSymbol.OPEN_SQUARE,
             color=DelphiColor("$00FF00"),
             size=2,
             width=3,
@@ -138,7 +139,7 @@ class TestNodeRegistration(unittest.TestCase):
         self.assertIn(f"Sheet:{encode_guid(self.sheet_guid)}", serialized)
         self.assertIn("X:100", serialized)
         self.assertIn("Y:200", serialized)
-        self.assertIn("Symbol:7", serialized)
+        self.assertIn("Symbol:22", serialized)  # OPEN_SQUARE
         self.assertIn("Color:$00FF00", serialized)
         self.assertIn("TextColor:$FF0000", serialized)
 

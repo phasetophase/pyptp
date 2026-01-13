@@ -8,7 +8,7 @@ across all GNF/VNF electrical elements.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json  # type: ignore[import-untyped]
 
@@ -18,6 +18,9 @@ from pyptp.elements.element_utils import (
     encode_float_coords,
     string_field,
 )
+
+if TYPE_CHECKING:
+    from pyptp.elements.element_utils import Guid
 
 
 @dataclass_json
@@ -230,6 +233,8 @@ class HasPresentationsMixin:
     elements that support graphical representations in GNF/VNF.
     """
 
+    presentations: list[Any]
+
     def __post_init__(self) -> None:
         """Normalize presentations to list format during initialization."""
         if hasattr(self, "presentations"):
@@ -238,3 +243,22 @@ class HasPresentationsMixin:
                 self.presentations = []
             elif not isinstance(val, list):
                 self.presentations = [val]
+
+    def get_presentation_on_sheet(self, sheet_guid: Guid) -> Any | None:  # noqa: ANN401
+        """Find this element's presentation on a specific sheet.
+
+        Args:
+            sheet_guid: GUID of the sheet to find presentation for.
+
+        Returns:
+            The presentation on the matching sheet, or None if not found.
+
+        Note:
+            Returns Any because presentation types vary by element (NodePresentation,
+            BranchPresentation, etc.) and this mixin is used across all element types.
+
+        """
+        for pres in self.presentations:
+            if pres.sheet == sheet_guid:
+                return pres
+        return None

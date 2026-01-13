@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from pyptp.elements.color_utils import CL_BLACK, CL_BLUE, CL_RED
 from pyptp.elements.element_utils import NIL_GUID, Guid, encode_guid
+from pyptp.elements.enums import NodePresentationSymbol
 from pyptp.elements.lv.presentations import (
     BranchPresentation,
     ElementPresentation,
@@ -51,7 +52,7 @@ class TestNodePresentation(unittest.TestCase):
             sheet=self.test_guid,
             x=100,
             y=200,
-            symbol=15,
+            symbol=NodePresentationSymbol.HALF_OPEN_CIRCLE,
             color=CL_RED,
             size=2,
             width=3,
@@ -76,7 +77,7 @@ class TestNodePresentation(unittest.TestCase):
         self.assertIn(f"Sheet:{encode_guid(self.test_guid)}", result)
         self.assertIn("X:100", result)
         self.assertIn("Y:200", result)
-        self.assertIn("Symbol:15", result)
+        self.assertIn("Symbol:13", result)
         self.assertIn(f"Color:{CL_RED}", result)
         self.assertIn("Size:2", result)
         self.assertIn("Width:3", result)
@@ -99,7 +100,7 @@ class TestNodePresentation(unittest.TestCase):
             "Sheet": str(self.test_guid),
             "X": 100,
             "Y": 200,
-            "Symbol": 15,
+            "Symbol": 13,
             "Color": CL_RED,
             "Size": 2,
             "Width": 3,
@@ -124,7 +125,9 @@ class TestNodePresentation(unittest.TestCase):
         self.assertEqual(node_presentation.sheet, self.test_guid)
         self.assertEqual(node_presentation.x, 100)
         self.assertEqual(node_presentation.y, 200)
-        self.assertEqual(node_presentation.symbol, 15)
+        self.assertEqual(
+            node_presentation.symbol, NodePresentationSymbol.HALF_OPEN_CIRCLE
+        )
         self.assertEqual(node_presentation.color, CL_RED)
         self.assertEqual(node_presentation.size, 2)
         self.assertEqual(node_presentation.width, 3)
@@ -152,7 +155,7 @@ class TestNodePresentation(unittest.TestCase):
         self.assertEqual(node_presentation.sheet, NIL_GUID)
         self.assertEqual(node_presentation.x, 0)
         self.assertEqual(node_presentation.y, 0)
-        self.assertEqual(node_presentation.symbol, 11)
+        self.assertEqual(node_presentation.symbol, NodePresentationSymbol.CLOSED_CIRCLE)
         self.assertEqual(node_presentation.color, CL_BLACK)
         self.assertEqual(node_presentation.size, 1)
         self.assertEqual(node_presentation.width, 1)
@@ -170,7 +173,7 @@ class TestNodePresentation(unittest.TestCase):
             sheet=self.test_guid,
             x=100,
             y=200,
-            symbol=15,
+            symbol=NodePresentationSymbol.HALF_OPEN_CIRCLE,
             color=CL_RED,
             size=2,
             width=3,
@@ -190,7 +193,7 @@ class TestNodePresentation(unittest.TestCase):
             "Sheet": str(self.test_guid),
             "X": 100,
             "Y": 200,
-            "Symbol": 15,
+            "Symbol": 13,
             "Color": CL_RED,
             "Size": 2,
             "Width": 3,
@@ -209,7 +212,7 @@ class TestNodePresentation(unittest.TestCase):
         self.assertEqual(deserialized.sheet, original.sheet)
         self.assertEqual(deserialized.x, original.x)
         self.assertEqual(deserialized.y, original.y)
-        self.assertEqual(deserialized.symbol, original.symbol)
+        self.assertEqual(deserialized.symbol, NodePresentationSymbol.HALF_OPEN_CIRCLE)
         self.assertEqual(deserialized.color, original.color)
         self.assertEqual(deserialized.size, original.size)
         self.assertEqual(deserialized.width, original.width)
@@ -724,6 +727,52 @@ class TestSecundairPresentation(unittest.TestCase):
         self.assertEqual(deserialized.strings_y, original.strings_y)
         self.assertEqual(deserialized.note_x, original.note_x)
         self.assertEqual(deserialized.note_y, original.note_y)
+
+
+class TestNodePresentationSymbolIntegration(unittest.TestCase):
+    """Test NodePresentationSymbol enum integration with NodePresentation class."""
+
+    def test_enum_integrates_with_node_presentation(self) -> None:
+        """Verify NodePresentationSymbol works in NodePresentation class."""
+        presentation = NodePresentation(symbol=NodePresentationSymbol.OPEN_SQUARE)
+
+        self.assertEqual(presentation.symbol, NodePresentationSymbol.OPEN_SQUARE)
+        self.assertEqual(presentation.symbol.value, 22)
+
+        # Verify serialization converts to integer
+        result = presentation.serialize()
+        self.assertIn("Symbol:22", result)
+
+    def test_enum_deserializes_from_integer(self) -> None:
+        """Verify integer values correctly deserialize to enum members."""
+        data = {"Symbol": 42}
+        presentation = NodePresentation.deserialize(data)
+
+        self.assertEqual(presentation.symbol, NodePresentationSymbol.OPEN_DIAMOND)
+        self.assertEqual(presentation.symbol.value, 42)
+
+    def test_enum_with_all_symbol_types(self) -> None:
+        """Test serialization/deserialization with various symbol types."""
+        test_symbols = [
+            NodePresentationSymbol.VERTICAL_LINE,
+            NodePresentationSymbol.CLOSED_CIRCLE,
+            NodePresentationSymbol.CLOSED_SQUARE,
+            NodePresentationSymbol.CLOSED_TRIANGLE,
+            NodePresentationSymbol.CLOSED_DIAMOND,
+            NodePresentationSymbol.HALF_OPEN_RECTANGLE,
+        ]
+
+        for symbol in test_symbols:
+            presentation = NodePresentation(symbol=symbol)
+            result = presentation.serialize()
+
+            # Verify integer value appears in serialization
+            self.assertIn(f"Symbol:{symbol.value}", result)
+
+            # Verify round-trip through deserialization
+            data = {"Symbol": symbol.value}
+            deserialized = NodePresentation.deserialize(data)
+            self.assertEqual(deserialized.symbol, symbol)
 
 
 if __name__ == "__main__":

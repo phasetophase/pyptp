@@ -234,8 +234,33 @@ def migrate_and_read(
             output_dir = Path(temp_dir)
             output_file = output_dir / input_path.name
 
+            # Normalize input to UTF-8 for DLL compatibility with legacy encodings
+            content = None
+            detected_encoding = None
+            for enc in ("utf-8-sig", "cp1252", "latin-1"):
+                try:
+                    content = input_path.read_text(encoding=enc, errors="strict")
+                    detected_encoding = enc
+                    break
+                except UnicodeDecodeError:
+                    continue
+
+            if content is None:
+                # Should not happen since latin-1 accepts all bytes
+                content = input_path.read_text(encoding="latin-1", errors="replace")
+                detected_encoding = "latin-1"
+
+            logger.debug(
+                "Read input file '%s' with encoding '%s'",
+                input_path.name,
+                detected_encoding,
+            )
+
+            normalized_input = output_dir / f"_utf8_{input_path.name}"
+            normalized_input.write_text(content, encoding="utf-8")
+
             result = save_as(
-                input_path=str(input_path),
+                input_path=str(normalized_input),
                 output_path=str(output_dir),
                 output_file=input_path.name,
                 version=version,

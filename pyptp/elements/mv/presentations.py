@@ -19,6 +19,8 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
+from pyptp.elements.enums import NodePresentationSymbol
+from pyptp.elements.presentation_helpers import clamp_point_to_node, point_in_node_bounds
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
@@ -38,7 +40,8 @@ class NodePresentation(DataClassJsonMixin):
     sheet: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
     x: int = optional_field(0)
     y: int = optional_field(0)
-    symbol: int = 11
+    symbol: NodePresentationSymbol = NodePresentationSymbol.CLOSED_CIRCLE
+    """Visual symbol shape for node representation on diagrams."""
     color: DelphiColor = field(default=CL_BLACK)
     size: int = optional_field(1)
     width: int = optional_field(1)
@@ -59,13 +62,47 @@ class NodePresentation(DataClassJsonMixin):
     icon_x: int = optional_field(0)
     icon_y: int = optional_field(0)
 
+    def contains_point(self, point: tuple[int, int]) -> bool:
+        """Check if a coordinate point falls within this node's visual bounds.
+
+        Delegates to the shared point_in_node_bounds function which handles
+        special node symbols (VERTICAL_LINE, HORIZONTAL_LINE) where the valid
+        connection area extends beyond a single point.
+
+        Args:
+            point: (x, y) coordinate tuple to check.
+
+        Returns:
+            True if the point falls within the node's visual bounds.
+
+        """
+        return point_in_node_bounds(point, self.x, self.y, self.symbol, self.size)
+
+    def clamp_point(self, point: tuple[int, int]) -> tuple[int, int]:
+        """Clamp a point to the nearest valid connection position on this node.
+
+        For line-type symbols (VERTICAL_LINE, HORIZONTAL_LINE), returns the
+        closest point on the line segment. For other symbols, returns (x, y).
+
+        This method requires the node presentation to be fully defined with
+        valid coordinates, symbol, and size.
+
+        Args:
+            point: (x, y) coordinate tuple to clamp.
+
+        Returns:
+            The clamped (x, y) coordinate on this node's visual bounds.
+
+        """
+        return clamp_point_to_node(point, self.x, self.y, self.symbol, self.size)
+
     def serialize(self) -> str:
         """Serialize NodePresentation properties."""
         return serialize_properties(
             write_guid_no_skip("Sheet", self.sheet),
             write_integer("X", self.x),
             write_integer("Y", self.y),
-            write_integer_no_skip("Symbol", self.symbol),
+            write_integer_no_skip("Symbol", int(self.symbol)),
             write_delphi_color("Color", self.color),
             write_integer("Size", self.size, skip=1),
             write_integer("Width", self.width, skip=1),
@@ -94,7 +131,7 @@ class NodePresentation(DataClassJsonMixin):
             sheet=decode_guid(data.get("Sheet", str(uuid4()))),
             x=data.get("X", 0),
             y=data.get("Y", 0),
-            symbol=data.get("Symbol", 11),
+            symbol=NodePresentationSymbol(data.get("Symbol", NodePresentationSymbol.CLOSED_CIRCLE.value)),
             color=DelphiColor(data.get("Color", str(CL_BLACK))),
             size=data.get("Size", 1),
             width=data.get("Width", 1),
