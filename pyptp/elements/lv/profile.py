@@ -1,4 +1,9 @@
-"""Profile containing timefactors."""
+"""Low-voltage load profile element for time-varying network analysis.
+
+Provides time-factor based load profile modeling for scaling element
+power values across time periods enabling quasi-static time series
+analysis in LV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -25,12 +30,20 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class ProfileLV:
-    """Represents a load profile (LV)."""
+    """Low-voltage load profile with time-factor scaling.
+
+    Supports time-varying analysis by defining multiplication factors
+    that scale element power values across discrete time periods for
+    quasi-static simulations in LV networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a profile."""
+        """Core identification properties for LV profiles.
+
+        Encompasses GUID, name, and profile type classification.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),
@@ -59,7 +72,11 @@ class ProfileLV:
     @dataclass_json
     @dataclass
     class ProfileType(DataClassJsonMixin):
-        """Time factors for a profile."""
+        """Time-factor sequence for profile-based scaling.
+
+        Contains ordered multiplication factors (f1, f2, ...) applied to
+        element power values at corresponding time steps.
+        """
 
         sort: int = -3456
         f: list[float] = field(default_factory=list)

@@ -1,4 +1,9 @@
-"""Profile containing timefactors for MV networks."""
+"""Medium-voltage load profile element for time-varying network analysis.
+
+Provides time-factor based load profile modeling for scaling element
+power values across time periods enabling quasi-static time series
+analysis in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -25,16 +30,20 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class ProfileMV:
-    """Represents a load profile for MV networks.
+    """Medium-voltage load profile with time-factor scaling.
 
-    Profiles define time-varying load patterns with dynamic factor values
-    based on the profile type and sort configuration.
+    Supports time-varying analysis by defining multiplication factors
+    that scale element power values across discrete time periods for
+    quasi-static simulations in MV networks.
     """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a profile."""
+        """Core identification properties for MV profiles.
+
+        Encompasses GUID, name, and profile type classification.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),

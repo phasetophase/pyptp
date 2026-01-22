@@ -1,4 +1,9 @@
-"""Synchronous Generator (Element)."""
+"""Low-voltage synchronous generator element for asymmetrical network modeling.
+
+Provides synchronous machine modeling with voltage and power factor control
+modes, reactive power limits, and transient impedance parameters for
+distributed generation studies in LV networks.
+"""
 
 from __future__ import annotations
 
@@ -38,12 +43,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class SynchronousGeneratorLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a synchronous generator (LV)."""
+    """Low-voltage synchronous generator with control mode modeling.
+
+    Supports distributed generation analysis with configurable voltage or
+    power factor control modes, reactive power limits, and transient
+    impedance parameters for LV network studies.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a synchronous generator."""
+        """Core electrical and operational properties for LV synchronous generators.
+
+        Encompasses connection node, power reference, control mode settings,
+        and type reference for linking to machine specifications.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(
@@ -114,7 +128,11 @@ class SynchronousGeneratorLV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class SynchronousGeneratorType(DataClassJsonMixin):
-        """Electrotechnical properties for the synchronous generator."""
+        """Electrical specifications for synchronous generator modeling.
+
+        Defines rated voltage, apparent power, power factor, reactive power
+        limits, and transient impedance parameters for accurate analysis.
+        """
 
         unom: float | int = 0
         snom: float | int = 0

@@ -1,4 +1,8 @@
-"""Dynamic Case (Other) [UNSUPPORTED]."""
+"""Medium-voltage dynamic case element for transient simulation [UNSUPPORTED].
+
+Provides dynamic simulation case definition with event sequences for
+transient stability analysis. Note: Full support not yet implemented.
+"""
 
 from dataclasses import dataclass
 
@@ -15,12 +19,19 @@ from pyptp.elements.serialization_helpers import (
 @dataclass_json
 @dataclass
 class DynamicCaseMV:
-    """Represents a dynamic case (MV)."""
+    """Medium-voltage dynamic case for transient simulation studies.
+
+    Supports event-based dynamic simulation with configurable fault
+    sequences and timing for transient stability analysis [UNSUPPORTED].
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a dynamic case."""
+        """Core identification properties for MV dynamic cases.
+
+        Contains name and description for simulation case identification.
+        """
 
         name: str = string_field()
         description: str = string_field()
@@ -43,7 +54,11 @@ class DynamicCaseMV:
     @dataclass_json
     @dataclass
     class DynamicEvent(DataClassJsonMixin):
-        """Dynamic Event properties."""
+        """Event specification for dynamic simulation sequences.
+
+        Defines timed actions, fault types, and parameters for
+        transient stability event simulation.
+        """
 
         start_time: float = 0.0
         action: str = string_field()

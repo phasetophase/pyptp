@@ -1,4 +1,9 @@
-"""Variant (Other)."""
+"""Variant configuration element for network topology alternatives.
+
+Defines network configuration variants with element state changes
+for comparing different operating configurations and planning
+alternatives in distribution networks.
+"""
 
 from __future__ import annotations
 

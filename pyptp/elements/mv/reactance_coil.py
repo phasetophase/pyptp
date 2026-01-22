@@ -1,4 +1,9 @@
-"""Reactance Coil (MV)."""
+"""Medium-voltage reactance coil element for symmetrical network modeling.
+
+Provides series reactor modeling with sequence impedance parameters for
+current limiting and fault level reduction in balanced three-phase MV
+distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -31,12 +36,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a reactance coil (MV)."""
+    """Medium-voltage reactance coil with sequence impedance modeling.
+
+    Supports series reactor analysis with positive and zero-sequence
+    impedance parameters for current limiting and fault level reduction
+    in balanced three-phase MV distribution networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a reactance coil."""
+        """Core electrical and operational properties for MV reactance coils.
+
+        Encompasses connection nodes, switch states, subnet border designation,
+        and type reference for impedance specifications.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),

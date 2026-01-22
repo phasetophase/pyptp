@@ -1,4 +1,9 @@
-"""Measure Field (Secondary)."""
+"""Medium-voltage measure field secondary element for symmetrical network modeling.
+
+Provides voltage and current transformer modeling attached to branch elements
+with measurement configurations for metering, protection, and SCADA
+instrumentation in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -41,12 +46,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class MeasureFieldMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a measure field (MV)."""
+    """Medium-voltage measure field with instrument transformer modeling.
+
+    Supports voltage and current transformer configurations attached to
+    branch elements with type specifications for metering, protection,
+    and SCADA instrumentation in balanced three-phase MV networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a measure field."""
+        """Core properties for MV measure fields.
+
+        Encompasses parent object reference, VT/CT presence flags,
+        function designations, and type references.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),

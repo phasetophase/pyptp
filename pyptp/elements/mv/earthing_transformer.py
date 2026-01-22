@@ -1,4 +1,9 @@
-"""Earthing Transformer (Element)."""
+"""Medium-voltage earthing transformer element for symmetrical network modeling.
+
+Provides grounding transformer modeling with zero-sequence impedance and
+neutral earthing parameters for earth fault current analysis and neutral
+grounding studies in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -39,12 +44,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class EarthingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents an earthing transformer (MV)."""
+    """Medium-voltage earthing transformer with grounding configuration.
+
+    Supports neutral grounding system analysis with configurable earthing
+    impedance and zero-sequence parameters for earth fault studies in
+    balanced three-phase MV distribution networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for an Earthing Transformer."""
+        """Core electrical and operational properties for MV earthing transformers.
+
+        Encompasses connection node, earthing impedance, power reference,
+        and type specification for grounding analysis.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

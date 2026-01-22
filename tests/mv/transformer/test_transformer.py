@@ -144,7 +144,7 @@ class TestTransformerRegistration(unittest.TestCase):
 
         voltage_control = TransformerMV.VoltageControl(
             own_control=True,
-            control_status=1,
+            control_status=True,
             measure_side=2,
             setpoint=1.05,
             deadband=0.02,
@@ -389,7 +389,7 @@ class TestTransformerRegistration(unittest.TestCase):
         transformer_type = TransformerMV.TransformerType(short_name="VCType")
         voltage_control = TransformerMV.VoltageControl(
             own_control=True,
-            control_status=1,
+            control_status=True,
             measure_side=2,
             setpoint=1.05,
             deadband=0.02,

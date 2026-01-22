@@ -1,4 +1,8 @@
-"""Growth (Profile)."""
+"""Growth profile element for load forecasting in distribution networks.
+
+Defines load growth factors and temporal scaling parameters for
+long-term network planning and capacity analysis scenarios.
+"""
 
 from __future__ import annotations
 

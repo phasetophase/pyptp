@@ -1,4 +1,9 @@
-"""Network Properties (Other)."""
+"""Medium-voltage network properties and metadata.
+
+Provides network-level configuration including project information,
+history tracking, user management, and system settings for
+MV distribution network files.
+"""
 
 from __future__ import annotations
 
@@ -35,12 +40,19 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class PropertiesMV(ExtrasNotesMixin):
-    """Network Properties."""
+    """Medium-voltage network properties with comprehensive metadata.
+
+    Contains project information, version tracking, change history,
+    user management, and system configuration for the network file.
+    """
 
     @dataclass_json
     @dataclass
     class System(DataClassJsonMixin):
-        """System properties for a network."""
+        """System-level configuration settings.
+
+        Contains regional settings like currency for cost calculations.
+        """
 
         currency: str = field(default="EUR", metadata=config(encoder=encode_string))
 

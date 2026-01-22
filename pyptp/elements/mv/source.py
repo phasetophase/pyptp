@@ -1,4 +1,9 @@
-"""Source (Element)."""
+"""Medium-voltage source element for symmetrical network modeling.
+
+Provides external network supply modeling with voltage reference, phase
+angle, and short-circuit capacity parameters for balanced three-phase
+power flow and fault analysis in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -41,12 +46,21 @@ LOW_VOLTAGE_THRESHOLD_KV = 35
 @dataclass_json
 @dataclass
 class SourceMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a source (MV)."""
+    """Medium-voltage source representing external network supply.
+
+    Models feeder points with configurable voltage magnitude and angle,
+    short-circuit capacity, and reliability parameters for accurate
+    balanced three-phase analysis in MV distribution networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a source."""
+        """Core electrical and operational properties for MV sources.
+
+        Encompasses connection node, voltage reference, phase angle,
+        short-circuit parameters, and reliability statistics.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

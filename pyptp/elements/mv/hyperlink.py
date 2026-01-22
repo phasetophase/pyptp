@@ -1,4 +1,8 @@
-"""Hyperlink element for MV networks."""
+"""Medium-voltage hyperlink element for external references.
+
+Provides URL storage for linking MV distribution network diagrams
+to external documentation, resources, or related network files.
+"""
 
 from __future__ import annotations
 
@@ -16,7 +20,11 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class HyperlinkMV(DataClassJsonMixin):
-    """Represents a hyperlink (MV)."""
+    """Medium-voltage hyperlink storing external URL references.
+
+    Supports linking network diagrams to external documentation,
+    resources, or related files through URL storage.
+    """
 
     url: str = ""
 

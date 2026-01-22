@@ -1,4 +1,9 @@
-"""Line (Branch)."""
+"""Overhead line branch element for symmetrical network modeling.
+
+Provides transmission line modeling with sequence impedance parameters,
+thermal ratings, and conductor spacing for balanced three-phase
+power flow analysis in distribution networks.
+"""
 
 from __future__ import annotations
 

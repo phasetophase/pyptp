@@ -1,8 +1,4 @@
-"""Medium-voltage network node element for Vision integration.
-
-Provides MV node representation with symmetrical modeling capabilities
-required for balanced three-phase power system analysis.
-"""
+"""Node element representing a rail or busbar connection point."""
 
 from __future__ import annotations
 
@@ -45,16 +41,24 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Medium-voltage network node for symmetrical modeling.
+    """Network node representing a rail or busbar.
 
-    Supports balanced three-phase analysis with comprehensive electrical
-    and operational properties for MV distribution system modeling.
+    Nodes define electrical connection points with nominal voltage and simultaneity
+    factors applied to connected loads. Optional rail properties support short-circuit
+    analysis (dynamic/thermal current limits).
     """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """Core electrical and operational properties for MV nodes."""
+        """Core node identification, electrical parameters, and reliability data.
+
+        Key fields:
+        - unom: Nominal voltage (kV)
+        - simultaneity_factor: Multiplier for connected load P and Q in calculations
+        - gx, gy: Geographical coordinates (degrees)
+        - earthing, re, xe: External neutral point grounding impedance
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),
@@ -188,7 +192,12 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class Railtype(DataClassJsonMixin):
-        """Electrical properties for node rail/bus configuration."""
+        """Busbar type and short-circuit current limits.
+
+        Rated values (unom, inom) are informational. Short-circuit limits are used
+        for validation: ik_dynamic for mechanical stress (peak current Ip),
+        ik_thermal for thermal stress (Ik"), with t_thermal as the rated duration.
+        """
 
         name: str = string_field()
         unom: float = 0.0
@@ -223,7 +232,11 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class Field(DataClassJsonMixin):
-        """Field installation properties for electrical equipment housing."""
+        """Feeder bay on the rail structure.
+
+        Fields represent physical feeder positions. The order should match the real
+        arrangement on the busbar. Includes optional arc flash calculation parameters.
+        """
 
         name: str = string_field()
         sort: str = string_field()
@@ -270,7 +283,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class Customer(DataClassJsonMixin):
-        """Customer connection and contract information for node."""
+        """Informational customer data associated with the node."""
 
         ean: str = string_field()
         name: str = string_field()
@@ -317,7 +330,11 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class Installation(DataClassJsonMixin):
-        """Physical installation and safety configuration properties."""
+        """Installation data for arc flash calculation.
+
+        Includes earthing configuration, conductor/working distances, enclosure
+        dimensions, and electrode configuration.
+        """
 
         type: int = 0
         earthed: bool = False
@@ -379,7 +396,10 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class Icon(DataClassJsonMixin):
-        """Visual representation properties for network diagrams."""
+        """Optional icon displayed near the node in diagrams.
+
+        A short text in a shaped background (configurable color, shape, size).
+        """
 
         text: str = string_field()
         text_color: DelphiColor = CL_BLACK
@@ -411,7 +431,12 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class DifferentialProtection(DataClassJsonMixin):
-        """Differential protection settings for node."""
+        """Rail differential protection settings.
+
+        When tripped, all involved circuit breakers switch off. The sum of currents
+        through the protected zone must be zero during normal operation (no direction
+        or ratio correction applied).
+        """
 
         present: bool = False
         type_name: str = string_field()
@@ -466,7 +491,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class DifferentialProtectionSwitch(DataClassJsonMixin):
-        """Switch reference for differential protection system."""
+        """Circuit breaker involved in the rail differential protection."""
 
         switch: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
 
@@ -488,7 +513,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class DifferentialProtectionTransferTripSwitch(DataClassJsonMixin):
-        """Transfer trip switch reference for differential protection."""
+        """Transfer trip circuit breaker for the rail differential protection."""
 
         transfer_circuit_breaker: Guid = field(
             default=NIL_GUID,

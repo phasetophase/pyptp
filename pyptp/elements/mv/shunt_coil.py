@@ -1,4 +1,9 @@
-"""Shunt Coil (Element)."""
+"""Medium-voltage shunt coil element for symmetrical network modeling.
+
+Provides shunt reactor modeling with reactive power absorption for
+voltage regulation and reactive power compensation in MV distribution
+networks with cable-heavy configurations.
+"""
 
 from __future__ import annotations
 
@@ -40,12 +45,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class ShuntCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a shunt coil (MV)."""
+    """Medium-voltage shunt coil with reactive absorption modeling.
+
+    Supports shunt reactor analysis with configurable reactive power
+    absorption for voltage control and Ferranti effect mitigation
+    in balanced three-phase MV distribution networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a shunt coil."""
+        """Core electrical and operational properties for MV shunt coils.
+
+        Encompasses connection node, reactive power rating, nominal voltage,
+        earthing configuration, and reliability statistics.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

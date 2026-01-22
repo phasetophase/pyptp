@@ -1,4 +1,9 @@
-"""Load Behaviour (Profile)."""
+"""Load behavior profile element for temporal load variation modeling.
+
+Defines time-varying load patterns and demand profiles for
+power flow analysis across different operating conditions
+in distribution networks.
+"""
 
 from __future__ import annotations
 

@@ -1,4 +1,9 @@
-"""Scenario (Other)."""
+"""Scenario configuration element for analysis case management.
+
+Defines calculation parameters, operating conditions, and study
+configurations for power flow and fault analysis scenarios
+in distribution networks.
+"""
 
 from __future__ import annotations
 

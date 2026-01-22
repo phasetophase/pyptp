@@ -10,8 +10,8 @@ from __future__ import annotations
 import re
 from dataclasses import field
 from enum import StrEnum
-from typing import TYPE_CHECKING, NewType, Protocol, TypeAlias, TypeVar, cast
-from uuid import NAMESPACE_DNS, UUID, uuid3, uuid4
+from typing import TYPE_CHECKING, NewType, Protocol, Self, TypeAlias, TypeVar, cast
+from uuid import NAMESPACE_DNS, UUID, SafeUUID, uuid3, uuid4
 
 from dataclasses_json import config
 
@@ -20,11 +20,63 @@ from pyptp.ptp_log import logger
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-Guid = NewType("Guid", UUID)
 
-DEFAULT_PROFILE_GUID: Guid = Guid(
-    UUID("A4D813DF-1EE1-4153-806C-DC228D251A79"),
-)
+class Guid(UUID):
+    """A UUID representing an element identifier in the electrical network.
+
+    Guid extends UUID to provide:
+    - Flexible construction from UUID, string, or int
+    - Semantic distinction from arbitrary UUIDs
+    """
+
+    __slots__ = ()  # No additional instance attributes
+
+    def __init__(self, value: UUID | str | int | None = None) -> None:
+        """Initialize Guid (no-op, actual work done in __new__)."""
+        # All initialization handled in __new__ since UUID is immutable
+
+    def __new__(cls, value: UUID | str | int | None = None) -> Self:
+        """Create a new Guid from various input types.
+
+        Args:
+            value: UUID instance, hex string (with or without braces/quotes),
+                   integer, or None (creates random UUID).
+
+        Returns:
+            New Guid instance.
+
+        """
+        instance = object.__new__(cls)
+        if value is None:
+            int_value = uuid4().int
+        elif isinstance(value, UUID):
+            int_value = value.int
+        elif isinstance(value, int):
+            int_value = value
+        else:
+            # String: strip braces/quotes for file format compatibility
+            s = str(value).strip().strip("'\"{}")
+            int_value = UUID(hex=s).int
+        object.__setattr__(instance, "int", int_value)
+        object.__setattr__(instance, "is_safe", SafeUUID.unknown)
+        return instance
+
+    @classmethod
+    def random(cls) -> Self:
+        """Create a new random Guid using UUID4."""
+        return cls(uuid4())
+
+    @classmethod
+    def deterministic(cls, identifier: str) -> Self:
+        """Create a deterministic Guid from a string identifier using UUID3."""
+        return cls(uuid3(NAMESPACE_DNS, identifier))
+
+    def is_nil(self) -> bool:
+        """Check if this is the NIL GUID (all zeros)."""
+        return self.int == 0
+
+
+DEFAULT_PROFILE_GUID = Guid("A4D813DF-1EE1-4153-806C-DC228D251A79")
 
 
 class HasGuid(Protocol):
@@ -42,7 +94,7 @@ FuseTypeIT = NewType("FuseTypeIT", list[list[int | float]])
 
 T = TypeVar("T")
 
-NIL_GUID = Guid(UUID(int=0))
+NIL_GUID = Guid(0)
 
 # Branch side identifiers for electrical elements connected to branches
 SIDE_NODE1 = 1
@@ -349,10 +401,8 @@ def decode_guid(raw: str | Guid) -> Guid:
     """
     if isinstance(raw, UUID):
         return Guid(raw)
-
-    s = raw.strip().strip("'\"")  # e.g. "{59A01667-...}"
-    s = s.strip("{}")  # e.g. "59A01667-..."
-    return Guid(UUID(s))
+    # Guid.__new__ handles stripping braces/quotes
+    return Guid(raw)
 
 
 def encode_string(string: str) -> str:
@@ -366,22 +416,6 @@ def encode_string(string: str) -> str:
 
     """
     return f"'{string}'"
-
-
-def create_uuid(identifier: str) -> Guid:
-    """Generate deterministic GUID from string identifier.
-
-    Creates reproducible v3 UUID using DNS namespace for consistent
-    GUID generation across application runs.
-
-    Args:
-        identifier: String identifier for GUID generation.
-
-    Returns:
-        Deterministic GUID based on identifier.
-
-    """
-    return Guid(uuid3(NAMESPACE_DNS, identifier))
 
 
 def get_props_as_gv(input_list: list[dict[str, dict[str, object]]]) -> str:
@@ -413,7 +447,6 @@ def guid_to_string(g: Guid) -> str:
         Uppercase GUID in braces format or empty string for NIL_GUID.
 
     """
-    nil = Guid(UUID(int=0))
-    if g == nil:
+    if g.is_nil():
         return ""
     return f"{{{str(g).upper()}}}"

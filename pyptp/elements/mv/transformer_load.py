@@ -1,4 +1,9 @@
-"""Transformer Load (Element)."""
+"""Medium-voltage transformer load element for symmetrical network modeling.
+
+Provides MV/LV distribution transformer modeling with aggregated secondary
+load, distributed generation (PV, wind, battery), growth factors, and
+load behavior profiles for balanced three-phase analysis.
+"""
 
 from __future__ import annotations
 
@@ -42,12 +47,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a transformer load (MV)."""
+    """Medium-voltage transformer load with aggregated secondary modeling.
+
+    Supports distribution transformer analysis with combined load demand,
+    distributed generation (PV, wind, battery), growth projections, and
+    profile-based time variation for MV network planning studies.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a transformer load."""
+        """Core electrical and operational properties for MV transformer loads.
+
+        Encompasses connection node, load/generation power, growth factors,
+        DER configurations, and reliability statistics.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

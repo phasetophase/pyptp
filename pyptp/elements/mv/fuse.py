@@ -1,4 +1,9 @@
-"""Fuse (Secondary)."""
+"""Fuse protection element for symmetrical network modeling.
+
+Provides overcurrent protection modeling with current-time characteristics
+and breaking capacity specifications for balanced three-phase fault analysis
+and protection coordination studies in distribution networks.
+"""
 
 from __future__ import annotations
 

@@ -1,4 +1,8 @@
-"""Variable element for medium-voltage networks."""
+"""Medium-voltage variable element for network configuration.
+
+Provides simple text variable storage for configuration values
+and metadata in MV distribution network files.
+"""
 
 from __future__ import annotations
 
@@ -11,7 +15,11 @@ from pyptp.elements.serialization_helpers import write_string_no_skip
 
 @dataclass
 class VariableMV(DataClassJsonMixin):
-    """Variable element for MV networks - stores a single variable string."""
+    """Medium-voltage variable storing configuration text values.
+
+    Supports simple string storage for network-level configuration
+    and metadata in VNF format files.
+    """
 
     value: str = field(default="")
 

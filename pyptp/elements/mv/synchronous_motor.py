@@ -1,4 +1,9 @@
-"""Synchronous Motor (Element)."""
+"""Medium-voltage synchronous motor element for symmetrical network modeling.
+
+Provides synchronous motor modeling with power factor control, reactive
+power compensation capability, and transient impedance parameters for
+motor load studies in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -41,12 +46,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a synchronous motor (MV)."""
+    """Medium-voltage synchronous motor with reactive power capability.
+
+    Supports synchronous motor analysis with configurable power factor
+    control, reactive power contribution, and earthing configuration
+    for balanced three-phase MV network studies.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a synchronous motor."""
+        """Core electrical and operational properties for MV synchronous motors.
+
+        Encompasses connection node, power reference, control mode settings,
+        earthing configuration, and reliability statistics.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

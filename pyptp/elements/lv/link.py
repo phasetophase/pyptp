@@ -1,4 +1,9 @@
-"""Link (Branch)."""
+"""Link branch element for asymmetrical network modeling.
+
+Provides network interconnection modeling with switchable connections
+between network sections for topology analysis and network
+reconfiguration in distribution networks.
+"""
 
 from __future__ import annotations
 

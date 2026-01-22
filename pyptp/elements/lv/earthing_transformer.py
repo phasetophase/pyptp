@@ -1,4 +1,9 @@
-"""Earthing Transformer (Element)."""
+"""Low-voltage earthing transformer element for asymmetrical network modeling.
+
+Provides grounding transformer modeling with zero-sequence impedance
+parameters required for accurate fault current analysis and neutral
+grounding studies in LV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -39,11 +44,20 @@ from .presentations import ElementPresentation
 
 @dataclass
 class EarthingTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents an earthing transformer (LV)."""
+    """Low-voltage earthing transformer with zero-sequence impedance modeling.
+
+    Supports grounding system analysis with configurable R0/X0 parameters
+    for fault current calculations and earth fault protection coordination
+    in asymmetrical LV distribution networks.
+    """
 
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for an earthing transformer."""
+        """Core electrical and operational properties for LV earthing transformers.
+
+        Encompasses connection node, switch states, and type reference for
+        linking to zero-sequence impedance specifications.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(
@@ -98,7 +112,11 @@ class EarthingTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class EarthingTransformerType(DataClassJsonMixin):
-        """Earthing Transformer type properties."""
+        """Zero-sequence impedance specifications for earthing transformer modeling.
+
+        Defines R0 and X0 parameters for accurate earth fault current
+        calculations in unbalanced network analysis.
+        """
 
         R0: float = 0.0
         X0: float = 0.0

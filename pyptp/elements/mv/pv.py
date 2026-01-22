@@ -1,4 +1,9 @@
-"""PV (Element)."""
+"""Photovoltaic generation element for symmetrical network modeling.
+
+Provides solar power modeling with generation profiles, inverter
+characteristics, and grid connection parameters for balanced
+three-phase power flow analysis in distribution networks.
+"""
 
 from __future__ import annotations
 

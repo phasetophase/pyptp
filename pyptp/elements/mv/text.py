@@ -1,4 +1,8 @@
-"""Text element for MV networks."""
+"""Medium-voltage text element for diagram annotation.
+
+Provides text annotation capabilities for MV distribution network
+diagrams with multi-line support and configurable presentation styling.
+"""
 
 from __future__ import annotations
 

@@ -1,4 +1,9 @@
-"""Indicator (Secondary)."""
+"""Fault indicator element for symmetrical network modeling.
+
+Provides fault detection modeling with threshold settings and
+status signaling for fault location and network restoration
+support in distribution networks.
+"""
 
 from __future__ import annotations
 

@@ -2,6 +2,11 @@
 
 Demonstrates how to convert electrical networks to NetworkX graphs
 for analysis and visualization.
+
+Graph Structure:
+- All network elements (nodes, branches, elements) become graph NODES
+- Edges represent connections between elements
+- Each graph node has a 'type' attribute with the element class name
 """
 
 from pyptp.graph.networkx_converter import NetworkxConverter
@@ -18,7 +23,7 @@ gnf_importer = GnfImporter()
 lv_network = gnf_importer.import_gnf("PATH_TO_GNF")
 lv_graph = NetworkxConverter.graph_lv(lv_network)
 
-# Now you can use NetworkX for analysis
+# Basic statistics
 print(f"MV Network: {mv_graph.number_of_nodes()} nodes, {mv_graph.number_of_edges()} edges")
 print(f"LV Network: {lv_graph.number_of_nodes()} nodes, {lv_graph.number_of_edges()} edges")
 
@@ -28,6 +33,15 @@ import networkx as nx
 # Check if network is connected
 is_connected = nx.is_connected(mv_graph)
 print(f"Network is connected: {is_connected}")
+
+# Query element types from the graph
+# Each node has a 'type' attribute with the element class name
+for node, attrs in mv_graph.nodes(data=True):
+    print(f"Node {node}: type={attrs.get('type')}")
+
+# Find all nodes of a specific type
+cables = [n for n, d in mv_graph.nodes(data=True) if d.get('type') == 'CableMV']
+print(f"Found {len(cables)} cables")
 
 # Find shortest path between nodes
 # path = nx.shortest_path(mv_graph, source_node, target_node)

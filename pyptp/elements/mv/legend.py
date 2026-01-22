@@ -1,4 +1,9 @@
-"""Legend element for medium-voltage networks."""
+"""Medium-voltage legend element for diagram annotation.
+
+Provides tabular text display with configurable rows, columns,
+and cell merging for title blocks, notes, and documentation
+annotations on MV distribution network diagrams.
+"""
 
 from __future__ import annotations
 
@@ -34,7 +39,10 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class LegendCell(DataClassJsonMixin):
-    """Legend cell with text content."""
+    """Individual cell within a legend table.
+
+    Contains row/column position, text formatting, and content lines.
+    """
 
     row: int = 1
     column: int = 1
@@ -70,7 +78,11 @@ class LegendCell(DataClassJsonMixin):
 @dataclass_json
 @dataclass
 class LegendPresentation(DataClassJsonMixin):
-    """Presentation properties for a legend."""
+    """Visual presentation properties for legend display.
+
+    Defines position, dimensions, colors, and text formatting for
+    rendering the legend on a sheet.
+    """
 
     sheet: Guid = field(
         default_factory=lambda: Guid(uuid4()),

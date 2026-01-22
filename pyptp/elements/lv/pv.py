@@ -1,4 +1,9 @@
-"""Photovoltaics / Solar Panels / Solar Field (Element)."""
+"""Photovoltaic generation element for asymmetrical network modeling.
+
+Provides solar power modeling with multi-panel configurations,
+phase-specific connections, and efficiency characteristics for
+unbalanced load flow analysis in distribution networks.
+"""
 
 from __future__ import annotations
 
