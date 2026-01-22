@@ -1,4 +1,9 @@
-"""Home / Connection (Element)."""
+"""Low-voltage customer connection element for asymmetrical network modeling.
+
+Provides comprehensive residential and commercial connection modeling with
+load profiles, distributed generation (PV, wind, battery), heat pumps,
+and earthing configurations for detailed LV distribution network analysis.
+"""
 
 from __future__ import annotations
 
@@ -46,11 +51,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a home / connection (LV)."""
+    """Low-voltage customer connection with comprehensive prosumer modeling.
+
+    Supports residential and commercial connection analysis including load
+    profiles, distributed generation (PV, wind), battery storage, heat pumps,
+    and detailed earthing configurations for asymmetrical LV network studies.
+    """
 
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a home."""
+        """Core electrical and operational properties for LV customer connections.
+
+        Encompasses connection node, service cable parameters, phase configuration,
+        earthing setup, protection settings, and geographic information.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

@@ -1,4 +1,9 @@
-"""Asynchronous Motor (Element)."""
+"""Medium-voltage asynchronous motor element for symmetrical network modeling.
+
+Provides induction motor modeling with starting characteristics, earthing
+configuration, and motor starter types for balanced three-phase load flow
+and motor starting studies in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -40,12 +45,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents an asynchronous motor (MV)."""
+    """Medium-voltage asynchronous motor with starting characteristics.
+
+    Supports induction motor analysis including DOL, soft starter, and
+    converter starting methods with earthing configuration for balanced
+    three-phase network studies.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for an asynchronous motor."""
+        """Core electrical and operational properties for MV asynchronous motors.
+
+        Encompasses connection node, mechanical power, starting method,
+        earthing configuration, and reliability statistics.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

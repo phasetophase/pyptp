@@ -1,4 +1,9 @@
-"""Shared Types."""
+"""Shared data types for MV network element modeling.
+
+Provides common structures for cable specifications, conductor data,
+geographic coordinates, and other reusable components across multiple
+MV network elements with balanced three-phase characteristics.
+"""
 
 from __future__ import annotations
 

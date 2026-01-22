@@ -1,4 +1,8 @@
-"""Selection object for MV networks."""
+"""Medium-voltage selection element for grouping network objects.
+
+Provides named collections of network element references for batch
+operations, reporting, and analysis scoping in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -18,12 +22,19 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class SelectionMV(DataClassJsonMixin):
-    """Represents a selection (MV)."""
+    """Medium-voltage selection containing grouped element references.
+
+    Supports organizing network elements into named groups for batch
+    operations, filtered analysis, and reporting purposes.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a selection."""
+        """Core identification properties for MV selections.
+
+        Contains the selection name for user identification.
+        """
 
         name: str = string_field()
 
@@ -43,7 +54,10 @@ class SelectionMV(DataClassJsonMixin):
     @dataclass_json
     @dataclass
     class Object(DataClassJsonMixin):
-        """Object reference in a selection."""
+        """GUID reference to a selected network element.
+
+        Links to any network element by its unique identifier.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),

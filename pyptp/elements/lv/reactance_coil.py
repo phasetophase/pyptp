@@ -1,4 +1,9 @@
-"""Reactance Coil (Element)."""
+"""Low-voltage reactance coil element for asymmetrical network modeling.
+
+Provides series reactor modeling with positive, negative, and zero-sequence
+impedance parameters for current limiting and fault level reduction
+in LV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -29,12 +34,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class ReactanceCoilLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a reactance coil (LV)."""
+    """Low-voltage reactance coil with sequence impedance modeling.
+
+    Supports series reactor analysis with positive, negative, and zero-sequence
+    impedance parameters for current limiting and fault level reduction
+    in asymmetrical LV distribution networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a reactance coil."""
+        """Core electrical and operational properties for LV reactance coils.
+
+        Encompasses connection nodes, per-conductor switch states, and type
+        reference for linking to impedance specifications.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),
@@ -120,7 +134,11 @@ class ReactanceCoilLV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class ReactanceCoilType(DataClassJsonMixin):
-        """Electrotechnical properties for the Reactance Coil."""
+        """Electrical specifications for reactance coil modeling.
+
+        Defines rated voltage, current, and sequence impedances (R, X, R0, X0, R2, X2)
+        for accurate power flow and short-circuit analysis.
+        """
 
         short_name: str = string_field()
         unom: float | int = optional_field(0)

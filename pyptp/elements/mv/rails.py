@@ -1,4 +1,9 @@
-"""Rails (Other)."""
+"""Rail system element for traction network modeling.
+
+Defines rail-based traction power systems with their specific
+electrical characteristics for integration with distribution
+network analysis.
+"""
 
 from __future__ import annotations
 

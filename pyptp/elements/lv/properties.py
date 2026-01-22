@@ -1,4 +1,9 @@
-"""General Network Properties."""
+"""Low-voltage network properties and metadata.
+
+Provides network-level configuration including project information,
+history tracking, user management, and system settings for
+LV distribution network files.
+"""
 
 from __future__ import annotations
 
@@ -33,12 +38,19 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class PropertiesLV:
-    """LV Network Properties."""
+    """Low-voltage network properties with comprehensive metadata.
+
+    Contains project information, version tracking, change history,
+    user management, and system configuration for the network file.
+    """
 
     @dataclass_json
     @dataclass
     class System(DataClassJsonMixin):
-        """System."""
+        """System-level configuration settings.
+
+        Contains regional settings like currency for cost calculations.
+        """
 
         currency: str = "EUR"
 
@@ -56,7 +68,10 @@ class PropertiesLV:
     @dataclass_json
     @dataclass
     class Network(DataClassJsonMixin):
-        """Network."""
+        """Network identity and state tracking.
+
+        Contains unique identifiers and timestamps for version control.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),
@@ -94,7 +109,10 @@ class PropertiesLV:
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General."""
+        """Project information and documentation metadata.
+
+        Contains customer, location, project details, and version info.
+        """
 
         customer: str = string_field()
         place: str = string_field()
@@ -141,7 +159,10 @@ class PropertiesLV:
     @dataclass_json
     @dataclass
     class Invisible(DataClassJsonMixin):
-        """Invisible."""
+        """Hidden property display configuration.
+
+        Lists properties excluded from default display views.
+        """
 
         Property: list[str] = field(default_factory=list)
 
@@ -164,7 +185,10 @@ class PropertiesLV:
     @dataclass_json
     @dataclass
     class History(DataClassJsonMixin):
-        """History."""
+        """Change history tracking configuration.
+
+        Controls whether history prompts appear on save operations.
+        """
 
         ask: bool = False
         always: bool = False
@@ -187,7 +211,10 @@ class PropertiesLV:
     @dataclass_json
     @dataclass
     class HistoryItems(DataClassJsonMixin):
-        """History Items."""
+        """Recorded change history entries.
+
+        Contains timestamped text entries documenting network changes.
+        """
 
         Text: list[str] = field(default_factory=list)
 
@@ -208,7 +235,10 @@ class PropertiesLV:
     @dataclass_json
     @dataclass
     class Users(DataClassJsonMixin):
-        """Users."""
+        """User list for access and attribution tracking.
+
+        Contains usernames associated with the network file.
+        """
 
         User: list[str] = field(default_factory=list)
 

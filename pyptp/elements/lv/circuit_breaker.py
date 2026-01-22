@@ -1,4 +1,9 @@
-"""Circuit Breaker (Secondary)."""
+"""Low-voltage circuit breaker secondary element for asymmetrical network modeling.
+
+Provides comprehensive circuit breaker modeling with overcurrent protection,
+voltage protection, earth fault protection, and detailed time-current
+characteristics for protection coordination in LV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -37,11 +42,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class CircuitBreakerLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a circuit breaker (LV)."""
+    """Low-voltage circuit breaker with comprehensive protection modeling.
+
+    Supports detailed protection coordination analysis with overcurrent,
+    voltage, and earth fault protection functions including time-current
+    characteristics for asymmetrical LV distribution network studies.
+    """
 
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a circuit breaker."""
+        """Core properties for LV circuit breakers.
+
+        Encompasses parent object reference, protection function presence
+        flags, and type references for protection coordination.
+        """
 
         guid: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         creation_time: float | int = 0
@@ -111,7 +125,11 @@ class CircuitBreakerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class CircuitBreakerType(DataClassJsonMixin):
-        """CircuitBreakerType properties."""
+        """Electrical specifications for circuit breaker modeling.
+
+        Defines rated voltage, current, switching capabilities, and
+        thermal/dynamic withstand ratings for protection analysis.
+        """
 
         short_name: str = string_field()
         unom: float = 0.0
@@ -154,7 +172,11 @@ class CircuitBreakerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class VoltageProtectionType(DataClassJsonMixin):
-        """Voltage Protection Type properties."""
+        """Voltage protection relay settings and characteristics.
+
+        Defines under/over voltage protection thresholds and time delays
+        for voltage-based protection coordination.
+        """
 
         short_name: str = string_field()
         unom: float = 0.0
@@ -212,7 +234,11 @@ class CircuitBreakerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class CurrentProtectionType(DataClassJsonMixin):
-        """Current Protection Type properties."""
+        """Overcurrent protection relay settings and characteristics.
+
+        Defines time-current curve points and inverse time settings
+        for overcurrent and earth fault protection coordination.
+        """
 
         short_name: str = string_field()
         inom: float = 0.0

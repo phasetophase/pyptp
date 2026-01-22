@@ -1,4 +1,9 @@
-"""Measure Field (Secondary)."""
+"""Low-voltage measure field secondary element for asymmetrical network modeling.
+
+Provides measurement transformer modeling attached to branch elements with
+voltage and current transformer configurations for metering and protection
+instrumentation in LV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -39,11 +44,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a measure field (LV)."""
+    """Low-voltage measure field with instrument transformer modeling.
+
+    Supports voltage and current transformer configurations attached to
+    branch elements for metering, protection, and SCADA instrumentation
+    in asymmetrical LV distribution networks.
+    """
 
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a measure field."""
+        """Core properties for LV measure fields.
+
+        Encompasses parent object reference, transformer presence flags,
+        and function designations for measurement instrumentation.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),
@@ -110,7 +124,10 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class Measurement(DataClassJsonMixin):
-        """Measurement."""
+        """Individual measurement data record.
+
+        Stores measured values as text for time-series analysis.
+        """
 
         text: str = string_field()
 
@@ -129,7 +146,11 @@ class MeasureFieldLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class MeasurementsFile(DataClassJsonMixin):
-        """Reference to measurement files."""
+        """External measurement file reference.
+
+        Links to external data files containing time-series measurements
+        with column mapping for data import.
+        """
 
         file_name: str = string_field()
         column: str = string_field()

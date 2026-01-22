@@ -1,4 +1,9 @@
-"""Circuit Breaker (Secondary)."""
+"""Circuit breaker protection element for symmetrical network modeling.
+
+Provides switchgear modeling with breaking capacity, trip settings,
+and operational states for balanced three-phase fault analysis
+and protection system coordination in distribution networks.
+"""
 
 from __future__ import annotations
 

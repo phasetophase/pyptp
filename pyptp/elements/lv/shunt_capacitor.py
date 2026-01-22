@@ -1,4 +1,9 @@
-"""Shunt Capacitor (Element)."""
+"""Low-voltage shunt capacitor element for asymmetrical network modeling.
+
+Provides capacitor bank modeling with reactive power compensation and
+passive harmonic filter capabilities for power factor correction
+and harmonic mitigation in LV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -36,12 +41,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class ShuntCapacitorLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a shunt capacitor (LV)."""
+    """Low-voltage shunt capacitor with reactive compensation modeling.
+
+    Supports capacitor bank analysis with reactive power injection and
+    passive harmonic filter configuration for power factor correction
+    in asymmetrical LV distribution networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a shunt capacitor."""
+        """Core electrical and operational properties for LV shunt capacitors.
+
+        Encompasses connection node, reactive power rating, and passive filter
+        parameters (frequency, quality factor) for harmonic studies.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

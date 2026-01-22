@@ -1,4 +1,9 @@
-"""Sheet (Other)."""
+"""Medium-voltage sheet element for network visualization.
+
+Provides diagram canvas pages where network elements are visually
+presented with configurable grid settings and map sheet parameters
+for organizing MV distribution network diagrams.
+"""
 
 from __future__ import annotations
 
@@ -33,12 +38,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class SheetMV:
-    """Represents a sheet or tab for visualizing objects (MV)."""
+    """Medium-voltage sheet providing a canvas for network diagrams.
+
+    Supports multiple diagram pages with configurable grid settings,
+    background colors, and map sheet parameters for organizing
+    element presentations in MV networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a sheet."""
+        """Core properties for MV sheets.
+
+        Encompasses identification, display color, and grid configuration
+        including map sheet dimensions and numbering.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),

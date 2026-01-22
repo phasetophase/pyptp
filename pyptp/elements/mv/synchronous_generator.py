@@ -1,4 +1,9 @@
-"""Synchronous Generator (Element)."""
+"""Medium-voltage synchronous generator element for symmetrical network modeling.
+
+Provides synchronous machine generation modeling with active/reactive power
+control modes, voltage regulation, and transient impedance parameters for
+distributed generation studies in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -41,12 +46,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a synchronous generator (MV)."""
+    """Medium-voltage synchronous generator with control mode modeling.
+
+    Supports distributed generation analysis with configurable P-f droop,
+    Q-V droop, reactive power limits, and voltage control for balanced
+    three-phase network studies.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a synchronous generator."""
+        """Core electrical and operational properties for MV synchronous generators.
+
+        Encompasses connection node, power reference, control mode settings,
+        reactive limits, earthing configuration, and reliability statistics.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

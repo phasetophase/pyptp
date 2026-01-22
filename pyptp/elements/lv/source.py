@@ -1,4 +1,9 @@
-"""Source representing a different network, often MV, powering the LV network (Element)."""
+"""Low-voltage source element for asymmetrical network modeling.
+
+Provides network feeder point modeling representing external supply from
+MV networks or other sources with voltage limits and short-circuit
+capacity parameters for LV distribution network analysis.
+"""
 
 from __future__ import annotations
 
@@ -28,12 +33,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class SourceLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a source which would often be a different network or a MV network (LV)."""
+    """Low-voltage source element representing external network supply.
+
+    Models feeder points from MV networks or other external sources with
+    voltage limits and short-circuit capacity parameters for accurate
+    load flow and fault analysis in LV distribution networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a source."""
+        """Core electrical and operational properties for LV sources.
+
+        Encompasses connection node, voltage limits (Umin, Umax, Uref),
+        short-circuit capacity, and switch states for network analysis.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         guid: Guid = field(

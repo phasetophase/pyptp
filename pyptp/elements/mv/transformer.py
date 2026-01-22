@@ -297,7 +297,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Automatic voltage control settings for tap-changing transformers."""
 
         own_control: bool = False
-        control_status: int = 1
+        control_status: bool = True
         measure_side: int = 1
         control_node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         setpoint: float = 0.0
@@ -320,7 +320,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize voltage control properties to VNF format."""
             return serialize_properties(
                 write_boolean_no_skip("OwnControl", value=self.own_control),
-                write_integer_no_skip("ControlStatus", self.control_status),
+                write_integer_no_skip("ControlStatus", int(self.control_status)),
                 write_integer_no_skip("MeasureSide", self.measure_side),
                 write_guid("ControlNode", self.control_node) if self.control_node != NIL_GUID else "",
                 write_double("SetPoint", self.setpoint),
@@ -345,7 +345,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Parse voltage control properties from VNF data."""
             return cls(
                 own_control=data.get("OwnControl", False),
-                control_status=data.get("ControlStatus", 1),
+                control_status=bool(data.get("ControlStatus", 1)),
                 measure_side=data.get("MeasureSide", 1),
                 control_node=decode_guid(data.get("ControlNode", str(NIL_GUID))),
                 setpoint=data.get("SetPoint", 0.0),

@@ -1,4 +1,9 @@
-"""Shunt Capacitor (Element)."""
+"""Medium-voltage shunt capacitor element for symmetrical network modeling.
+
+Provides capacitor bank modeling with reactive power compensation and
+voltage control capabilities for power factor correction and voltage
+regulation in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -40,12 +45,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a shunt capacitor (MV)."""
+    """Medium-voltage shunt capacitor with reactive compensation modeling.
+
+    Supports capacitor bank analysis with configurable reactive power,
+    voltage control, and earthing configuration for balanced three-phase
+    power factor correction in MV distribution networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a shunt capacitor."""
+        """Core electrical and operational properties for MV shunt capacitors.
+
+        Encompasses connection node, reactive power rating, voltage control
+        settings, earthing configuration, and reliability statistics.
+        """
 
         node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         """GUID of the node to which the shunt capacitor is connected."""

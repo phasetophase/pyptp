@@ -20,7 +20,10 @@ Or with [uv](https://docs.astral.sh/uv/):
 uv add pyptp
 ```
 
-Examples in the [`examples/`](examples/) directory.
+## Documentation
+
+- **Docs**: [pyptp.com](https://pyptp.com) — guides, API reference, and samples
+- **Examples**: [`docs/samples/`](docs/samples/) — runnable code snippets
 
 ## Contributing
 

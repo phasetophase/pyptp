@@ -1,4 +1,9 @@
-"""Threewinding Transformer (Other)."""
+"""Medium-voltage three-winding transformer element for symmetrical network modeling.
+
+Provides three-winding power transformer modeling with configurable winding
+voltages, tap positions, and impedance parameters for substation analysis
+in balanced three-phase MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -39,12 +44,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a threewinding transformer (MV)."""
+    """Medium-voltage three-winding transformer with tap control modeling.
+
+    Supports three-winding power transformer analysis with configurable
+    winding voltages, power ratings, tap positions, and loading limits
+    for substation studies in balanced three-phase MV networks.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a threewinding transformer."""
+        """Core electrical and operational properties for MV three-winding transformers.
+
+        Encompasses connection nodes, switch states, winding power ratings,
+        tap positions, loading limits, and reliability statistics.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),

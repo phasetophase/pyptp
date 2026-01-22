@@ -1,4 +1,9 @@
-"""Load Switch (Secondary)."""
+"""Medium-voltage load switch secondary element for symmetrical network modeling.
+
+Provides load break switch and disconnector modeling attached to branch
+elements with thermal rating specifications and remote control capability
+for switching studies in MV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -39,12 +44,21 @@ if TYPE_CHECKING:
 @dataclass_json
 @dataclass
 class LoadSwitchMV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a load switch (MV)."""
+    """Medium-voltage load switch with disconnector and remote control options.
+
+    Supports load break switch analysis attached to branch elements with
+    configurable thermal ratings, disconnector function, and remote control
+    capability for balanced three-phase switching studies.
+    """
 
     @dataclass_json
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a load switch."""
+        """Core properties for MV load switches.
+
+        Encompasses parent object reference, side designation, disconnector
+        function, remote control flag, and type specifications.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),

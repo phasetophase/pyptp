@@ -1,4 +1,9 @@
-"""Load Switch (Secondary)."""
+"""Low-voltage load switch secondary element for asymmetrical network modeling.
+
+Provides load break switch modeling attached to branch elements with
+thermal rating specifications for switching operations and protection
+coordination in LV distribution networks.
+"""
 
 from __future__ import annotations
 
@@ -27,11 +32,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class LoadSwitchLV(ExtrasNotesMixin, HasPresentationsMixin):
-    """Represents a load switch (LV)."""
+    """Low-voltage load switch with thermal rating specifications.
+
+    Supports load break switch analysis attached to branch elements with
+    configurable current and thermal withstand ratings for switching
+    studies in asymmetrical LV distribution networks.
+    """
 
     @dataclass
     class General(DataClassJsonMixin):
-        """General properties for a load switch."""
+        """Core properties for LV load switches.
+
+        Encompasses parent object reference, side designation, and
+        standardization flag for protection coordination.
+        """
 
         guid: Guid = field(
             default_factory=lambda: Guid(uuid4()),
@@ -77,7 +91,11 @@ class LoadSwitchLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class LoadSwitchType(DataClassJsonMixin):
-        """Electrotechnical properties of the loadswitch."""
+        """Electrical specifications for load switch modeling.
+
+        Defines rated voltage, current, and thermal withstand parameters
+        for protection coordination analysis.
+        """
 
         short_name: str = string_field()
         unom: float = 0.0
