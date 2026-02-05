@@ -323,10 +323,13 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize PL properties to a string."""
-            return serialize_properties(
-                write_integer("NumberOf", self.number_of, skip=0),
-                write_integer("Phases", self.phases, skip=1),
-                write_quote_string("PLType", self.pl_type),
+            return (
+                serialize_properties(
+                    write_integer("NumberOf", self.number_of, skip=0),
+                    write_integer("Phases", self.phases, skip=1),
+                    write_quote_string("PLType", self.pl_type),
+                )
+                + " "
             )
 
         @classmethod
@@ -742,11 +745,14 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize HEMS properties to a string."""
-            return serialize_properties(
-                write_quote_string("Regime", self.regime),
-                write_double("Parameter1", self.parameter1),
-                write_double("Parameter2", self.parameter2),
-                write_double("Parameter3", self.parameter3),
+            return (
+                serialize_properties(
+                    write_quote_string("Regime", self.regime),
+                    write_double("Parameter1", self.parameter1),
+                    write_double("Parameter2", self.parameter2),
+                    write_double("Parameter3", self.parameter3),
+                )
+                + " "
             )
 
         @classmethod
