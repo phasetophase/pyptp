@@ -180,20 +180,20 @@ class TransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
         setpoints, deadbands, and compounding settings for voltage regulation.
         """
 
-        own_control: bool = False
-        control_status: int = optional_field(0)
+        present: bool = False
+        status: bool = False
         measure_side: int = 3
         control_node: str = string_field()
         setpoint: float = optional_field(0)
         deadband: float = optional_field(0)
         control_sort: int = optional_field(0)
-        Rc: float = optional_field(0)
-        Xc: float = optional_field(0)
+        rc: float = optional_field(0)
+        xc: float = optional_field(0)
         compounding_at_generation: bool = True
-        p_min1: int = optional_field(0)
-        u_min1: float = optional_field(0)
-        p_max1: int = optional_field(0)
-        u_max1: float = optional_field(0)
+        pmin1: int = optional_field(0)
+        umin1: float = optional_field(0)
+        pmax1: int = optional_field(0)
+        umax1: float = optional_field(0)
 
         def serialize(self) -> str:
             """Serialize voltage control properties to GNF format.
@@ -203,20 +203,20 @@ class TransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
             """
             return serialize_properties(
-                write_boolean_no_skip("OwnControl", value=self.own_control),
-                write_integer("ControlStatus", self.control_status),
+                write_boolean_no_skip("OwnControl", value=self.present),
+                write_integer("ControlStatus", int(self.status)),
                 write_integer_no_skip("MeasureSide", self.measure_side),
                 write_quote_string("ControlNode", self.control_node),
                 write_double("Setpoint", self.setpoint),
                 write_double("Deadband", self.deadband),
                 write_integer("ControlSort", self.control_sort),
-                write_double("Rc", self.Rc),
-                write_double("Xc", self.Xc),
+                write_double("Rc", self.rc),
+                write_double("Xc", self.xc),
                 write_boolean_no_skip("CompoundingAtGeneration", value=self.compounding_at_generation),
-                write_integer("Pmin1", self.p_min1),
-                write_double("Umin1", self.u_min1),
-                write_integer("Pmax1", self.p_max1),
-                write_double("Umax1", self.u_max1),
+                write_integer("Pmin1", self.pmin1),
+                write_double("Umin1", self.umin1),
+                write_integer("Pmax1", self.pmax1),
+                write_double("Umax1", self.umax1),
             )
 
         @classmethod
@@ -231,20 +231,20 @@ class TransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
             """
             return cls(
-                own_control=data.get("OwnControl", False),
-                control_status=data.get("ControlStatus", 0),
+                present=data.get("OwnControl", False),
+                status=bool(data.get("ControlStatus", 0)),
                 measure_side=data.get("MeasureSide", 3),
                 control_node=data.get("ControlNode", ""),
                 setpoint=data.get("Setpoint", 0),
                 deadband=data.get("Deadband", 0),
                 control_sort=data.get("ControlSort", 0),
-                Rc=data.get("Rc", 0),
-                Xc=data.get("Xc", 0),
+                rc=data.get("Rc", 0),
+                xc=data.get("Xc", 0),
                 compounding_at_generation=data.get("CompoundingAtGeneration", True),
-                p_min1=data.get("Pmin1", 0),
-                u_min1=data.get("Umin1", 0),
-                p_max1=data.get("Pmax1", 0),
-                u_max1=data.get("Umax1", 0),
+                pmin1=data.get("Pmin1", 0),
+                umin1=data.get("Umin1", 0),
+                pmax1=data.get("Pmax1", 0),
+                umax1=data.get("Umax1", 0),
             )
 
     @dataclass_json

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 
 
 class SpecialTransformerSort(IntEnum):
@@ -83,3 +83,43 @@ class NodePresentationSymbol(IntEnum):
     CLOSED_RECTANGLE = 51
     OPEN_RECTANGLE = 52
     HALF_OPEN_RECTANGLE = 53
+
+
+class GnfVersion(StrEnum):
+    """GNF (Gaia/LV) file format versions supported for saving.
+
+    Values correspond to version strings written to the first line of GNF files.
+    Only versions with save modules in the migrator DLL are included.
+    G8.9 is the latest format (G8.10 doesn't exist, G8.11 saves as G8.9).
+    """
+
+    G8_7 = "G8.7"
+    G8_8 = "G8.8"
+    G8_9 = "G8.9"
+
+
+class VnfVersion(StrEnum):
+    """VNF (Vision/MV) file format versions supported for saving.
+
+    Values correspond to version strings written to the first line of VNF files.
+    Only versions with save modules in the migrator DLL are included.
+    """
+
+    V9_7 = "V9.7"
+    V9_8 = "V9.8"
+    V9_9 = "V9.9"
+    V9_10 = "V9.10"
+    V9_11 = "V9.11"
+
+
+class VoltageControlSort(IntEnum):
+    """Voltage control type for tap-changing transformers.
+
+    Determines how the automatic voltage control operates.
+    """
+
+    COMPOUNDING = 0
+    """Compounding control - adjusts setpoint based on current flow."""
+
+    LOAD = 1
+    """Load-based control - adjusts voltage based on load conditions."""

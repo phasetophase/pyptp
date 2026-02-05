@@ -1,15 +1,17 @@
 """GNF file exporter for LV networks with presentation optimization.
 
-Exports TNetworkLS instances to GNF v8.9 format with optional presentation
-solving for proper visual layout in electrical design software.
+Exports NetworkLV instances to GNF format with version migration support.
 """
 
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TextIO
 
+from pyptp.convert.version_migrator import save_as
 from pyptp.elements.element_utils import Guid, guid_to_string
+from pyptp.elements.enums import GnfVersion
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
@@ -193,65 +195,91 @@ class GnfExporter:
         GnfExporter.__reposition_cables(network, sheet_guid, min_x, min_y, scale, grid_size)
 
     @staticmethod
+    def _write_gnf(network: NetworkLV, fh: TextIO) -> None:
+        """Write network content in G8.9 format to file handle."""
+        fh.write("G8.9\nNETWORK\n\n")
+
+        fh.write("[PROPERTIES]\n")
+        fh.write(network.properties.serialize() + "\n")
+        fh.write("[]\n\n")
+
+        fh.write("[COMMENTS]\n")
+        for comment in network.comments:
+            fh.write(comment.serialize() + "\n")
+        fh.write("[]\n\n")
+
+        sections: list[tuple[str, Iterable]] = [
+            ("PROFILE", network.profiles.values()),
+            ("GM TYPE", network.gmtypes.values()),
+            ("SHEET", network.sheets.values()),
+            ("NODE", network.nodes.values()),
+            ("LINK", network.links.values()),
+            ("CABLE", network.cables.values()),
+            ("TRANSFORMER", network.transformers.values()),
+            ("SPECIAL TRANSFORMER", network.special_transformers.values()),
+            ("REACTANCECOIL", network.reactance_coils.values()),
+            ("SOURCE", network.sources.values()),
+            ("SYNCHRONOUS GENERATOR", network.syn_generators.values()),
+            ("ASYNCHRONOUS GENERATOR", network.async_generators.values()),
+            ("ASYNCHRONOUS MOTOR", network.async_motors.values()),
+            ("LOAD", network.loads.values()),
+            ("SHUNTCAPACITOR", network.shunt_capacitors.values()),
+            ("EARTHINGTRANSFORMER", network.earthing_transformers.values()),
+            ("HOME", network.homes.values()),
+            ("BATTERY", network.batteries.values()),
+            ("PV", network.pvs.values()),
+            ("MEASURE FIELD", network.measure_fields.values()),
+            ("FUSE", network.fuses.values()),
+            ("CIRCUIT BREAKER", network.circuit_breakers.values()),
+            ("LOAD SWITCH", network.load_switches.values()),
+            ("FRAME", network.frames.values()),
+            ("LEGEND", network.legends.values()),
+            ("SELECTION", network.selections),
+        ]
+
+        for header, elements in sections:
+            if elements:
+                fh.write(f"[{header}]\n")
+                for elem in elements:
+                    fh.write(elem.serialize() + "\n")
+                fh.write("[]\n\n")
+
+    @staticmethod
     def export(
         network: NetworkLV,
         output_path: str,
+        version: GnfVersion = GnfVersion.G8_9,
     ) -> None:
-        """Export LV network to GNF v8.9 format.
+        """Export LV network to GNF format with version migration.
 
         Args:
-            network: LV network to export with all registered components.
+            network: LV network to export.
             output_path: Target file path for GNF output.
+            version: Target GNF version (default: G8.9).
 
         Raises:
             IOError: If output file cannot be written.
+            RuntimeError: If version migration fails.
 
         """
         out_path: Path = Path(output_path)
-        with out_path.open("w", encoding="utf-8") as fh:
-            fh.write("G8.9\nNETWORK\n\n")
 
-            fh.write("[PROPERTIES]\n")
-            fh.write(network.properties.serialize() + "\n")
-            fh.write("[]\n\n")
+        if version == GnfVersion.G8_9:
+            with out_path.open("w", encoding="utf-8") as fh:
+                GnfExporter._write_gnf(network, fh)
+        else:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                temp_file = Path(temp_dir) / out_path.name
+                with temp_file.open("w", encoding="utf-8") as fh:
+                    GnfExporter._write_gnf(network, fh)
 
-            fh.write("[COMMENTS]\n")
-            for comment in network.comments:
-                fh.write(comment.serialize() + "\n")
-            fh.write("[]\n\n")
+                result = save_as(
+                    input_path=str(temp_file),
+                    output_path=str(out_path.parent),
+                    output_file=out_path.name,
+                    version=version,
+                )
 
-            sections: list[tuple[str, Iterable]] = [
-                ("PROFILE", network.profiles.values()),
-                ("GM TYPE", network.gmtypes.values()),
-                ("SHEET", network.sheets.values()),
-                ("NODE", network.nodes.values()),
-                ("LINK", network.links.values()),
-                ("CABLE", network.cables.values()),
-                ("TRANSFORMER", network.transformers.values()),
-                ("SPECIAL TRANSFORMER", network.special_transformers.values()),
-                ("REACTANCECOIL", network.reactance_coils.values()),
-                ("SOURCE", network.sources.values()),
-                ("SYNCHRONOUS GENERATOR", network.syn_generators.values()),
-                ("ASYNCHRONOUS GENERATOR", network.async_generators.values()),
-                ("ASYNCHRONOUS MOTOR", network.async_motors.values()),
-                ("LOAD", network.loads.values()),
-                ("SHUNTCAPACITOR", network.shunt_capacitors.values()),
-                ("EARTHINGTRANSFORMER", network.earthing_transformers.values()),
-                ("HOME", network.homes.values()),
-                ("BATTERY", network.batteries.values()),
-                ("PV", network.pvs.values()),
-                ("MEASURE FIELD", network.measure_fields.values()),
-                ("FUSE", network.fuses.values()),
-                ("CIRCUIT BREAKER", network.circuit_breakers.values()),
-                ("LOAD SWITCH", network.load_switches.values()),
-                ("FRAME", network.frames.values()),
-                ("LEGEND", network.legends.values()),
-                ("SELECTION", network.selections),
-            ]
-
-            for header, elements in sections:
-                if elements:
-                    fh.write(f"[{header}]\n")
-                    for elem in elements:
-                        fh.write(elem.serialize() + "\n")
-                    fh.write("[]\n\n")
+                if "successful" not in result.lower():
+                    msg = f"Failed to convert to {version}: {result}"
+                    raise RuntimeError(msg)

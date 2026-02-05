@@ -21,6 +21,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
+from pyptp.elements.enums import VoltageControlSort
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
@@ -366,11 +367,11 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Voltage Control."""
 
         present: bool = False
-        status: int = 0
-        measuring_side: int = 1
+        status: bool = False
+        measure_side: int = 1
         setpoint: float = 0.0
         deadband: float = 0.0
-        control_sort: int = 0
+        control_sort: VoltageControlSort = VoltageControlSort.COMPOUNDING
         rc: float = 0.0
         xc: float = 0.0
         compounding_at_generation: bool = False
@@ -391,8 +392,8 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize VoltageControl properties."""
             return serialize_properties(
                 write_boolean_no_skip("Present", value=self.present),
-                write_integer_no_skip("Status", self.status),
-                write_integer_no_skip("MeasuringSide", self.measuring_side),
+                write_integer_no_skip("Status", int(self.status)),
+                write_integer_no_skip("MeasuringSide", self.measure_side),
                 write_double_no_skip("Setpoint", self.setpoint),
                 write_double_no_skip("Deadband", self.deadband),
                 write_integer("ControlSort", self.control_sort),
@@ -419,11 +420,11 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Deserialize VoltageControl properties."""
             return cls(
                 present=data.get("Present", False),
-                status=data.get("Status", 0),
-                measuring_side=data.get("MeasuringSide", 1),
+                status=bool(data.get("Status", 0)),
+                measure_side=data.get("MeasuringSide", 1),
                 setpoint=data.get("Setpoint", 0.0),
                 deadband=data.get("Deadband", 0.0),
-                control_sort=data.get("ControlSort", 0),
+                control_sort=VoltageControlSort(data.get("ControlSort", VoltageControlSort.COMPOUNDING)),
                 rc=data.get("Rc", 0.0),
                 xc=data.get("Xc", 0.0),
                 compounding_at_generation=data.get("CompoundingAtGeneration", False),

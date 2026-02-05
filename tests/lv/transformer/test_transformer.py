@@ -129,20 +129,20 @@ class TestTransformerRegistration(unittest.TestCase):
         )
 
         voltage_control = TransformerLV.VoltageControl(
-            own_control=True,
-            control_status=1,
+            present=True,
+            status=True,
             measure_side=3,
             control_node="ControlNode1",
             setpoint=0.4,
             deadband=0.02,
             control_sort=1,
-            Rc=0.1,
-            Xc=0.2,
+            rc=0.1,
+            xc=0.2,
             compounding_at_generation=False,
-            p_min1=-100,
-            u_min1=0.38,
-            p_max1=100,
-            u_max1=0.42,
+            pmin1=-100,
+            umin1=0.38,
+            pmax1=100,
+            umax1=0.42,
         )
 
         presentation = BranchPresentation(

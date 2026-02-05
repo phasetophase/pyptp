@@ -1,13 +1,16 @@
 """VNF file exporter for MV networks with presentation optimization.
 
-Exports TNetworkMS instances to VNF v9.9 format with optional presentation
-solving for proper visual layout in electrical design software.
+Exports NetworkMV instances to VNF format with version migration support.
 """
 
+import tempfile
 from collections.abc import Iterable
 from pathlib import Path
+from typing import TextIO
 
+from pyptp.convert.version_migrator import save_as
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import VnfVersion
 from pyptp.network_mv import NetworkMV
 
 
@@ -212,73 +215,99 @@ class VnfExporter:
         VnfExporter.__reposition_cables(network, sheet_guid, min_x, min_y, scale)
 
     @staticmethod
+    def _write_vnf(network: NetworkMV, fh: TextIO) -> None:
+        """Write network content in V9.9 format to file handle."""
+        fh.write("V9.9\nNETWORK\n\n")
+
+        def _write_section(header: str, elements: Iterable) -> None:
+            elems = list(elements)
+            if not elems:
+                return
+            fh.write(f"[{header}]\n")
+            for elem in elems:
+                fh.write(elem.serialize() + "\n")
+            fh.write("[]\n\n")
+
+        _write_section("PROPERTIES", [network.properties])
+        _write_section("COMMENTS", network.comments)
+        _write_section("HYPERLINKS", network.hyperlinks)
+        _write_section("VARIABLES", network.variables)
+        _write_section("SHEET", network.sheets.values())
+        _write_section("NODE", network.nodes.values())
+        _write_section("RAILSYSTEM", network.rail_systems.values())
+        _write_section("LINK", network.links.values())
+        _write_section("LINE", network.lines.values())
+        _write_section("CABLE", network.cables.values())
+        _write_section("TRANSFORMER", network.transformers.values())
+        _write_section("SPECIAL TRANSFORMER", network.special_transformers.values())
+        _write_section("REACTANCECOIL", network.reactance_coils.values())
+        _write_section("THREEWINDINGSTRANSFORMER", network.threewinding_transformers.values())
+        _write_section("MUTUAL", network.mutuals.values())
+        _write_section("PROFILE", network.profiles.values())
+        _write_section("SOURCE", network.sources.values())
+        _write_section("SYNCHRONOUS GENERATOR", network.synchronous_generators.values())
+        _write_section("SYNCHRONOUS MOTOR", network.synchronous_motors.values())
+        _write_section("ASYNCHRONOUS GENERATOR", network.asynchronous_generators.values())
+        _write_section("ASYNCHRONOUS MOTOR", network.asynchronous_motors.values())
+        _write_section("LOADBEHAVIOUR", network.load_behaviours.values())
+        _write_section("GROWTH", network.growths.values())
+        _write_section("LOAD", network.loads.values())
+        _write_section("TRANSFORMERLOAD", network.transformer_loads.values())
+        _write_section("SHUNTCAPACITOR", network.shunt_capacitors.values())
+        _write_section("SHUNTCOIL", network.shunt_coils.values())
+        _write_section("EARTHINGTRANSFORMER", network.earthing_transformers.values())
+        _write_section("WINDTURBINE", network.windturbines.values())
+        _write_section("BATTERY", network.batteries.values())
+        _write_section("PV", network.pvs.values())
+        _write_section("MEASURE FIELD", network.measure_fields.values())
+        _write_section("LOAD SWITCH", network.load_switches.values())
+        _write_section("FUSE", network.fuses.values())
+        _write_section("CIRCUIT BREAKER", network.circuit_breakers.values())
+        _write_section("INDICATOR", network.indicators.values())
+        _write_section("TEXT", network.texts.values())
+        _write_section("FRAME", network.frames.values())
+        _write_section("LEGEND", network.legends.values())
+        _write_section("SELECTION", network.selections)
+        _write_section("VARIANT", network.variants.values())
+        _write_section("SCENARIO", network.scenarios.values())
+        _write_section("CASE", network.calc_cases)
+
+    @staticmethod
     def export(
         network: NetworkMV,
         output_path: str,
+        version: VnfVersion = VnfVersion.V9_9,
     ) -> None:
-        """Export MV network to VNF v9.9 format.
+        """Export MV network to VNF format with version migration.
 
         Args:
-            network: MV network to export with all registered components.
+            network: MV network to export.
             output_path: Target file path for VNF output.
+            version: Target VNF version (default: V9.9).
 
         Raises:
             IOError: If output file cannot be written.
+            RuntimeError: If version migration fails.
 
         """
         out_path = Path(output_path)
-        with out_path.open("w", encoding="utf-8") as fh:
-            fh.write("V9.9\nNETWORK\n\n")
 
-            def _write_section(header: str, elements: Iterable) -> None:
-                elems = list(elements)
-                if not elems:
-                    return
-                fh.write(f"[{header}]\n")
-                for elem in elems:
-                    fh.write(elem.serialize() + "\n")
-                fh.write("[]\n\n")
+        if version == VnfVersion.V9_9:
+            with out_path.open("w", encoding="utf-8") as fh:
+                VnfExporter._write_vnf(network, fh)
+        else:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                temp_file = Path(temp_dir) / out_path.name
+                with temp_file.open("w", encoding="utf-8") as fh:
+                    VnfExporter._write_vnf(network, fh)
 
-            _write_section("PROPERTIES", [network.properties])
-            _write_section("COMMENTS", network.comments)
-            _write_section("HYPERLINKS", network.hyperlinks)
-            _write_section("VARIABLES", network.variables)
-            _write_section("SHEET", network.sheets.values())
-            _write_section("NODE", network.nodes.values())
-            _write_section("RAILSYSTEM", network.rail_systems.values())
-            _write_section("LINK", network.links.values())
-            _write_section("LINE", network.lines.values())
-            _write_section("CABLE", network.cables.values())
-            _write_section("TRANSFORMER", network.transformers.values())
-            _write_section("SPECIAL TRANSFORMER", network.special_transformers.values())
-            _write_section("REACTANCECOIL", network.reactance_coils.values())
-            _write_section("THREEWINDINGSTRANSFORMER", network.threewinding_transformers.values())
-            _write_section("MUTUAL", network.mutuals.values())
-            _write_section("PROFILE", network.profiles.values())
-            _write_section("SOURCE", network.sources.values())
-            _write_section("SYNCHRONOUS GENERATOR", network.synchronous_generators.values())
-            _write_section("SYNCHRONOUS MOTOR", network.synchronous_motors.values())
-            _write_section("ASYNCHRONOUS GENERATOR", network.asynchronous_generators.values())
-            _write_section("ASYNCHRONOUS MOTOR", network.asynchronous_motors.values())
-            _write_section("LOADBEHAVIOUR", network.load_behaviours.values())
-            _write_section("GROWTH", network.growths.values())
-            _write_section("LOAD", network.loads.values())
-            _write_section("TRANSFORMERLOAD", network.transformer_loads.values())
-            _write_section("SHUNTCAPACITOR", network.shunt_capacitors.values())
-            _write_section("SHUNTCOIL", network.shunt_coils.values())
-            _write_section("EARTHINGTRANSFORMER", network.earthing_transformers.values())
-            _write_section("WINDTURBINE", network.windturbines.values())
-            _write_section("BATTERY", network.batteries.values())
-            _write_section("PV", network.pvs.values())
-            _write_section("MEASURE FIELD", network.measure_fields.values())
-            _write_section("LOAD SWITCH", network.load_switches.values())
-            _write_section("FUSE", network.fuses.values())
-            _write_section("CIRCUIT BREAKER", network.circuit_breakers.values())
-            _write_section("INDICATOR", network.indicators.values())
-            _write_section("TEXT", network.texts.values())
-            _write_section("FRAME", network.frames.values())
-            _write_section("LEGEND", network.legends.values())
-            _write_section("SELECTION", network.selections)
-            _write_section("VARIANT", network.variants.values())
-            _write_section("SCENARIO", network.scenarios.values())
-            _write_section("CASE", network.calc_cases)
+                result = save_as(
+                    input_path=str(temp_file),
+                    output_path=str(out_path.parent),
+                    output_file=out_path.name,
+                    version=version,
+                )
+
+                if "successful" not in result.lower():
+                    msg = f"Failed to convert to {version}: {result}"
+                    raise RuntimeError(msg)

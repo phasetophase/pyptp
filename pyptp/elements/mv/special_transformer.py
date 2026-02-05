@@ -9,7 +9,7 @@ from uuid import uuid4
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
 from pyptp.elements.element_utils import NIL_GUID, Guid, decode_guid, encode_guid, string_field
-from pyptp.elements.enums import SpecialTransformerSort
+from pyptp.elements.enums import SpecialTransformerSort, VoltageControlSort
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
@@ -201,7 +201,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Setpoint of the voltage control in kV."""
         deadband: float = 0
         """Deadband of the voltage control in kV."""
-        control_sort: int = 0
+        control_sort: VoltageControlSort = VoltageControlSort.COMPOUNDING
         """Control type/sort identifier."""
         rc: float = 0
         """Real part of the voltage control compounding impedance in Ohm."""
@@ -252,12 +252,12 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         def deserialize(cls, data: dict) -> SpecialTransformerMV.VoltageControl:
             """Deserialize VoltageControl properties."""
             return cls(
-                own_control=data.get("Present", False),
-                control_status=data.get("Status", 0),
+                present=data.get("Present", False),
+                status=data.get("Status", False),
                 measure_side=data.get("MeasureSide", 3),
                 setpoint=data.get("Setpoint", 0.4),
                 deadband=data.get("Deadband", 0),
-                control_sort=data.get("ControlSort", 0),
+                control_sort=VoltageControlSort(data.get("ControlSort", VoltageControlSort.COMPOUNDING)),
                 rc=data.get("Rc", 0),
                 xc=data.get("Xc", 0),
                 compounding_at_generation=data.get("CompoundingAtGeneration", True),
