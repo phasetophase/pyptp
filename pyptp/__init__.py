@@ -32,6 +32,7 @@ Examples:
 
 from pyptp._credentials import PyPtPCredentials as Credentials
 from pyptp.api import Client
+from pyptp.elements.enums import GnfVersion, VnfVersion
 from pyptp.graph.networkx_converter import NetworkxConverter
 from pyptp.network_lv import NetworkLV
 from pyptp.network_mv import NetworkMV
@@ -40,8 +41,10 @@ from pyptp.ptp_log import configure_logging
 __all__ = [
     "Client",
     "Credentials",
+    "GnfVersion",
     "NetworkLV",
     "NetworkMV",
     "NetworkxConverter",
+    "VnfVersion",
     "configure_logging",
 ]

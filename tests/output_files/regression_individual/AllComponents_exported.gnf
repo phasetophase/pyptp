@@ -63,7 +63,7 @@ NETWORK
 [SPECIAL TRANSFORMER]
 #General GUID:'{263CE850-6CD0-308A-A881-993D24AD5FE3}' MutationDate:46015 Node1:'{158A5123-DA5E-3F14-8DF9-87E6A9E084B5}' Node2:'{7796663B-4610-3B8C-A1B1-175162FD61BC}' SwitchState1_L1:1 SwitchState1_L2:1 SwitchState1_L3:1 SwitchState1_N:1 SwitchState1_PE:1 SwitchState2_L1:1 SwitchState2_L2:1 SwitchState2_L3:1 SwitchState2_N:1 SwitchState2_PE:1 SpecialTransformerType:'LVRSys 70 kVA 400 V' Re:2 TapPosition:0 
 #VoltageControl Present:True Status:True MeasureSide:2 CompoundingAtGeneration:True Pmin1:-100 Pmax1:100 
-#SpecialTransformerType ShortName:'LVRSys 70 kVA' Snom:0.07 Unom1:0.4 Unom2:0.4 Ukmin:0.3 Uknom:0.3 Ukmax:0.3 Ik2s:10.6 TapSide:2 TapSize:0.006 TapMin:-4 TapMax:4 
+#SpecialTransformerType Sort:4 ShortName:'LVRSys 70 kVA' Snom:0.07 Unom1:0.4 Unom2:0.4 Ukmin:0.3 Uknom:0.3 Ukmax:0.3 Ik2s:10.6 TapSide:2 TapSize:0.006 TapMin:-4 TapMax:4 
 #Note Text:Aanpassing van Uset: 0 --> 0,4
 #Presentation Sheet:'{21137E7F-1191-3E38-9CEC-C0662021E58D}' TextSize:7 Font:'' Strings1X:7 Strings1Y:12 Strings2X:7 Strings2Y:-12 MidStringsX:24 FaultStringsX:-20 FaultStringsY:20 NoteX:5 FirstCorners:'{(800 0) }' SecondCorners:'{(800 400) }' 
 []

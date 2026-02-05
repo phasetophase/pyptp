@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pyptp.elements.enums import GnfVersion
 from pyptp.elements.lv.properties import PropertiesLV
 from pyptp.ptp_log import logger
 
@@ -229,16 +230,21 @@ class NetworkLV:
 
         return GnfImporter().import_gnf(path)
 
-    def save(self, path: str | Path) -> None:
+    def save(self, path: str | Path, version: GnfVersion = GnfVersion.G8_9) -> None:
         """Save network to GNF file.
 
         Args:
             path: Target file path for GNF output.
+            version: Target GNF version (default: G8.9).
 
         Raises:
             IOError: If output file cannot be written.
 
+        Example:
+            >>> network.save("output.gnf")  # Saves as G8.9
+            >>> network.save("output.gnf", GnfVersion.G8_7)  # Saves as G8.7
+
         """
         from pyptp.IO.exporters.gnf_exporter import GnfExporter
 
-        GnfExporter.export(self, str(path))
+        GnfExporter.export(self, str(path), version)

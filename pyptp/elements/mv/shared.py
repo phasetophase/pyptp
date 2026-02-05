@@ -449,7 +449,7 @@ class QControl(DataClassJsonMixin):
     """
 
     sort: int = 0
-    cosref: float = 0.0
+    cos_ref: float = 0.0
     no_p_no_q: bool = True
     input1: float = 1.0
     output1: float = 0.0
@@ -466,7 +466,7 @@ class QControl(DataClassJsonMixin):
         """Serialize QControl properties."""
         return serialize_properties(
             write_integer("Sort", self.sort, skip=0),
-            write_double_no_skip("CosRef", self.cosref),
+            write_double_no_skip("CosRef", self.cos_ref),
             write_boolean_no_skip("NoPNoQ", value=self.no_p_no_q),
             write_double_no_skip("Input1", self.input1),
             write_double_no_skip("Output1", self.output1),
@@ -485,7 +485,7 @@ class QControl(DataClassJsonMixin):
         """Deserialize QControl properties."""
         return cls(
             sort=data.get("Sort", 0),
-            cosref=data.get("CosRef", 0.0),
+            cos_ref=data.get("CosRef", 0.0),
             no_p_no_q=data.get("NoPNoQ", True),
             input1=data.get("Input1", 1.0),
             output1=data.get("Output1", 0.0),

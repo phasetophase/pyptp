@@ -160,8 +160,8 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
             setpoint=0.38,
             deadband=0.02,
             control_sort=1,
-            Rc=0.1,
-            Xc=0.2,
+            rc=0.1,
+            xc=0.2,
             compounding_at_generation=False,
             pmin1=10,
             umin1=0.35,
@@ -558,9 +558,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
         self.assertIn("Snom:0", result)
         self.assertIn("Ik2s:0", result)
         self.assertIn("TapSize:0", result)
-
-        # Should skip default values
-        self.assertNotIn("Sort:", result)  # Default 4 should be skipped
+        self.assertIn("Sort:4", result)
 
     def test_voltage_control_serialize_with_defaults(self) -> None:
         """Test VoltageControl class serialization with default values."""

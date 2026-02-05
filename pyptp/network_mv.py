@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pyptp.elements.enums import VnfVersion
 from pyptp.elements.mv.properties import PropertiesMV
 from pyptp.ptp_log import logger
 
@@ -205,16 +206,21 @@ class NetworkMV:
 
         return VnfImporter().import_vnf(path)
 
-    def save(self, path: str | Path) -> None:
+    def save(self, path: str | Path, version: VnfVersion = VnfVersion.V9_9) -> None:
         """Save network to VNF file.
 
         Args:
             path: Target file path for VNF output.
+            version: Target VNF version (default: V9.9).
 
         Raises:
             IOError: If output file cannot be written.
 
+        Example:
+            >>> network.save("output.vnf")  # Saves as V9.9
+            >>> network.save("output.vnf", VnfVersion.V9_8)  # Saves as V9.8
+
         """
         from pyptp.IO.exporters.vnf_exporter import VnfExporter
 
-        VnfExporter.export(self, str(path))
+        VnfExporter.export(self, str(path), version)

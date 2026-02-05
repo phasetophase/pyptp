@@ -26,6 +26,7 @@ from pyptp.elements.serialization_helpers import (
     write_guid,
     write_guid_no_skip,
     write_integer,
+    write_integer_no_skip,
     write_quote_string,
 )
 from pyptp.ptp_log import logger
@@ -148,8 +149,8 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
         setpoint: float = 0.4
         deadband: float = optional_field(0)
         control_sort: int = optional_field(0)
-        Rc: float = optional_field(0)
-        Xc: float = optional_field(0)
+        rc: float = optional_field(0)
+        xc: float = optional_field(0)
         compounding_at_generation: bool = True
         pmin1: int = optional_field(0)
         umin1: float = optional_field(0)
@@ -165,8 +166,8 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Setpoint", self.setpoint, skip=0.4),
                 write_double("Deadband", self.deadband, skip=0),
                 write_integer("ControlSort", self.control_sort, skip=0),
-                write_double("Rc", self.Rc, skip=0),
-                write_double("Xc", self.Xc, skip=0),
+                write_double("Rc", self.rc, skip=0),
+                write_double("Xc", self.xc, skip=0),
                 write_boolean("CompoundingAtGeneration", value=self.compounding_at_generation),
                 write_integer("Pmin1", self.pmin1, skip=0),
                 write_double("Umin1", self.umin1, skip=0),
@@ -184,8 +185,8 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
                 setpoint=data.get("Setpoint", 0.4),
                 deadband=data.get("Deadband", 0),
                 control_sort=data.get("ControlSort", 0),
-                Rc=data.get("Rc", 0),
-                Xc=data.get("Xc", 0),
+                rc=data.get("Rc", 0),
+                xc=data.get("Xc", 0),
                 compounding_at_generation=data.get("CompoundingAtGeneration", True),
                 pmin1=data.get("Pmin1", 0),
                 umin1=data.get("Umin1", 0),
@@ -241,7 +242,7 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize SpecialTransformerType properties."""
             return serialize_properties(
-                write_integer("Sort", int(self.sort), skip=4),
+                write_integer_no_skip("Sort", int(self.sort)),
                 write_quote_string("ShortName", self.short_name),
                 write_double_no_skip("Snom", self.snom),
                 write_double("Unom1", self.unom1, skip=0),
@@ -286,7 +287,7 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
         def deserialize(cls, data: dict) -> SpecialTransformerLV.SpecialTransformerType:
             """Deserialize SpecialTransformerType properties."""
             return cls(
-                sort=SpecialTransformerSort(int(data.get("Sort", 4))),
+                sort=SpecialTransformerSort(data.get("Sort", SpecialTransformerSort.AUTO_YNA0_ASYM)),
                 short_name=data.get("ShortName", ""),
                 snom=data.get("Snom", 0),
                 unom1=data.get("Unom1", 0),
