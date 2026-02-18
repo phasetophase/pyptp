@@ -191,9 +191,9 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
     class VoltageControl(DataClassJsonMixin):
         """Voltage Control."""
 
-        own_control: bool = False
+        present: bool = False
         """Presence of voltage control."""
-        control_status: bool = False
+        status: bool = False
         """Indicates whether the voltage control is active."""
         measure_side: int = 3
         """Measuring side of voltage control (1=winding1, 2=winding2)."""
@@ -229,8 +229,8 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize VoltageControl properties."""
             return serialize_properties(
-                write_boolean_no_skip("Present", value=self.own_control),
-                write_boolean_no_skip("Status", value=self.control_status),
+                write_boolean_no_skip("Present", value=self.present),
+                write_boolean_no_skip("Status", value=self.status),
                 write_integer_no_skip("MeasureSide", self.measure_side),
                 write_double_no_skip("Setpoint", self.setpoint),
                 write_double_no_skip("Deadband", self.deadband),

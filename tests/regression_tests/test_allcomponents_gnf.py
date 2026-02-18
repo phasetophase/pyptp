@@ -54,6 +54,7 @@ class TestAllComponentsGnfRegression(unittest.TestCase):
         sections = [
             "PROPERTIES",
             "COMMENTS",
+            "GM TYPE",
             "SHEET",
             "NODE",
             "LINK",
