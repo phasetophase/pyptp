@@ -707,7 +707,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("StateOfCharge", self.state_of_charge),
                 write_guid("Profile", self.profile),
                 write_double("Capacity", self.capacity),
-                write_double("Crate", self.crate, skip=0.5),
+                write_double("Crate", self.crate),
                 write_integer("Sort", self.sort, skip=0),
                 write_double("InverterSnom", self.inverter_snom),
                 write_quote_string("ChargeEfficiencyType", self.charge_efficiency_type),
@@ -744,9 +744,9 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize HEMS properties to a string."""
             return serialize_properties(
                 write_quote_string("Regime", self.regime),
-                write_double("Parameter1", self.parameter1),
-                write_double("Parameter2", self.parameter2),
-                write_double("Parameter3", self.parameter3),
+                write_double_no_skip("Parameter1", self.parameter1),
+                write_double_no_skip("Parameter2", self.parameter2),
+                write_double_no_skip("Parameter3", self.parameter3),
             )
 
         @classmethod
@@ -803,11 +803,11 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#ConnectionCableType {self.connection_cable.serialize()}")
         if self.fuse_type:
             lines.append(f"#FuseType {self.fuse_type.serialize()}")
-        lines.extend(f"#GM {gm.serialize()} " for gm in self.gms)
         if self.current_protection:
             lines.append(f"#CurrentType {self.current_protection.serialize()}")
         if self.load:
             lines.append(f"#Load {self.load.serialize()}")
+        lines.extend(f"#GM {gm.serialize()}" for gm in self.gms)
         if self.public_lighting:
             lines.append(f"#PL {self.public_lighting.serialize()}")
         if self.public_lighting_type:
@@ -821,20 +821,19 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.pv:
             lines.append(f"#PV {self.pv.serialize()}")
         if self.pv_efficiency:
-            lines.append(f"#PVInverterEfficiencyType {self.pv_efficiency.serialize()}")
+            lines.append(f"#PVInverterEfficiencyType {self.pv_efficiency.serialize()} ")
         if self.windturbine:
-            lines.append(f"#WindTurbine {self.windturbine.serialize()} ")
+            lines.append(f"#WindTurbine {self.windturbine.serialize()}")
         if self.windturbine_efficiency:
-            lines.append(f"#WindTurbineInverterEfficiencyType {self.windturbine_efficiency.serialize()}")
+            lines.append(f"#WindTurbineInverterEfficiencyType {self.windturbine_efficiency.serialize()} ")
         if self.battery:
             lines.append(f"#Battery {self.battery.serialize()}")
         if self.battery_charge_efficiency:
-            lines.append(f"#BatteryChargeEfficiency {self.battery_charge_efficiency.serialize()}")
+            lines.append(f"#BatteryChargeEfficiency {self.battery_charge_efficiency.serialize()} ")
         if self.battery_discharge_efficiency:
-            lines.append(f"#BatteryDischargeEfficiency {self.battery_discharge_efficiency.serialize()}")
+            lines.append(f"#BatteryDischargeEfficiency {self.battery_discharge_efficiency.serialize()} ")
         if self.hems:
-            lines.append(f"#Hems {self.hems.serialize()}")
-
+            lines.append(f"#HEMS {self.hems.serialize()}")
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
         lines.extend(f"#Presentation {p.serialize()}" for p in self.presentations)

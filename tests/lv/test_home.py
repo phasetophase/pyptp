@@ -464,9 +464,9 @@ class TestTHomeLS(unittest.TestCase):
 
         # Should skip default values
         self.assertNotIn("Pref:", result)  # 0.0 is default
+        self.assertIn("Crate:", result)
         self.assertIn("StateOfCharge:", result)
         self.assertNotIn("Capacity:", result)  # 0 is default
-        self.assertNotIn("Crate:", result)  # 0.5 is default
         self.assertNotIn("Sort:", result)  # 0 is default
 
     def test_home_geography_serialize_with_empty_coordinates(self) -> None:
