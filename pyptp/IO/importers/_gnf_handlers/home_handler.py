@@ -34,12 +34,12 @@ class HomeHandler(DeclarativeHandler[NetworkLV]):
         SectionConfig("battery", "#Battery "),
         SectionConfig("battery_charge_efficiency", "#BatteryChargeEfficiency "),
         SectionConfig("battery_discharge_efficiency", "#BatteryDischargeEfficiency "),
-        SectionConfig("hems", "#Hems "),
+        SectionConfig("hems", "#HEMS "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]
 
-    def resolve_target_class(self, kwarg_name: str) -> type | None:
+    def resolve_target_class(self, kwarg_name: str) -> type | None:  # noqa: PLR0911
         """Resolve target class for Home-specific fields."""
         if kwarg_name == "presentations":
             return ElementPresentation
@@ -55,10 +55,16 @@ class HomeHandler(DeclarativeHandler[NetworkLV]):
             return ConnectionLV.PL
         if kwarg_name == "public_lighting_type":
             return ConnectionLV.PLType
+        if kwarg_name == "windturbine":
+            return ConnectionLV.WindTurbine
+        if kwarg_name == "pv":
+            return ConnectionLV.PV
         if kwarg_name == "heat_pump":
             return ConnectionLV.Heatpump
         if kwarg_name == "gms":
             return ConnectionLV.GM
+        if kwarg_name == "hems":
+            return ConnectionLV.HEMS
         if kwarg_name in [
             "pv_efficiency",
             "windturbine_efficiency",
