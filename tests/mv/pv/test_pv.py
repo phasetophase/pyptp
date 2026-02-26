@@ -271,9 +271,7 @@ class TestPvRegistration(unittest.TestCase):
         self.assertIn("Name:'MinimalPV'", serialized)
         # Default values like Variant:False, SwitchState:False, NotPreferred:False, etc. are skipped in serialization
 
-        # Should have default inverter properties
-        self.assertIn("Snom:12.5", serialized)
-        # Default values like Unom:0, Ik/Inom:0, Uoff:0 are skipped in serialization
+        # Default values like Snom:0, Unom:0, Ik/Inom:0, Uoff:0 are skipped in serialization
 
         # Should not have optional sections
         self.assertNotIn("#P(U)Control", serialized)

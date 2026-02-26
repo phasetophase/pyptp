@@ -170,7 +170,7 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
     class Inverter(DataClassJsonMixin):
         """PV inverter."""
 
-        snom: float = 12.5
+        snom: float = 0.0
         unom: float = 0.0
         ik_inom: float = field(default=1.0, metadata=config(field_name="Ik/Inom"))
         efficiency_type: str = string_field()
@@ -179,7 +179,7 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize Inverter properties."""
             return serialize_properties(
-                write_double_no_skip("Snom", self.snom),
+                write_double("Snom", self.snom, skip=0.0),
                 write_double("Unom", self.unom, skip=0.0),
                 write_double_no_skip("Ik/Inom", self.ik_inom),
                 write_quote_string("EfficiencyType", self.efficiency_type, skip=""),
@@ -190,7 +190,7 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         def deserialize(cls, data: dict) -> PVMV.Inverter:
             """Deserialize Inverter properties."""
             return cls(
-                snom=data.get("Snom", 12.5),
+                snom=data.get("Snom", 0.0),
                 unom=data.get("Unom", 0.0),
                 ik_inom=data.get("Ik/Inom", 1.0),
                 efficiency_type=data.get("EfficiencyType", ""),
@@ -216,16 +216,16 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize PUControl properties."""
             return serialize_properties(
-                write_double("Input1", self.input1, skip=0.0),
-                write_double("Output1", self.output1, skip=0.0),
-                write_double("Input2", self.input2, skip=0.0),
-                write_double("Output2", self.output2, skip=0.0),
-                write_double("Input3", self.input3, skip=0.0),
-                write_double("Output3", self.output3, skip=0.0),
-                write_double("Input4", self.input4, skip=0.0),
-                write_double("Output4", self.output4, skip=0.0),
-                write_double("Input5", self.input5, skip=0.0),
-                write_double("Output5", self.output5, skip=0.0),
+                write_double_no_skip("Input1", self.input1),
+                write_double_no_skip("Output1", self.output1),
+                write_double_no_skip("Input2", self.input2),
+                write_double_no_skip("Output2", self.output2),
+                write_double_no_skip("Input3", self.input3),
+                write_double_no_skip("Output3", self.output3),
+                write_double_no_skip("Input4", self.input4),
+                write_double_no_skip("Output4", self.output4),
+                write_double_no_skip("Input5", self.input5),
+                write_double_no_skip("Output5", self.output5),
             )
 
         @classmethod
@@ -263,16 +263,16 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize PFControl properties."""
             return serialize_properties(
-                write_double("Input1", self.input1, skip=0.0),
-                write_double("Output1", self.output1, skip=0.0),
-                write_double("Input2", self.input2, skip=0.0),
-                write_double("Output2", self.output2, skip=0.0),
-                write_double("Input3", self.input3, skip=0.0),
-                write_double("Output3", self.output3, skip=0.0),
-                write_double("Input4", self.input4, skip=0.0),
-                write_double("Output4", self.output4, skip=0.0),
-                write_double("Input5", self.input5, skip=0.0),
-                write_double("Output5", self.output5, skip=0.0),
+                write_double_no_skip("Input1", self.input1),
+                write_double_no_skip("Output1", self.output1),
+                write_double_no_skip("Input2", self.input2),
+                write_double_no_skip("Output2", self.output2),
+                write_double_no_skip("Input3", self.input3),
+                write_double_no_skip("Output3", self.output3),
+                write_double_no_skip("Input4", self.input4),
+                write_double_no_skip("Output4", self.output4),
+                write_double_no_skip("Input5", self.input5),
+                write_double_no_skip("Output5", self.output5),
             )
 
         @classmethod
@@ -313,16 +313,16 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize PIControl properties."""
             return serialize_properties(
-                write_double("Input1", self.input1, skip=0.0),
-                write_double("Output1", self.output1, skip=0.0),
-                write_double("Input2", self.input2, skip=0.0),
-                write_double("Output2", self.output2, skip=0.0),
-                write_double("Input3", self.input3, skip=0.0),
-                write_double("Output3", self.output3, skip=0.0),
-                write_double("Input4", self.input4, skip=0.0),
-                write_double("Output4", self.output4, skip=0.0),
-                write_double("Input5", self.input5, skip=0.0),
-                write_double("Output5", self.output5, skip=0.0),
+                write_double_no_skip("Input1", self.input1),
+                write_double_no_skip("Output1", self.output1),
+                write_double_no_skip("Input2", self.input2),
+                write_double_no_skip("Output2", self.output2),
+                write_double_no_skip("Input3", self.input3),
+                write_double_no_skip("Output3", self.output3),
+                write_double_no_skip("Input4", self.input4),
+                write_double_no_skip("Output4", self.output4),
+                write_double_no_skip("Input5", self.input5),
+                write_double_no_skip("Output5", self.output5),
                 write_quote_string("MeasureField1", self.measure_field1, skip=""),
                 write_quote_string("MeasureField2", self.measure_field2, skip=""),
                 write_quote_string("MeasureField3", self.measure_field3, skip=""),
@@ -391,7 +391,6 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
     pu_control: PUControl | None = None
     pf_control: PFControl | None = None
     pi_control: PIControl | None = None
-    inverter_efficiency: EfficiencyType | None = None
     restrictions: Capacity | None = None
 
     def register(self, network: NetworkMV) -> None:
@@ -431,17 +430,14 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.harmonics_type:
             lines.append(f"#HarmonicsType {self.harmonics_type.serialize()}")
 
-        if self.inverter_efficiency:
-            lines.append(f"#InverterRendement {self.inverter_efficiency.serialize()}")
-
         if self.restrictions:
             lines.append(f"#Restriction {self.restrictions.serialize()}")
-
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 
@@ -498,13 +494,6 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         if picontrol_data:
             picontrol = cls.PIControl.deserialize(picontrol_data)
 
-        inverter_rendement_data = data.get("InverterRendement", [{}])[0] if data.get("InverterRendement") else {}
-        inverter_rendement = None
-        if inverter_rendement_data:
-            from .shared import EfficiencyType
-
-            inverter_rendement = EfficiencyType.deserialize(inverter_rendement_data)
-
         restrictions_data = data.get("restrictions", [{}])[0] if data.get("restrictions") else {}
         restrictions = None
         if restrictions_data:
@@ -528,6 +517,5 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
             pu_control=pucontrol,
             pf_control=pfcontrol,
             pi_control=picontrol,
-            inverter_efficiency=inverter_rendement,
             restrictions=restrictions,
         )
