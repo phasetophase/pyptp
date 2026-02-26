@@ -24,7 +24,6 @@ class PvHandler(DeclarativeHandler[TNetworkMSType]):
         SectionConfig("pu_control", "#P(U)Control "),
         SectionConfig("pf_control", "#P(f)Control "),
         SectionConfig("pi_control", "#P(I)Control "),
-        SectionConfig("inverter_efficiency", "#InverterRendement "),
         SectionConfig("restrictions", "#Restriction "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
