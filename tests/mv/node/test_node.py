@@ -283,7 +283,7 @@ class TestNodeRegistration(unittest.TestCase):
         self.assertIn("Name:'Field1'", serialized)
         self.assertIn("Sort:'TestSort'", serialized)
         self.assertIn("EAN:'123456789012345678'", serialized)
-        self.assertIn("Adress:'123 Test St'", serialized)
+        self.assertIn("Address:'123 Test St'", serialized)
         self.assertIn("Text:'TestIcon'", serialized)
         self.assertIn("TextColor:$00FF00", serialized)
         self.assertIn("TypeName:'TestDiffType'", serialized)

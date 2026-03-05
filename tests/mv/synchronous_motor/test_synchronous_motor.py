@@ -68,7 +68,7 @@ class TestSynchronousMotorRegistration(unittest.TestCase):
             guid=self.synchronous_motor_guid,
             name="BasicSynchronousMotor",
             node=self.node_guid,
-            pref=100.0,
+            pmechanic=100.0,
             cos_ref=0.9,
             creation_time=123.45,
             variant=True,
@@ -85,7 +85,7 @@ class TestSynchronousMotorRegistration(unittest.TestCase):
 
         # Verify general properties
         self.assertIn("Name:'BasicSynchronousMotor'", serialized)
-        self.assertIn("Pref:100", serialized)
+        self.assertIn("Pmechanic:100", serialized)
         self.assertIn("CosRef:0.9", serialized)
         self.assertIn("CreationTime:123.45", serialized)
         self.assertIn("Variant:True", serialized)

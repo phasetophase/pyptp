@@ -185,6 +185,32 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
+    class Thermal(DataClassJsonMixin):
+        """Thermal properties of the transformer load."""
+
+        hotspot_factor: float = 1.3
+        paper_thermally_upgraded: bool = False
+        temperature_correction: float | int = 0
+
+        def serialize(self) -> str:
+            """Serialize Thermal properties."""
+            return serialize_properties(
+                write_double_no_skip("Hotspotfactor", self.hotspot_factor),
+                write_boolean_no_skip("PaperThermallyUpgraded", value=self.paper_thermally_upgraded),
+                write_double_no_skip("TemperatureCorrection", self.temperature_correction),
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> TransformerLoadMV.Thermal:
+            """Deserialize Thermal properties."""
+            return cls(
+                hotspot_factor=data.get("Hotspotfactor", 1.3),
+                paper_thermally_upgraded=data.get("PaperThermallyUpgraded", False),
+                temperature_correction=data.get("TemperatureCorrection", 0),
+            )
+
+    @dataclass_json
+    @dataclass
     class TransformerLoadType(DataClassJsonMixin):
         """Electrotechnical properties of the transformer load."""
 
@@ -248,6 +274,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
     general: General
     type: TransformerLoadType
     presentations: list[ElementPresentation]
+    thermal: Thermal = field(default_factory=lambda: TransformerLoadMV.Thermal())
     harmonics_type: HarmonicsType | None = None
     ceres: dict | None = None
 
@@ -272,6 +299,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines = []
         lines.append(f"#General {self.general.serialize()}")
         lines.append(f"#TransformerType {self.type.serialize()}")
+        lines.append(f"#Thermal {self.thermal.serialize()}")
 
         # Add HarmonicsType section if present
         if self.harmonics_type:
@@ -309,6 +337,9 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         transformer_type_data = data.get("transformerType", [{}])[0] if data.get("transformerType") else {}
         transformer_type = cls.TransformerLoadType.deserialize(transformer_type_data)
 
+        thermal_data = data.get("thermal", [{}])[0] if data.get("thermal") else {}
+        thermal = cls.Thermal.deserialize(thermal_data) if thermal_data else cls.Thermal()
+
         harmonics_data = data.get("harmonicsType", [{}])[0] if data.get("harmonicsType") else {}
         harmonics_type = None
         if harmonics_data:
@@ -330,6 +361,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         return cls(
             general=general,
             type=transformer_type,
+            thermal=thermal,
             presentations=presentations,
             harmonics_type=harmonics_type,
             ceres=ceres,

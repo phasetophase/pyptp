@@ -15,8 +15,9 @@ from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 from pyptp.elements.element_utils import Guid, decode_guid, encode_guid, string_field
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
-    write_double,
+    write_double_no_skip,
     write_guid_no_skip,
+    write_integer_no_skip,
     write_quote_string,
 )
 from pyptp.ptp_log import logger
@@ -40,47 +41,42 @@ class GrowthMV:
             metadata=config(encoder=encode_guid, decoder=decode_guid),
         )
         name: str = string_field()
-        scale: list[float] | None = field(default_factory=lambda: [0] * 31)  # Scale0-Scale30 = 31 values
-        growth: list[float] | None = field(default_factory=lambda: [1] * 30)  # Growth1-Growth30 = 30 values
-        growth_sort: str = string_field()
+        dates: list[int] = field(default_factory=list)
+        scale: list[float] = field(default_factory=list)
 
         def serialize(self) -> str:
             """Serialize General properties."""
             arr_props = []
-            if self.scale:
-                for i, scale_val in enumerate(self.scale, start=0):  # Start from Scale0
-                    arr_props.append(write_double(f"Scale{i}", scale_val))
-            if self.growth:
-                for i, growth_val in enumerate(self.growth, start=1):  # Start from Growth1
-                    arr_props.append(write_double(f"Growth{i}", growth_val))
+            for i, date_val in enumerate(self.dates):
+                arr_props.append(write_integer_no_skip(f"Date{i}", date_val))
+            for i, scale_val in enumerate(self.scale):
+                arr_props.append(write_double_no_skip(f"Scale{i}", scale_val))
             return serialize_properties(
                 write_guid_no_skip("GUID", self.guid),
                 write_quote_string("Name", self.name),
                 *arr_props,
-                write_quote_string("GrowthSort", self.growth_sort),
             )
 
         @classmethod
         def deserialize(cls, data: dict) -> GrowthMV.General:
             """Deserialize General properties."""
-            scale_values = []
-            i = 0  # Start from Scale0
-            while f"Scale{i}" in data:
-                scale_values.append(float(data[f"Scale{i}"]))
+            date_values = []
+            i = 0
+            while f"Date{i}" in data:
+                date_values.append(int(data[f"Date{i}"]))
                 i += 1
 
-            growth_values = []
-            i = 1  # Start from Growth1
-            while f"Growth{i}" in data:
-                growth_values.append(float(data[f"Growth{i}"]))
+            scale_values = []
+            i = 0
+            while f"Scale{i}" in data:
+                scale_values.append(float(data[f"Scale{i}"]))
                 i += 1
 
             return cls(
                 guid=decode_guid(data.get("GUID", str(uuid4()))),
                 name=data.get("Name", ""),
-                scale=scale_values if scale_values else [0.0] * 31,  # Scale0-Scale30 = 31 values
-                growth=growth_values if growth_values else [1.0] * 30,  # Growth1-Growth30 = 30 values
-                growth_sort=data.get("GrowthSort", ""),
+                dates=date_values,
+                scale=scale_values,
             )
 
     general: General

@@ -176,15 +176,14 @@ class TestDynamicCaseRegistration(unittest.TestCase):
 
         # Zero values are skipped by default in serialization
         self.assertNotIn("StartTime:", serialized)
-        self.assertNotIn("Parameter1:", serialized)
-        self.assertNotIn("Parameter2:", serialized)
-        self.assertNotIn("Parameter3:", serialized)
-
         # Non-zero string values should be present
         self.assertIn("Action:'ZeroAction'", serialized)
         self.assertIn("VisionObject:'ZeroObject'", serialized)
         self.assertIn("FaultSort:'ZeroFault'", serialized)
         self.assertIn("RefSort:'ZeroRef'", serialized)
+        self.assertIn("Parameter1:", serialized)
+        self.assertIn("Parameter2:", serialized)
+        self.assertIn("Parameter3:", serialized)
 
     def test_dynamic_case_with_multiple_events_serializes_correctly(self) -> None:
         """Test that dynamic cases with multiple events serialize correctly."""

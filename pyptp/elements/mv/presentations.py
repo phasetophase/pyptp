@@ -218,7 +218,7 @@ class BranchPresentation(DataClassJsonMixin):
             write_integer("Width", self.width, skip=1),
             write_quote_string("Style", self.style, skip="Solid"),
             write_delphi_color("TextColor", self.text_color),
-            write_integer("TextSize", self.text_size, skip=7),
+            write_integer("TextSize", self.text_size, skip=10),
             write_quote_string("Font", self.font, skip="Arial"),
             write_integer("TextStyle", self.text_style, skip=1),
             write_boolean("NoText", value=self.no_text, skip=False),
@@ -268,7 +268,7 @@ class BranchPresentation(DataClassJsonMixin):
             width=data.get("Width", 1),
             style=data.get("Style", "Solid"),
             text_color=DelphiColor(data.get("TextColor", str(CL_BLACK))),
-            text_size=data.get("TextSize", 7),
+            text_size=data.get("TextSize", 10),
             font=data.get("Font", "Arial"),
             text_style=data.get("TextStyle", 1),
             no_text=data.get("NoText", False),
@@ -315,7 +315,7 @@ class DWPresentation(BranchPresentation):
             write_integer("Width", self.width, skip=1),
             write_quote_string("Style", self.style, skip="Solid"),
             write_delphi_color("TextColor", self.text_color),
-            write_integer("TextSize", self.text_size, skip=7),
+            write_integer("TextSize", self.text_size, skip=10),
             write_integer("TextStyle", self.text_style, skip=1),
             write_boolean("NoText", value=self.no_text),
             write_boolean("UpsideDownText", value=self.upside_down_text),
@@ -375,7 +375,7 @@ class DWPresentation(BranchPresentation):
             width=data.get("Width", 1),
             style=data.get("Style", "Solid"),
             text_color=DelphiColor(data.get("TextColor", str(CL_BLACK))),
-            text_size=data.get("TextSize", 7),
+            text_size=data.get("TextSize", 10),
             font=data.get("Font", "Arial"),
             text_style=data.get("TextStyle", 1),
             no_text=data.get("NoText", False),
@@ -415,6 +415,7 @@ class ElementPresentation(DataClassJsonMixin):
     """X coordinate on the sheet."""
     y: int = 0
     """Y coordinate on the sheet."""
+    style: str = ""
     color: DelphiColor = field(default=CL_BLACK)
     """Color of the object."""
     size: int = 1
@@ -423,7 +424,7 @@ class ElementPresentation(DataClassJsonMixin):
     """Thickness of the lines that draw the symbol."""
     text_color: DelphiColor = field(default=CL_BLACK)
     """Color of the text."""
-    text_size: int = 7
+    text_size: int = 10
     """Size of the text."""
     font: str = string_field("Arial")
     """Font for the text by the object."""
@@ -454,9 +455,10 @@ class ElementPresentation(DataClassJsonMixin):
             write_integer_no_skip("Y", self.y),
             write_delphi_color("Color", self.color, skip=CL_BLACK),
             write_integer("Size", self.size, skip=1),
+            write_quote_string("Style", self.style),
             write_integer("Width", self.width, skip=1),
             write_delphi_color("TextColor", self.text_color, skip=CL_BLACK),
-            write_integer("TextSize", self.text_size, skip=7),
+            write_integer("TextSize", self.text_size, skip=10),
             write_quote_string("Font", self.font, skip="Arial"),
             write_integer("TextStyle", self.text_style, skip=1),
             write_boolean("NoText", value=self.no_text, skip=False),
@@ -478,10 +480,11 @@ class ElementPresentation(DataClassJsonMixin):
             x=data.get("X", 0),
             y=data.get("Y", 0),
             color=DelphiColor(data.get("Color", str(CL_BLACK))),
+            style=data.get("Style", ""),
             size=data.get("Size", 1),
             width=data.get("Width", 1),
             text_color=DelphiColor(data.get("TextColor", str(CL_BLACK))),
-            text_size=data.get("TextSize", 7),
+            text_size=data.get("TextSize", 10),
             font=data.get("Font", "Arial"),
             text_style=data.get("TextStyle", 1),
             no_text=data.get("NoText", False),

@@ -23,9 +23,11 @@ if TYPE_CHECKING:
     from pyptp.elements.mv.calc_case import CalculationCaseMV
     from pyptp.elements.mv.circuit_breaker import CircuitBreakerMV
     from pyptp.elements.mv.comment import CommentMV
+    from pyptp.elements.mv.dynamic_case import DynamicCaseMV
     from pyptp.elements.mv.earthing_transformer import EarthingTransformerMV
     from pyptp.elements.mv.frame import FrameMV
     from pyptp.elements.mv.fuse import FuseMV
+    from pyptp.elements.mv.generator import GeneratorMV
     from pyptp.elements.mv.growth import GrowthMV
     from pyptp.elements.mv.hyperlink import HyperlinkMV
     from pyptp.elements.mv.indicator import IndicatorMV
@@ -36,9 +38,12 @@ if TYPE_CHECKING:
     from pyptp.elements.mv.load_behaviour import LoadBehaviourMV
     from pyptp.elements.mv.load_switch import LoadSwitchMV
     from pyptp.elements.mv.measure_field import MeasureFieldMV
+    from pyptp.elements.mv.measurement_file import MeasurementFileMV
     from pyptp.elements.mv.mutual import MutualMV
+    from pyptp.elements.mv.network_options import NetworkOptionsMV
     from pyptp.elements.mv.node import NodeMV
     from pyptp.elements.mv.profile import ProfileMV
+    from pyptp.elements.mv.profile_file import ProfileFileMV
     from pyptp.elements.mv.pv import PVMV
     from pyptp.elements.mv.rails import RailSystemMV
     from pyptp.elements.mv.reactance_coil import ReactanceCoilMV
@@ -99,8 +104,11 @@ class NetworkMV:
         self.load_switches: dict[Guid, LoadSwitchMV] = {}
         self.loads: dict[Guid, LoadMV] = {}
         self.measure_fields: dict[Guid, MeasureFieldMV] = {}
+        self.measurement_files: list[MeasurementFileMV] = []
         self.mutuals: dict[str, MutualMV] = {}
+        self.network_options: NetworkOptionsMV | None = None
         self.nodes: dict[Guid, NodeMV] = {}
+        self.profile_files: list[ProfileFileMV] = []
         self.profiles: dict[Guid, ProfileMV] = {}
         self.properties: PropertiesMV = PropertiesMV(system=PropertiesMV.System())
         self.pvs: dict[Guid, PVMV] = {}
@@ -122,6 +130,8 @@ class NetworkMV:
         self.variables: list[VariableMV] = []
         self.variants: dict[str, VariantMV] = {}
         self.windturbines: dict[Guid, WindTurbineMV] = {}
+        self.generators: dict[Guid, GeneratorMV] = {}
+        self.dynamic_cases: list[DynamicCaseMV] = []
 
     def get_sheet_guid_by_name(self, name: str) -> str:
         """Find sheet GUID by name.
@@ -206,18 +216,18 @@ class NetworkMV:
 
         return VnfImporter().import_vnf(path)
 
-    def save(self, path: str | Path, version: VnfVersion = VnfVersion.V9_9) -> None:
+    def save(self, path: str | Path, version: VnfVersion = VnfVersion.V9_11) -> None:
         """Save network to VNF file.
 
         Args:
             path: Target file path for VNF output.
-            version: Target VNF version (default: V9.9).
+            version: Target VNF version (default: V9.11).
 
         Raises:
             IOError: If output file cannot be written.
 
         Example:
-            >>> network.save("output.vnf")  # Saves as V9.9
+            >>> network.save("output.vnf")  # Saves as V9.11
             >>> network.save("output.vnf", VnfVersion.V9_8)  # Saves as V9.8
 
         """

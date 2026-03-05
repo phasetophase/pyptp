@@ -29,14 +29,14 @@ class TestGrowthRegistration(unittest.TestCase):
 
     def test_growth_with_full_properties_serializes_correctly(self) -> None:
         """Test that growth with all properties serialize correctly."""
-        scale_values = [0.1, 0.2, 0.3, 0.4, 0.5] + [0.0] * 25
-        growth_values = [1.1, 1.2, 1.3, 1.4] + [1.0] * 25
+        date_values = [20230101, 20240101, 20250101]
+        scale_values = [0.1, 0.2, 0.3]
 
         general = GrowthMV.General(
             guid=self.growth_guid,
             name="FullGrowth",
+            dates=date_values,
             scale=scale_values,
-            growth=growth_values,
         )
 
         growth = GrowthMV(general)
@@ -52,18 +52,19 @@ class TestGrowthRegistration(unittest.TestCase):
         self.assertIn("Name:'FullGrowth'", serialized)
         self.assertIn(f"GUID:'{{{str(self.growth_guid).upper()}}}'", serialized)
 
+        # Verify date array properties
+        self.assertIn("Date0:20230101", serialized)
+        self.assertIn("Date1:20240101", serialized)
+        self.assertIn("Date2:20250101", serialized)
+
         # Verify scale array properties
         self.assertIn("Scale0:0.1", serialized)
         self.assertIn("Scale1:0.2", serialized)
         self.assertIn("Scale2:0.3", serialized)
-        self.assertIn("Scale3:0.4", serialized)
-        self.assertIn("Scale4:0.5", serialized)
 
-        # Verify growth array properties
-        self.assertIn("Growth1:1.1", serialized)
-        self.assertIn("Growth2:1.2", serialized)
-        self.assertIn("Growth3:1.3", serialized)
-        self.assertIn("Growth4:1.4", serialized)
+        # Verify old fields are not present
+        self.assertNotIn("Growth1", serialized)
+        self.assertNotIn("GrowthSort", serialized)
 
     def test_duplicate_registration_overwrites(self) -> None:
         """Test that registering a growth with the same GUID overwrites the existing one."""
@@ -98,56 +99,35 @@ class TestGrowthRegistration(unittest.TestCase):
         self.assertIn("Name:'MinimalGrowth'", serialized)
         self.assertIn(f"GUID:'{{{str(self.growth_guid).upper()}}}'", serialized)
 
-        # Should have default growth values (29 ones) - Scale values are 0.0 and get skipped
-        self.assertIn("Growth1:1", serialized)
-        self.assertIn("Growth29:1", serialized)
+        # Should not have any Date or Scale values with empty defaults
+        self.assertNotIn("Date", serialized)
+        self.assertNotIn("Scale", serialized)
 
-        # Should not have scale values since they're 0.0 and get skipped
-        self.assertNotIn("Scale1:0", serialized)
-
-    def test_growth_with_custom_scale_serializes_correctly(self) -> None:
-        """Test that growth with custom scale values serialize correctly."""
-        scale_values = [0.5, 0.6, 0.7] + [0.0] * 27
-
+    def test_growth_with_custom_dates_and_scale_serializes_correctly(self) -> None:
+        """Test that growth with custom date and scale values serialize correctly."""
         general = GrowthMV.General(
             guid=self.growth_guid,
-            name="CustomScaleGrowth",
-            scale=scale_values,
+            name="CustomGrowth",
+            dates=[20200101, 20210101],
+            scale=[0.5, 0.6],
         )
 
         growth = GrowthMV(general)
         growth.register(self.network)
 
         serialized = growth.serialize()
+        self.assertIn("Date0:20200101", serialized)
+        self.assertIn("Date1:20210101", serialized)
         self.assertIn("Scale0:0.5", serialized)
         self.assertIn("Scale1:0.6", serialized)
-        self.assertIn("Scale2:0.7", serialized)
-
-    def test_growth_with_custom_growth_serializes_correctly(self) -> None:
-        """Test that growth with custom growth values serialize correctly."""
-        growth_values = [2.0, 2.5, 3.0] + [1.0] * 26
-
-        general = GrowthMV.General(
-            guid=self.growth_guid,
-            name="CustomGrowthGrowth",
-            growth=growth_values,
-        )
-
-        growth = GrowthMV(general)
-        growth.register(self.network)
-
-        serialized = growth.serialize()
-        self.assertIn("Growth1:2", serialized)
-        self.assertIn("Growth2:2.5", serialized)
-        self.assertIn("Growth3:3", serialized)
 
     def test_growth_with_empty_arrays_serializes_correctly(self) -> None:
         """Test that growth with empty arrays serialize correctly."""
         general = GrowthMV.General(
             guid=self.growth_guid,
             name="EmptyArraysGrowth",
+            dates=[],
             scale=[],
-            growth=[],
         )
 
         growth = GrowthMV(general)
@@ -157,9 +137,9 @@ class TestGrowthRegistration(unittest.TestCase):
         self.assertIn("Name:'EmptyArraysGrowth'", serialized)
         self.assertIn(f"GUID:'{{{str(self.growth_guid).upper()}}}'", serialized)
 
-        # Should not have any Scale or Growth values
-        self.assertNotIn("Scale1", serialized)
-        self.assertNotIn("Growth1", serialized)
+        # Should not have any Date or Scale values
+        self.assertNotIn("Date", serialized)
+        self.assertNotIn("Scale", serialized)
 
 
 if __name__ == "__main__":

@@ -173,17 +173,21 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         snom: float = 0.0
         unom: float = 0.0
         ik_inom: float = field(default=1.0, metadata=config(field_name="Ik/Inom"))
+        cosk: float = 0.0
+        capacitivek: bool = False
         efficiency_type: str = string_field()
         u_off: float = 0.0
 
         def serialize(self) -> str:
             """Serialize Inverter properties."""
             return serialize_properties(
-                write_double("Snom", self.snom, skip=0.0),
-                write_double("Unom", self.unom, skip=0.0),
+                write_double("Snom", self.snom),
+                write_double("Unom", self.unom),
                 write_double_no_skip("Ik/Inom", self.ik_inom),
-                write_quote_string("EfficiencyType", self.efficiency_type, skip=""),
-                write_double("Uoff", self.u_off, skip=0.0),
+                write_double("Cosk", self.cosk),
+                write_boolean("Capacitivek", value=self.capacitivek),
+                write_quote_string("EfficiencyType", self.efficiency_type),
+                write_double("Uoff", self.u_off),
             )
 
         @classmethod
@@ -193,6 +197,8 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
                 snom=data.get("Snom", 0.0),
                 unom=data.get("Unom", 0.0),
                 ik_inom=data.get("Ik/Inom", 1.0),
+                cosk=data.get("Cosk", 0),
+                capacitivek=data.get("Capacitivek", False),
                 efficiency_type=data.get("EfficiencyType", ""),
                 u_off=data.get("Uoff", 0.0),
             )

@@ -12,8 +12,10 @@ from pyptp.elements.element_utils import string_field
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_double,
+    write_double_no_skip,
     write_quote_string,
 )
+from pyptp.network_mv import NetworkMV
 
 
 @dataclass_json
@@ -77,9 +79,9 @@ class DynamicCaseMV:
                 write_quote_string("VisionObject", self.vision_object),
                 write_quote_string("FaultSort", self.fault_sort),
                 write_quote_string("RefSort", self.ref_sort),
-                write_double("Parameter1", self.parameter1),
-                write_double("Parameter2", self.parameter2),
-                write_double("Parameter3", self.parameter3),
+                write_double_no_skip("Parameter1", self.parameter1),
+                write_double_no_skip("Parameter2", self.parameter2),
+                write_double_no_skip("Parameter3", self.parameter3),
             )
 
         @classmethod
@@ -98,6 +100,10 @@ class DynamicCaseMV:
 
     general: General
     dynamic_events: list[DynamicEvent]
+
+    def register(self, network: NetworkMV) -> None:
+        """Register dynamic case in MV network."""
+        network.dynamic_cases.append(self)
 
     def serialize(self) -> str:
         """Serialize the dynamic case to the VNF format.

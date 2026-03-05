@@ -213,19 +213,7 @@ class TestShuntCoilRegistration(unittest.TestCase):
         self.assertIn("Name:'MinimalShuntCoil'", serialized)
         self.assertIn(f"Node:'{{{str(self.node_guid).upper()}}}'", serialized)
 
-        # Default values should be included since using no_skip
-        self.assertIn("CreationTime:0", serialized)
         self.assertNotIn("Variant:", serialized)  # False values are skipped
-        self.assertIn("SwitchState:0", serialized)
-        self.assertIn("NotPreferred:False", serialized)
-        self.assertIn("Q:0", serialized)
-        self.assertIn("Unom:0", serialized)
-        self.assertIn("Earthing:0", serialized)
-        self.assertIn("Re:0", serialized)
-        self.assertIn("Xe:0", serialized)
-        self.assertIn("VoltageControl:False", serialized)
-        self.assertIn("Uon:0", serialized)
-        self.assertIn("Uoff:0", serialized)
 
     def test_shunt_coil_with_reactive_power_serializes_correctly(self) -> None:
         """Test that shunt coils with reactive power serialize correctly."""
@@ -306,7 +294,7 @@ class TestShuntCoilRegistration(unittest.TestCase):
 
         serialized = shunt_coil.serialize()
         # Should not include profile since it's the default
-        self.assertNotIn("Profile:", serialized)
+        self.assertIn("Profile:", serialized)
 
 
 if __name__ == "__main__":

@@ -186,6 +186,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         sort: int = 0
         cos_ref: float = 1.0
+        inductive: bool = False
         no_p_no_q: bool = True
         input1: float = 0.95
         output1: float = 0.5
@@ -203,6 +204,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
             return serialize_properties(
                 write_integer("Sort", self.sort),
                 write_double_no_skip("CosRef", self.cos_ref),
+                write_boolean("Inductive", value=self.inductive),
                 write_boolean_no_skip("NoPNoQ", value=self.no_p_no_q),
                 write_double_no_skip("Input1", self.input1),
                 write_double_no_skip("Output1", self.output1),
@@ -222,6 +224,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
             return cls(
                 sort=data.get("Sort", 0),
                 cos_ref=data.get("CosRef", 1.0),
+                inductive=data.get("Inductive", False),
                 no_p_no_q=data.get("NoPNoQ", True),
                 input1=data.get("Input1", 0.95),
                 output1=data.get("Output1", 0.5),

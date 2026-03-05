@@ -78,9 +78,7 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
         maintenance_duration: float = 0.0
         maintenance_cancel_duration: float = 0.0
         loadrate_max: float = 0.0
-        loadrate_max_winter: float = 0.0
         loadrate_max_emergency: float = 0.0
-        loadrate_max_emergency_winter: float = 0.0
         rail_connectivity: int = 1
         limited: bool = False
         inom: float = 0.0
@@ -115,9 +113,7 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("MaintenanceDuration", self.maintenance_duration),
                 write_double("MaintenanceCancelDuration", self.maintenance_cancel_duration),
                 write_double("LoadrateMax", self.loadrate_max),
-                write_double("LoadrateMaxWinter", self.loadrate_max_winter),
                 write_double("LoadrateMaxmax", self.loadrate_max_emergency),
-                write_double("LoadrateMaxmaxWinter", self.loadrate_max_emergency_winter),
                 write_integer_no_skip("RailConnectivity", self.rail_connectivity),
                 write_boolean("Limited", value=self.limited),
                 write_double("Inom", self.inom) if self.limited else "",
@@ -158,9 +154,7 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
                 maintenance_duration=data.get("MaintenanceDuration", 0.0),
                 maintenance_cancel_duration=data.get("MaintenanceCancelDuration", 0.0),
                 loadrate_max=data.get("LoadrateMax", 0.0),
-                loadrate_max_winter=data.get("LoadrateMaxWinter", 0.0),
                 loadrate_max_emergency=data.get("LoadrateMaxmax", 0.0),
-                loadrate_max_emergency_winter=data.get("LoadrateMaxmaxWinter", 0.0),
                 limited=data.get("Limited", False),
                 inom=data.get("Inom", 0.0),
                 ik1s=data.get("Ik1s", 0.0),

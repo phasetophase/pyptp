@@ -13,6 +13,7 @@ from uuid import uuid4
 
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
+from pyptp.elements.color_utils import CL_BLACK, DelphiColor
 from pyptp.elements.element_utils import (
     NIL_GUID,
     Guid,
@@ -27,6 +28,7 @@ from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
     write_boolean_no_skip,
+    write_delphi_color,
     write_double,
     write_double_no_skip,
     write_guid,
@@ -72,6 +74,8 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         failure_frequency: float = 0.0
         repair_duration: float = 0.0
         ignore_for_selectivity: bool = False
+        loadrate_max: float = 0.0
+        loadrate_max_emergency: float = 0.0
         type: str = string_field()
 
         current_protection1_present: bool = False
@@ -79,6 +83,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         current_protection1_info: str = string_field()
         current_protection1_direction: int = 0
         current_protection1_rca: float = 45.0
+        current_protection1_color: DelphiColor = field(default=CL_BLACK)
         current_protection1_type: str = string_field()
 
         current_protection2_present: bool = False
@@ -86,6 +91,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         current_protection2_info: str = string_field()
         current_protection2_direction: int = 0
         current_protection2_rca: float = 45.0
+        current_protection2_color: DelphiColor = field(default=CL_BLACK)
         current_protection2_type: str = string_field()
 
         earth_fault_protection1_present: bool = False
@@ -169,6 +175,8 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("FailureFrequency", self.failure_frequency),
                 write_double("RepairDuration", self.repair_duration),
                 write_boolean("IgnoreForSelectivity", value=self.ignore_for_selectivity),
+                write_double("LoadrateMax", self.loadrate_max),
+                write_double("LoadrateMaxmax", self.loadrate_max_emergency),
                 write_quote_string("CircuitBreakerType", self.type),
                 write_boolean("CurrentProtection1Present", value=self.current_protection1_present),
                 write_boolean("CurrentProtection1Active", value=self.current_protection1_active),
@@ -179,6 +187,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                     skip=0,
                 ),
                 write_double("CurrentProtection1RCA", self.current_protection1_rca),
+                write_delphi_color("CurrentProtection1Color", self.current_protection1_color),
                 write_quote_string("CurrentProtection1Type", self.current_protection1_type),
                 write_boolean("CurrentProtection2Present", value=self.current_protection2_present),
                 write_boolean("CurrentProtection2Active", value=self.current_protection2_active),
@@ -189,6 +198,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                     skip=0,
                 ),
                 write_double("CurrentProtection2RCA", self.current_protection2_rca),
+                write_delphi_color("CurrentProtection2Color", self.current_protection2_color),
                 write_quote_string("CurrentProtection2Type", self.current_protection2_type),
                 write_boolean(
                     "EarthFaultProtection1Present",
@@ -329,18 +339,22 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 failure_frequency=data.get("FailureFrequency", 0.0),
                 repair_duration=data.get("RepairDuration", 0.0),
                 ignore_for_selectivity=data.get("IgnoreForSelectivity", False),
+                loadrate_max=data.get("LoadrateMax", 0.0),
+                loadrate_max_emergency=data.get("LoadrateMaxmax", 0.0),
                 type=data.get("CircuitBreakerType", ""),
                 current_protection1_present=data.get("CurrentProtection1Present", False),
                 current_protection1_active=data.get("CurrentProtection1Active", False),
                 current_protection1_info=data.get("CurrentProtection1Info", ""),
                 current_protection1_direction=data.get("CurrentProtection1Direction", 0),
                 current_protection1_rca=data.get("CurrentProtection1RCA", 45.0),
+                current_protection1_color=DelphiColor(data.get("CurrentProtection1Color", str(CL_BLACK))),
                 current_protection1_type=data.get("CurrentProtection1Type", ""),
                 current_protection2_present=data.get("CurrentProtection2Present", False),
                 current_protection2_active=data.get("CurrentProtection2Active", False),
                 current_protection2_info=data.get("CurrentProtection2Info", ""),
                 current_protection2_direction=data.get("CurrentProtection2Direction", 0),
                 current_protection2_rca=data.get("CurrentProtection2RCA", 45.0),
+                current_protection2_color=DelphiColor(data.get("CurrentProtection2Color", str(CL_BLACK))),
                 current_protection2_type=data.get("CurrentProtection2Type", ""),
                 earth_fault_protection1_present=data.get("EarthFaultProtection1Present", False),
                 earth_fault_protection1_active=data.get("EarthFaultProtection1Active", False),

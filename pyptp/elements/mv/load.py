@@ -33,7 +33,6 @@ from pyptp.elements.serialization_helpers import (
     write_integer,
     write_integer_no_skip,
     write_quote_string,
-    write_quote_string_no_skip,
 )
 from pyptp.ptp_log import logger
 
@@ -103,6 +102,10 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
             default=None,
             metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
         )
+        q_profile: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
         harmonics_type: str = string_field()
         large_consumers: int = 0
         generous_consumers: int = 0
@@ -123,7 +126,7 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer("MutationDate", self.mutation_date, skip=0),
                 write_double("RevisionDate", self.revision_date, skip=0.0),
                 write_boolean("Variant", value=self.variant),
-                write_quote_string_no_skip("Name", self.name),
+                write_quote_string("Name", self.name),
                 write_integer_no_skip("SwitchState", self.switch_state),
                 write_quote_string("FieldName", self.field_name, skip=""),
                 write_double("FailureFrequency", self.failure_frequency, skip=0.0),
@@ -142,12 +145,13 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("Fq2", self.fq2),
                 write_double_no_skip("Fp3", self.fp3),
                 write_double_no_skip("Fq3", self.fq3),
-                write_integer_no_skip("Earthing", self.earthing),
                 write_double("Re", self.re, skip=0.0),
                 write_double("Xe", self.xe, skip=0.0),
                 write_guid("LoadBehaviour", self.load_behaviour) if self.load_behaviour is not None else "",
                 write_guid("LoadGrowth", self.load_growth) if self.load_growth is not None else "",
                 write_guid("Profile", self.profile) if self.profile is not None else "",
+                write_guid("Qprofile", self.q_profile) if self.q_profile is not None else "",
+                write_integer_no_skip("Earthing", self.earthing),
                 write_quote_string("HarmonicsType", self.harmonics_type, skip=""),
                 write_integer("LargeConsumers", self.large_consumers, skip=0),
                 write_integer("GenerousConsumers", self.generous_consumers, skip=0),
@@ -171,6 +175,7 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
             load_behaviour = data.get("LoadBehaviour")
             load_growth = data.get("LoadGrowth")
             profile = data.get("Profile")
+            q_profile = data.get("Qprofile")
             mutation_date = data.get("MutationDate")
             revision_date = data.get("RevisionDate")
 
@@ -206,6 +211,7 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 load_behaviour=decode_guid(load_behaviour) if load_behaviour else None,
                 load_growth=decode_guid(load_growth) if load_growth else None,
                 profile=decode_guid(profile) if profile else None,
+                q_profile=decode_guid(q_profile) if q_profile else None,
                 harmonics_type=data.get("HarmonicsType", ""),
                 large_consumers=data.get("LargeConsumers", 0),
                 generous_consumers=data.get("GenerousConsumers", 0),

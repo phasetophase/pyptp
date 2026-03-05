@@ -1,6 +1,6 @@
 [project]
 name = "pyptp"
-version = "0.0.25"
+version = "0.0.26"
 description = "Open-source Python SDK for electrical grid calculations and modelling"
 authors = [
     { name = "Phase to Phase", email = "pyptp@phasetophase.com" },

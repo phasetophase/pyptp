@@ -112,6 +112,32 @@ class VnfVersion(StrEnum):
     V9_11 = "V9.11"
 
 
+class InsulationCondition(StrEnum):
+    """Insulation condition classification for transformer paper.
+
+    Describes the paper insulation condition based on whether it was
+    produced air-free, and its moisture content percentage.
+    """
+
+    AIR_FREE_MOIST_0_5 = "Free0.5"
+    AIR_FREE_MOIST_1_5 = "Free1.5"
+    AIR_FREE_MOIST_3_5 = "Free3.5"
+    WITH_AIR_MOIST_0_5 = "Air0.5"
+
+
+class EnclosureType(StrEnum):
+    """Transformer enclosure type classification.
+
+    Determines the cooling conditions for thermal modeling.
+    """
+
+    OUTSIDE = "Outside"
+    VAULT_NATURAL = "VaultNat"
+    BASEMENT_POOR_VENT = "BasementPoor"
+    VAULT_BASEMENT_FORCED = "ForcedVent"
+    KIOSK = "Kiosk"
+
+
 class VoltageControlSort(IntEnum):
     """Voltage control type for tap-changing transformers.
 

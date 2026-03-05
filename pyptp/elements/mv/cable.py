@@ -82,7 +82,9 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
         maintenance_cancel_duration: float = 0.0
         joint_failure_frequency: float = 0.0
         loadrate_max: float = 0.0
+        loadrate_max_winter: float = 0.0
         loadrate_max_emergency: float = 0.0
+        loadrate_max_emergency_winter: float = 0.0
         switch_state1: int = 1
         switch_state2: int = 1
         rail_connectivity: int = 0
@@ -133,8 +135,12 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
                     else ""
                 ),
                 write_double("LoadrateMax", self.loadrate_max) if self.loadrate_max != 0.0 else "",
+                write_double("LoadrateMaxWinter", self.loadrate_max_winter) if self.loadrate_max_winter != 0.0 else "",
                 write_double("LoadrateMaxmax", self.loadrate_max_emergency)
                 if self.loadrate_max_emergency != 0.0
+                else "",
+                write_double("LoadrateMaxmaxWinter", self.loadrate_max_emergency_winter)
+                if self.loadrate_max_emergency_winter != 0.0
                 else "",
                 write_integer("RailConnectivity", self.rail_connectivity) if self.rail_connectivity != 0 else "",
                 write_quote_string_no_skip("DynModel", self.dyn_model),
@@ -164,7 +170,9 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
                 maintenance_cancel_duration=data.get("MaintenanceCancelDuration", 0.0),
                 joint_failure_frequency=data.get("JointFailureFrequency", 0.0),
                 loadrate_max=data.get("LoadrateMax", 0.0),
+                loadrate_max_winter=data.get("LoadrateMaxWinter", 0.0),
                 loadrate_max_emergency=data.get("LoadrateMaxmax", 0.0),
+                loadrate_max_emergency_winter=data.get("LoadrateMaxmaxWinter", 0.0),
                 switch_state1=data.get("SwitchState1", 1),
                 switch_state2=data.get("SwitchState2", 1),
                 rail_connectivity=data.get("RailConnectivity", 0),
@@ -191,8 +199,8 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize CablePart properties."""
             return serialize_properties(
                 write_double("Length", self.length),
-                write_quote_string_no_skip("CableType", self.cable_type),
                 write_integer_no_skip("ParallelCableCount", self.parallel_cable_count),
+                write_quote_string_no_skip("CableType", self.cable_type),
                 write_quote_string("Year", self.year) if self.year else "",
                 write_integer_no_skip("GroundResistivityIndex", self.ground_resistivity_index),
                 write_integer_no_skip("AmpacityFactor", self.ampacity_factor),

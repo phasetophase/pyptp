@@ -18,7 +18,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, Geography, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
@@ -94,6 +94,8 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         umin: float = 0.0
         umax: float = 0.0
         d_umax: float = 0.0
+        loadrate_max: float = 0.0
+        loadrate_maxmax: float = 0.0
 
         def serialize(self) -> str:
             """Serialize node properties to VNF format.
@@ -138,6 +140,8 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Umin", self.umin, skip=0.0),
                 write_double("Umax", self.umax, skip=0.0),
                 write_double("dUmax", self.d_umax, skip=0.0),
+                write_double("LoadrateMax", self.loadrate_max, skip=0.0),
+                write_double("LoadrateMaxmax", self.loadrate_maxmax, skip=0.0),
             )
 
         @classmethod
@@ -187,6 +191,8 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
                 umin=data.get("Umin", 0.0),
                 umax=data.get("Umax", 0.0),
                 d_umax=data.get("dUmax", 0.0),
+                loadrate_max=data.get("LoadrateMax", 0.0),
+                loadrate_maxmax=data.get("LoadrateMaxmax", 0.0),
             )
 
     @dataclass_json
@@ -301,7 +307,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
             return serialize_properties(
                 write_quote_string("EAN", self.ean, skip=""),
                 write_quote_string("Name", self.name, skip=""),
-                write_quote_string("Adress", self.address, skip=""),
+                write_quote_string("Address", self.address, skip=""),
                 write_quote_string("PostalCode", self.postal_code, skip=""),
                 write_quote_string("City", self.city, skip=""),
                 write_quote_string("PhysicalNetworkArea", self.physical_network_area, skip=""),
@@ -317,7 +323,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
             return cls(
                 ean=data.get("EAN", ""),
                 name=data.get("Name", ""),
-                address=data.get("Adress", ""),
+                address=data.get("Address", ""),
                 postal_code=data.get("PostalCode", ""),
                 city=data.get("City", ""),
                 physical_network_area=data.get("PhysicalNetworkArea", ""),
@@ -341,11 +347,11 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         conductor_distance: float = 0.0
         person_distance: float = 0.0
         enclosed: bool = False
-        kb: float = 0.0
+        kb: float = 0.5
         kp: float = 0.0
-        kp_max: bool = False
-        kp_auto: bool = False
-        kt: float = 0.0
+        kp_max: bool = True
+        kp_auto: bool = True
+        kt: float = 1.0
         electrode_configuration: int = 0
         enclosed_height: float = 0.0
         enclosed_width: float = 0.0
@@ -360,11 +366,11 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("ConductorDistance", self.conductor_distance, skip=0.0),
                 write_double("PersonDistance", self.person_distance, skip=0.0),
                 write_boolean("Enclosed", value=self.enclosed),
-                write_double("Kb", self.kb, skip=0.0),
+                write_double("Kb", self.kb, skip=0.5),
                 write_double("Kp", self.kp, skip=0.0),
-                write_boolean("KpMax", value=self.kp_max),
-                write_boolean("KpAuto", value=self.kp_auto),
-                write_double("Kt", self.kt, skip=0.0),
+                write_boolean("KpMax", value=self.kp_max, skip=True),
+                write_boolean("KpAuto", value=self.kp_auto, skip=True),
+                write_double("Kt", self.kt, skip=1.0),
                 write_integer("ElectrodeConfiguration", self.electrode_configuration, skip=0),
                 write_double("EnclosedHeight", self.enclosed_height, skip=0.0),
                 write_double("EnclosedWidth", self.enclosed_width, skip=0.0),
@@ -537,14 +543,15 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     general: General
     presentations: list[NodePresentation]
-    railtype: Railtype | None = None
+    railtype: Railtype = field(default_factory=Railtype)
     fields: list[Field] | None = None
     customer: Customer | None = None
-    installation: Installation | None = None
+    installation: Installation = field(default_factory=Installation)
     icon: Icon | None = None
     differential_protection: DifferentialProtection | None = None
     differential_protection_switches: list[DifferentialProtectionSwitch] = field(default_factory=list)
     differential_protection_transfer_trip_switch: DifferentialProtectionTransferTripSwitch | None = None
+    geo_area: list[Geography] = field(default_factory=list)
 
     def register(self, network: NetworkMV) -> None:
         """Register node in MV network with GUID-based indexing.
@@ -571,8 +578,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.append(f"#General {self.general.serialize()}")
 
-        if self.railtype is not None:
-            lines.append(f"#Railtype {self.railtype.serialize()}")
+        lines.append(f"#Railtype {self.railtype.serialize()}" if self.railtype is not None else "#Railtype ")
 
         if self.fields is not None:
             lines.extend(f"#Field {field.serialize()}" for field in self.fields)
@@ -580,8 +586,9 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.customer is not None:
             lines.append(f"#Customer {self.customer.serialize()}")
 
-        if self.installation is not None:
-            lines.append(f"#Installation {self.installation.serialize()}")
+        lines.append(
+            f"#Installation {self.installation.serialize()}" if self.installation is not None else "#Installation "
+        )
 
         if self.icon is not None:
             lines.append(f"#Icon {self.icon.serialize()}")
@@ -597,6 +604,9 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
             if self.differential_protection_transfer_trip_switch is not None:
                 serialized_transfer = self.differential_protection_transfer_trip_switch.serialize()
                 lines.append(f"#DifferentialProtectionTransferTripSwitch {serialized_transfer}")
+
+        if self.geo_area:
+            lines.extend(f"#GeoArea {geo.serialize()}" for geo in self.geo_area)
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
@@ -630,20 +640,20 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
             presentations.append(presentation)
 
         # Parse installation section
-        installation = None
-        installation_data = data.get("installation", [{}])[0] if data.get("installation") else None
-        if installation_data:
-            installation = cls.Installation.deserialize(installation_data)
+        installation_data = data.get("installation", [{}])[0] if data.get("installation") else {}
+        installation = cls.Installation.deserialize(installation_data) if installation_data else cls.Installation()
 
         # Parse railtype section
-        railtype = None
-        railtype_data = data.get("railtype", [{}])[0] if data.get("railtype") else None
-        if railtype_data:
-            railtype = cls.Railtype.deserialize(railtype_data)
+        railtype_data = data.get("railtype", [{}])[0] if data.get("railtype") else {}
+        railtype = cls.Railtype.deserialize(railtype_data) if railtype_data else cls.Railtype()
+
+        geo_area_data = data.get("geo_area", [])
+        geo_area = [Geography.deserialize(geo_data) for geo_data in geo_area_data]
 
         return cls(
             general=general,
             presentations=presentations,
             installation=installation,
             railtype=railtype,
+            geo_area=geo_area,
         )

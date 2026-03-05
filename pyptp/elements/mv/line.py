@@ -73,7 +73,9 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
         maintenance_duration: float = 0.0
         maintenance_cancel_duration: float = 0.0
         loadrate_max: float = 0.0
+        loadrate_max_winter: float = 0.0
         loadrate_max_emergency: float = 0.0
+        loadrate_max_emergency_winter: float = 0.0
         switch_state1: int = 1
         switch_state2: int = 1
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
@@ -104,7 +106,9 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("MaintenanceDuration", self.maintenance_duration, skip=0.0),
                 write_double("MaintenanceCancelDuration", self.maintenance_cancel_duration, skip=0.0),
                 write_double("LoadrateMax", self.loadrate_max, skip=0.0),
+                write_double("LoadrateMaxWinter", self.loadrate_max_winter, skip=0.0),
                 write_double("LoadrateMaxmax", self.loadrate_max_emergency, skip=0.0),
+                write_double("LoadrateMaxmaxWinter", self.loadrate_max_emergency_winter, skip=0.0),
                 write_boolean("ResistanceSymbol", value=self.resistance_symbol),
             )
 
@@ -129,7 +133,9 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
                 maintenance_duration=data.get("MaintenanceDuration", 0.0),
                 maintenance_cancel_duration=data.get("MaintenanceCancelDuration", 0.0),
                 loadrate_max=data.get("LoadrateMax", 0.0),
+                loadrate_max_winter=data.get("LoadrateMaxWinter", 0.0),
                 loadrate_max_emergency=data.get("LoadrateMaxmax", 0.0),
+                loadrate_max_emergency_winter=data.get("LoadrateMaxmaxWinter", 0.0),
                 switch_state1=data.get("SwitchState1", 1),
                 switch_state2=data.get("SwitchState2", 1),
                 node1=decode_guid(data.get("Node1", str(NIL_GUID))),
@@ -149,11 +155,8 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
         X0: float = 0
         C0: float = 0
         inom: float = 0
-        inom1: float = 0
-        inom2: float = 0
-        inom3: float = 0
         ik1s: float = 0
-        TR: float = 0
+        TR: float = 30.0
         TI_nom: float = 0
         TIk1s: float = 0
         length: float = 0
@@ -173,9 +176,6 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("X0", self.X0, skip=0.0),
                 write_double("C0", self.C0, skip=0.0),
                 write_double("Inom", self.inom, skip=0.0),
-                write_double("Inom1", self.inom1, skip=0.0),
-                write_double("Inom2", self.inom2, skip=0.0),
-                write_double("Inom3", self.inom3, skip=0.0),
                 write_double("Ik1s", self.ik1s, skip=0.0),
                 write_double("TR", self.TR, skip=0.0),
                 write_double("TInom", self.TI_nom, skip=0.0),
@@ -195,11 +195,8 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
                 X0=data.get("X0", 0),
                 C0=data.get("C0", 0),
                 inom=data.get("Inom", 0),
-                inom1=data.get("Inom1", 0),
-                inom2=data.get("Inom2", 0),
-                inom3=data.get("Inom3", 0),
                 ik1s=data.get("Ik1s", 0),
-                TR=data.get("TR", 0),
+                TR=data.get("TR", 30.0),
                 TI_nom=data.get("TInom", 0),
                 TIk1s=data.get("TIk1s", 0),
                 length=data.get("Length", 0),

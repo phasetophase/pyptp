@@ -25,6 +25,7 @@ class NodeHandler(DeclarativeHandler[TNetworkMSType]):
         SectionConfig("differential_protection", "#DifferentialProtection "),
         SectionConfig("differential_protection_switches", "#DifferentialProtectionSwitch "),
         SectionConfig("differential_protection_transfer_trip_switch", "#DifferentialProtectionTransferTripSwitch "),
+        SectionConfig("geo_area", "#GeoArea "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]

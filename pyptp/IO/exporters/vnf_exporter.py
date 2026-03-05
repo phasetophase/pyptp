@@ -216,8 +216,8 @@ class VnfExporter:
 
     @staticmethod
     def _write_vnf(network: NetworkMV, fh: TextIO) -> None:
-        """Write network content in V9.9 format to file handle."""
-        fh.write("V9.9\nNETWORK\n\n")
+        """Write network content in V9.11 format to file handle."""
+        fh.write("V9.11\nNETWORK\n\n")
 
         def _write_section(header: str, elements: Iterable) -> None:
             elems = list(elements)
@@ -232,6 +232,9 @@ class VnfExporter:
         _write_section("COMMENTS", network.comments)
         _write_section("HYPERLINKS", network.hyperlinks)
         _write_section("VARIABLES", network.variables)
+        _write_section("NETWORKOPTIONS", [network.network_options] if network.network_options else [])
+        _write_section("PROFILEFILES", network.profile_files)
+        _write_section("MEASUREMENTFILES", network.measurement_files)
         _write_section("SHEET", network.sheets.values())
         _write_section("NODE", network.nodes.values())
         _write_section("RAILSYSTEM", network.rail_systems.values())
@@ -271,12 +274,14 @@ class VnfExporter:
         _write_section("VARIANT", network.variants.values())
         _write_section("SCENARIO", network.scenarios.values())
         _write_section("CASE", network.calc_cases)
+        _write_section("GENERATOR", network.generators.values())
+        _write_section("DYNAMIC CASE", network.dynamic_cases)
 
     @staticmethod
     def export(
         network: NetworkMV,
         output_path: str,
-        version: VnfVersion = VnfVersion.V9_9,
+        version: VnfVersion = VnfVersion.V9_11,
     ) -> None:
         """Export MV network to VNF format with version migration.
 
@@ -292,7 +297,7 @@ class VnfExporter:
         """
         out_path = Path(output_path)
 
-        if version == VnfVersion.V9_9:
+        if version == VnfVersion.V9_11:
             with out_path.open("w", encoding="utf-8") as fh:
                 VnfExporter._write_vnf(network, fh)
         else:

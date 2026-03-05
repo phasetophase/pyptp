@@ -93,7 +93,9 @@ class TestLineRegistration(unittest.TestCase):
             maintenance_duration=4.0,
             maintenance_cancel_duration=1.0,
             loadrate_max=0.8,
+            loadrate_max_winter=0.7,
             loadrate_max_emergency=1.2,
+            loadrate_max_emergency_winter=1.1,
             switch_state1=1,
             switch_state2=0,
             node1=self.node1_guid,
@@ -135,9 +137,6 @@ class TestLineRegistration(unittest.TestCase):
             R0=0.3,
             X0=0.4,
             C0=0.002,
-            inom1=100.0,
-            inom2=150.0,
-            inom3=200.0,
             ik1s=1000.0,
             TR=0.5,
             TI_nom=0.6,
@@ -176,7 +175,9 @@ class TestLineRegistration(unittest.TestCase):
         self.assertIn("MaintenanceDuration:4.0", serialized)
         self.assertIn("MaintenanceCancelDuration:1.0", serialized)
         self.assertIn("LoadrateMax:0.8", serialized)
+        self.assertIn("LoadrateMaxWinter:0.7", serialized)
         self.assertIn("LoadrateMaxmax:1.2", serialized)
+        self.assertIn("LoadrateMaxmaxWinter:1.1", serialized)
         self.assertIn("SwitchState1:1", serialized)
         # SwitchState2:0 is skipped as a default value
         self.assertIn("ResistanceSymbol:True", serialized)
@@ -214,9 +215,6 @@ class TestLineRegistration(unittest.TestCase):
         self.assertIn("R0:0.3", serialized)
         self.assertIn("X0:0.4", serialized)
         self.assertIn("C0:0.002", serialized)
-        self.assertIn("Inom1:100.0", serialized)
-        self.assertIn("Inom2:150.0", serialized)
-        self.assertIn("Inom3:200.0", serialized)
         self.assertIn("Ik1s:1000.0", serialized)
         self.assertIn("TR:0.5", serialized)
         self.assertIn("TInom:0.6", serialized)

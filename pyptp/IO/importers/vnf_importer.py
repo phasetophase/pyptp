@@ -22,6 +22,7 @@ from pyptp.IO.importers._vnf_handlers.dynamic_case_handler import DynamicCaseHan
 from pyptp.IO.importers._vnf_handlers.earthing_transformer_handler import EarthingTransformerHandler
 from pyptp.IO.importers._vnf_handlers.frame_handler import FrameHandler
 from pyptp.IO.importers._vnf_handlers.fuse_handler import FuseHandler
+from pyptp.IO.importers._vnf_handlers.generator_handler import GeneratorHandler
 from pyptp.IO.importers._vnf_handlers.growth_handler import GrowthHandler
 from pyptp.IO.importers._vnf_handlers.hyperlink_handler import HyperlinkHandler
 from pyptp.IO.importers._vnf_handlers.indicator_handler import IndicatorHandler
@@ -32,8 +33,11 @@ from pyptp.IO.importers._vnf_handlers.load_behaviour_handler import LoadBehaviou
 from pyptp.IO.importers._vnf_handlers.load_handler import LoadHandler
 from pyptp.IO.importers._vnf_handlers.load_switch_handler import LoadSwitchHandler
 from pyptp.IO.importers._vnf_handlers.measure_field_handler import MeasureFieldHandler
+from pyptp.IO.importers._vnf_handlers.measurement_file_handler import MeasurementFileHandler
 from pyptp.IO.importers._vnf_handlers.mutual_handler import MutualHandler
+from pyptp.IO.importers._vnf_handlers.network_options_handler import NetworkOptionsHandler
 from pyptp.IO.importers._vnf_handlers.node_handler import NodeHandler
+from pyptp.IO.importers._vnf_handlers.profile_file_handler import ProfileFileHandler
 from pyptp.IO.importers._vnf_handlers.profile_handler import ProfileHandler
 from pyptp.IO.importers._vnf_handlers.properties_handler import PropertiesHandler
 from pyptp.IO.importers._vnf_handlers.pv_handler import PvHandler
@@ -112,6 +116,7 @@ class VnfImporter:
         "ASYNCHRONOUS GENERATOR": AsyncGeneratorHandler(),
         "ASYNCHRONOUS MOTOR": AsyncMotorHandler(),
         "LOAD": LoadHandler(),
+        "GENERATOR": GeneratorHandler(),
         "PV": PvHandler(),
         "WINDTURBINE": WindTurbineHandler(),
         "BATTERY": BatteryHandler(),
@@ -127,6 +132,9 @@ class VnfImporter:
         "GROWTH": GrowthHandler(),
         "HYPERLINKS": HyperlinkHandler(),
         "VARIABLES": VariableHandler(),
+        "NETWORKOPTIONS": NetworkOptionsHandler(),
+        "PROFILEFILES": ProfileFileHandler(),
+        "MEASUREMENTFILES": MeasurementFileHandler(),
         "PROFILE": ProfileHandler(),
         "SCENARIO": ScenarioHandler(),
         "SELECTION": SelectionHandler(),
@@ -157,14 +165,14 @@ class VnfImporter:
         with Path.open(path, encoding="utf-8", errors="ignore") as f:
             file_version = f.readline().strip()
 
-        supported_versions = {"V9.9", "V9.10a"}
+        supported_versions = {"V9.11"}
 
         if file_version not in supported_versions:
             logger.debug(
-                "Legacy VNF version '%s' detected. Attempting migration to V9.9...",
+                "Legacy VNF version '%s' detected. Attempting migration to V9.11...",
                 file_version,
             )
-            return migrate_and_read(path, version="V9.9", encoding="utf-8")
+            return migrate_and_read(path, version="V9.11", encoding="utf-8")
 
         return path.read_text(encoding="utf-8", errors="ignore")
 
