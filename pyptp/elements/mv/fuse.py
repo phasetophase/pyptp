@@ -13,6 +13,7 @@ from uuid import uuid4
 
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
+from pyptp.elements.color_utils import CL_BLACK, DelphiColor
 from pyptp.elements.element_utils import (
     NIL_GUID,
     Guid,
@@ -24,6 +25,7 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
+    write_delphi_color,
     write_double,
     write_double_no_skip,
     write_guid,
@@ -61,6 +63,7 @@ class FuseMV(ExtrasNotesMixin, HasPresentationsMixin):
         in_object: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         side: int = 1
         type: str = string_field()
+        color: DelphiColor = field(default=CL_BLACK)
 
         def serialize(self) -> str:
             """Serialize General properties."""
@@ -74,6 +77,7 @@ class FuseMV(ExtrasNotesMixin, HasPresentationsMixin):
                 (write_guid("InObject", self.in_object) if self.in_object is not None else ""),
                 write_integer("Side", self.side),
                 write_quote_string("FuseType", self.type),
+                write_delphi_color("Color", self.color),
             )
 
         @classmethod
@@ -89,6 +93,7 @@ class FuseMV(ExtrasNotesMixin, HasPresentationsMixin):
                 in_object=decode_guid(data.get("InObject", str(NIL_GUID))),
                 side=data.get("Side", 1),
                 type=data.get("FuseType", ""),
+                color=DelphiColor(data.get("Color", str(CL_BLACK))),
             )
 
     @dataclass_json

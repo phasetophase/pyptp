@@ -127,7 +127,7 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Istart/Inom", self.istart_inom),
                 write_double("ta", self.ta),
                 write_boolean("NoShortCircuitContribution", value=self.no_short_circuit_contribution),
-                write_guid("Profile", self.profile, skip=DEFAULT_PROFILE_GUID),
+                write_guid_no_skip("Profile", self.profile),
                 write_quote_string("AsynchronousMotorType", self.type),
                 write_quote_string("HarmonicsType", self.harmonics_type),
             )
@@ -279,8 +279,8 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("n5", self.n5),
                 write_double("StartingTorque", self.starting_torque),
                 write_double("NomSpeed", self.nom_speed),
-                write_double("CriticalSpeed", self.critical_speed),
                 write_double("CriticalTorque", self.critical_torque),
+                write_double("CriticalSpeed", self.critical_speed),
                 write_double("j", self.j),
                 write_double("k2", self.k2),
                 write_double("k1", self.k1),

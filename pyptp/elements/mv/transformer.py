@@ -20,7 +20,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.enums import VoltageControlSort
+from pyptp.elements.enums import EnclosureType, InsulationCondition, VoltageControlSort
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
@@ -209,8 +209,12 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         snom: float = 0.0
         unom1: float = 0.0
         unom2: float = 0.0
+        ukmin: float = 0.0
         uk: float = 0.0
+        ukmax: float = 0.0
+        pkmin: float = 0.0
         pk: float = 0.0
+        pkmax: float = 0.0
         po: float = 0.0
         io: float = 0.0
         r0: float = 0.0
@@ -238,8 +242,12 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Snom", self.snom),
                 write_double("Unom1", self.unom1),
                 write_double("Unom2", self.unom2),
+                write_double("Ukmin", self.ukmin),
                 write_double("Uk", self.uk),
+                write_double("Ukmax", self.ukmax),
+                write_double("Pkmin", self.pkmin),
                 write_double("Pk", self.pk),
+                write_double("Pkmax", self.pkmax),
                 write_double("Po", self.po),
                 write_double("Io", self.io),
                 write_double("R0", self.r0),
@@ -269,8 +277,12 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 snom=data.get("Snom", 0.0),
                 unom1=data.get("Unom1", 0.0),
                 unom2=data.get("Unom2", 0.0),
+                ukmin=data.get("Ukmin", 0.0),
                 uk=data.get("Uk", 0.0),
+                ukmax=data.get("Ukmax", 0.0),
+                pkmin=data.get("Pkmin", 0.0),
                 pk=data.get("Pk", 0.0),
+                pkmax=data.get("Pkmax", 0.0),
                 po=data.get("Po", 0.0),
                 io=data.get("Io", 0.0),
                 r0=data.get("R0", 0.0),
@@ -290,6 +302,59 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 tap_max=data.get("TapMax", 0),
                 ki=data.get("Ki", 0.0),
                 tau=data.get("Tau", 0.0),
+            )
+
+    @dataclass_json
+    @dataclass
+    class Thermal(DataClassJsonMixin):
+        """Thermal settings for tap-changing transformers."""
+
+        x: float = 0.8
+        y: float = 1.3
+        k11: float = 0.5
+        k21: float = 2.0
+        k22: float = 2.0
+        to: int = 210
+        tw: int = 10
+        hotspot_factor: float = 1.3
+        thermally_upgraded_paper: bool = True
+        paper_condition: InsulationCondition = InsulationCondition.AIR_FREE_MOIST_0_5
+        enclosure_type: EnclosureType = EnclosureType.OUTSIDE
+        temperature_correction: float | int = optional_field(0.0)
+
+        def serialize(self) -> str:
+            """Serialize Thermal properties to VNF format."""
+            return serialize_properties(
+                write_double("x", self.x),
+                write_double("y", self.y),
+                write_double("k11", self.k11),
+                write_double("k21", self.k21),
+                write_double("k22", self.k22),
+                write_integer("to", self.to),
+                write_integer("tw", self.tw),
+                write_double("Hotspotfactor", self.hotspot_factor),
+                write_boolean_no_skip("PaperThermallyUpgraded", self.thermally_upgraded_paper),
+                write_quote_string("PaperCondition", self.paper_condition),
+                write_quote_string("EnclosureType", self.enclosure_type),
+                write_double("TemperatureCorrection", self.temperature_correction),
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> TransformerMV.Thermal:
+            """Parse thermal properties from VNF data."""
+            return cls(
+                x=data.get("x", 0.8),
+                y=data.get("y", 1.3),
+                k11=data.get("k11", 0.5),
+                k21=data.get("k21", 2.0),
+                k22=data.get("k22", 2.0),
+                to=data.get("to", 210),
+                tw=data.get("tw", 10),
+                hotspot_factor=data.get("Hotspotfactor", 1.3),
+                thermally_upgraded_paper=data.get("PaperThermallyUpgraded", True),
+                paper_condition=InsulationCondition(data.get("PaperCondition", InsulationCondition.AIR_FREE_MOIST_0_5)),
+                enclosure_type=EnclosureType(data.get("EnclosureType", EnclosureType.OUTSIDE)),
+                temperature_correction=data.get("TemperatureCorrection", 0.0),
             )
 
     @dataclass_json
@@ -421,6 +486,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
     type: TransformerType
     voltage_control: VoltageControl | None = None
     dynamics: Dynamics | None = None
+    thermal: Thermal | None = None
 
     def __post_init__(self) -> None:
         """Initialize mixins for extras, notes, and presentations."""
@@ -456,6 +522,9 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         if self.type is not None:
             lines.append(f"#TransformerType {self.type.serialize()}")
+
+        if self.thermal:
+            lines.append(f"#Thermal {self.thermal.serialize()}")
 
         if self.dynamics:
             lines.append(f"#Dynamics {self.dynamics.serialize()}")

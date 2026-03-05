@@ -25,7 +25,6 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
-    write_boolean_no_skip,
     write_double,
     write_double_no_skip,
     write_guid,
@@ -80,11 +79,11 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
         maintenance_duration: float = 0.0
         maintenance_cancel_duration: float = 0.0
         not_preferred: bool = False
-        pref: float | int = 0
+        pmechanic: float | int = 0
         control_sort: str = "C"
         qref: float | int = 0
         cos_ref: float = 0.85
-        is_contributing_q: bool = False
+        capacitive: bool = False
         control_measure_field: Guid | None = None
         is_contributing_to_short_circuit: bool = False
         earthing: int = 0
@@ -115,13 +114,13 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("MaintenanceDuration", self.maintenance_duration, skip=0.0),
                 write_double("MaintenanceCancelDuration", self.maintenance_cancel_duration, skip=0.0),
                 write_boolean("NotPreferred", value=self.not_preferred),
-                write_double("Pref", self.pref, skip=0),
+                write_double("Pmechanic", self.pmechanic, skip=0),
                 write_quote_string_no_skip("ControlSort", self.control_sort),
-                write_double_no_skip("Qref", self.qref),
+                write_double("Qref", self.qref),
                 write_double_no_skip("CosRef", self.cos_ref),
-                write_boolean("SuppliesQ", value=self.is_contributing_q),
+                write_boolean("Capacitive", value=self.capacitive),
                 write_guid("ControlMeasureField", self.control_measure_field) if self.control_measure_field else "",
-                write_boolean_no_skip("NoShortCircuitContribution", value=self.is_contributing_to_short_circuit),
+                write_boolean("NoShortCircuitContribution", value=self.is_contributing_to_short_circuit),
                 write_integer_no_skip("Earthing", self.earthing),
                 write_double("Re", self.re, skip=0),
                 write_double("Xe", self.xe, skip=0),
@@ -153,11 +152,11 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 maintenance_duration=data.get("MaintenanceDuration", 0.0),
                 maintenance_cancel_duration=data.get("MaintenanceCancelDuration", 0.0),
                 not_preferred=data.get("NotPreferred", False),
-                pref=data.get("Pref", 0),
+                pmechanic=data.get("Pmechanic", data.get("Pref", 0)),
                 control_sort=data.get("ControlSort", "C"),
                 qref=data.get("Qref", 0),
                 cos_ref=data.get("CosRef", 0.85),
-                is_contributing_q=data.get("SuppliesQ", False),
+                capacitive=data.get("Capacitive", data.get("SuppliesQ", False)),
                 control_measure_field=decode_guid(control_measure_field) if control_measure_field else None,
                 is_contributing_to_short_circuit=data.get("NoShortCircuitContribution", False),
                 earthing=data.get("Earthing", 0),
@@ -174,8 +173,17 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Electrotechnical properties of a synchronous motor."""
 
         unom: float | int = 0
-        snom: float | int = 0
+        pnom: float | int = 0
         cos_nom: float = 0.85
+        efficiency: float = 0.0
+        p2: float = 0.0
+        n2: float = 0.0
+        p3: float = 0.0
+        n3: float = 0.0
+        p4: float = 0.0
+        n4: float = 0.0
+        p5: float = 0.0
+        n5: float = 0.0
         rg: float | int = 0
         xd2: float = 0.2
         r_x: float = field(default=0.0, metadata=config(field_name="R/X"))
@@ -203,10 +211,19 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize SynchronousMotorType properties in exact Delphi order."""
             return serialize_properties(
                 write_double("Unom", self.unom, skip=0),
-                write_double("Snom", self.snom, skip=0),
+                write_double("Pnom", self.pnom, skip=0),
                 write_double("CosNom", self.cos_nom, skip=0),
+                write_double_no_skip("Efficiency", self.efficiency),
+                write_double_no_skip("p2", self.p2),
+                write_double_no_skip("n2", self.n2),
+                write_double_no_skip("p3", self.p3),
+                write_double_no_skip("n3", self.n3),
+                write_double_no_skip("p4", self.p4),
+                write_double_no_skip("n4", self.n4),
+                write_double_no_skip("p5", self.p5),
+                write_double_no_skip("n5", self.n5),
                 write_double("Rg", self.rg, skip=0),
-                write_double("Xd2", self.xd2, skip=0),
+                write_double("Xd2sat", self.xd2, skip=0),
                 write_double_no_skip("R/X", self.r_x),
                 write_double("Istart/Inom", self.istart_inom, skip=0),
                 write_integer("Rotor", self.rotor, skip=0),
@@ -234,10 +251,19 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Deserialize SynchronousMotorType properties."""
             return cls(
                 unom=data.get("Unom", 0),
-                snom=data.get("Snom", 0),
+                pnom=data.get("Pnom", data.get("Snom", 0)),
                 cos_nom=data.get("CosNom", 0.85),
+                efficiency=data.get("Efficiency", 0.0),
+                p2=data.get("p2", 0.0),
+                n2=data.get("n2", 0.0),
+                p3=data.get("p3", 0.0),
+                n3=data.get("n3", 0.0),
+                p4=data.get("p4", 0.0),
+                n4=data.get("n4", 0.0),
+                p5=data.get("p5", 0.0),
+                n5=data.get("n5", 0.0),
                 rg=data.get("Rg", 0),
-                xd2=data.get("Xd2", 0.2),
+                xd2=data.get("Xd2sat", 0.2),
                 r_x=data.get("R/X", 0.0),
                 istart_inom=data.get("Istart/Inom", 5.0),
                 rotor=data.get("Rotor", 0),

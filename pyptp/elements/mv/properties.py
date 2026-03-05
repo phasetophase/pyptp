@@ -90,8 +90,8 @@ class PropertiesMV(ExtrasNotesMixin):
             """Serialize Network properties."""
             return serialize_properties(
                 write_guid_no_skip("GUID", self.guid),
-                write_guid_no_skip("State", self.state),
                 write_guid("PreviousState", self.previous_state) if self.previous_state is not None else "",
+                write_guid_no_skip("State", self.state),
                 write_double_no_skip("SaveDateTime", self.last_saved_datetime),
             )
 

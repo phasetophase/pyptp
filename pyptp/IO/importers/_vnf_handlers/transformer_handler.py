@@ -23,6 +23,7 @@ class TransformerHandler(DeclarativeHandler[TNetworkMSType]):
         SectionConfig("presentations", "#Presentation "),
         SectionConfig("type", "#TransformerType "),
         SectionConfig("dynamics", "#Dynamics "),
+        SectionConfig("thermal", "#Thermal"),
         SectionConfig("voltage_control", "#VoltageControl "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
@@ -44,6 +45,8 @@ class TransformerHandler(DeclarativeHandler[TNetworkMSType]):
             return BranchPresentation
         if kwarg_name == "type":
             return TransformerMV.TransformerType
+        if kwarg_name == "Thermal":
+            return TransformerMV.Thermal
         if kwarg_name == "dynamics":
             return TransformerMV.Dynamics
         if kwarg_name == "voltage_control":

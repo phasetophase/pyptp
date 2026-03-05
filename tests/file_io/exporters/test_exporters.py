@@ -113,7 +113,7 @@ class TestVnfExporter(unittest.TestCase):
             VnfExporter.export(self.network, tmp_path)
             with Path(tmp_path).open("r") as f:
                 content = f.read()
-            self.assertTrue(content.startswith("V9.9\nNETWORK\n\n"))
+            self.assertTrue(content.startswith("V9.11\nNETWORK\n\n"))
             self.assertIn("[PROPERTIES]", content)
             self.assertIn("MockProperties", content)
             self.assertIn("[SHEET]", content)
@@ -211,7 +211,7 @@ class TestExporterComparison(unittest.TestCase):
             with Path(vnf_path).open("r") as f:
                 vnf_content = f.read()
             self.assertTrue(gnf_content.startswith("G8.9\nNETWORK\n\n"))
-            self.assertTrue(vnf_content.startswith("V9.9\nNETWORK\n\n"))
+            self.assertTrue(vnf_content.startswith("V9.11\nNETWORK\n\n"))
         finally:
             Path(gnf_path).unlink(missing_ok=True)
             Path(vnf_path).unlink(missing_ok=True)

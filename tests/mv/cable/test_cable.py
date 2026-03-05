@@ -94,7 +94,9 @@ class TestCableRegistration(unittest.TestCase):
             maintenance_cancel_duration=1.0,
             joint_failure_frequency=0.005,
             loadrate_max=0.8,
+            loadrate_max_winter=0.7,
             loadrate_max_emergency=1.2,
+            loadrate_max_emergency_winter=1.1,
             switch_state1=1,
             switch_state2=0,
             rail_connectivity=1,
@@ -188,7 +190,9 @@ class TestCableRegistration(unittest.TestCase):
         self.assertIn("MaintenanceCancelDuration:1.0", serialized)
         self.assertIn("JointFailureFrequency:0.005", serialized)
         self.assertIn("LoadrateMax:0.8", serialized)
+        self.assertIn("LoadrateMaxWinter:0.7", serialized)
         self.assertIn("LoadrateMaxmax:1.2", serialized)
+        self.assertIn("LoadrateMaxmaxWinter:1.1", serialized)
         self.assertIn("SwitchState1:1", serialized)
         # SwitchState2:0 is skipped as a default value
         self.assertIn("RailConnectivity:1", serialized)

@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import EnclosureType, InsulationCondition, VoltageControlSort
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import BranchPresentation, NodePresentation
@@ -119,8 +120,12 @@ class TestTransformerRegistration(unittest.TestCase):
             snom=1000.0,
             unom1=20.0,
             unom2=0.4,
+            ukmin=3.5,
             uk=4.0,
+            ukmax=4.5,
+            pkmin=8.0,
             pk=10.0,
+            pkmax=12.0,
             po=2.0,
             io=0.5,
             r0=0.1,
@@ -148,7 +153,7 @@ class TestTransformerRegistration(unittest.TestCase):
             measure_side=2,
             setpoint=1.05,
             deadband=0.02,
-            control_sort=1,
+            control_sort=VoltageControlSort.COMPOUNDING,
             rc=0.5,
             xc=1.5,
             compounding_at_generation=False,
@@ -259,7 +264,7 @@ class TestTransformerRegistration(unittest.TestCase):
         self.assertIn("MeasureSide:2", serialized)
         self.assertIn("SetPoint:1.05", serialized)
         self.assertIn("DeadBand:0.02", serialized)
-        self.assertIn("ControlSort:1", serialized)
+        self.assertIn("ControlSort:0", serialized)
         self.assertIn("Rc:0.5", serialized)
         self.assertIn("Xc:1.5", serialized)
         self.assertIn("CompoundingAtGeneration:False", serialized)
@@ -273,8 +278,12 @@ class TestTransformerRegistration(unittest.TestCase):
         self.assertIn("Snom:1000", serialized)
         self.assertIn("Unom1:20", serialized)
         self.assertIn("Unom2:0.4", serialized)
+        self.assertIn("Ukmin:3.5", serialized)
         self.assertIn("Uk:4", serialized)
+        self.assertIn("Ukmax:4.5", serialized)
+        self.assertIn("Pkmin:8", serialized)
         self.assertIn("Pk:10", serialized)
+        self.assertIn("Pkmax:12", serialized)
         self.assertIn("Po:2", serialized)
         self.assertIn("Io:0.5", serialized)
         self.assertIn("R0:0.1", serialized)
@@ -451,8 +460,12 @@ class TestTransformerRegistration(unittest.TestCase):
             snom=1000.0,
             unom1=20.0,
             unom2=0.4,
+            ukmin=3.5,
             uk=4.0,
+            ukmax=4.5,
+            pkmin=8.0,
             pk=10.0,
+            pkmax=12.0,
             po=2.0,
             io=0.5,
             r0=0.1,
@@ -472,8 +485,12 @@ class TestTransformerRegistration(unittest.TestCase):
         self.assertIn("Snom:1000", serialized)
         self.assertIn("Unom1:20", serialized)
         self.assertIn("Unom2:0.4", serialized)
+        self.assertIn("Ukmin:3.5", serialized)
         self.assertIn("Uk:4", serialized)
+        self.assertIn("Ukmax:4.5", serialized)
+        self.assertIn("Pkmin:8", serialized)
         self.assertIn("Pk:10", serialized)
+        self.assertIn("Pkmax:12", serialized)
         self.assertIn("Po:2", serialized)
         self.assertIn("Io:0.5", serialized)
         self.assertIn("R0:0.1", serialized)
@@ -549,6 +566,77 @@ class TestTransformerRegistration(unittest.TestCase):
         self.assertLess(general_pos, voltage_control_pos)
         self.assertLess(voltage_control_pos, transformer_type_pos)
         self.assertLess(transformer_type_pos, dynamics_pos)
+
+    def test_transformer_with_thermal_serializes_correctly(self) -> None:
+        """Test that transformers with thermal properties serialize correctly."""
+        general = TransformerMV.General(
+            guid=self.transformer_guid,
+            name="ThermalTransformer",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+        )
+        transformer_type = TransformerMV.TransformerType(short_name="ThermalType")
+        thermal = TransformerMV.Thermal(
+            x=0.9,
+            y=1.5,
+            k11=0.6,
+            k21=2.5,
+            k22=2.5,
+            to=220,
+            tw=15,
+            hotspot_factor=1.4,
+            thermally_upgraded_paper=False,
+            paper_condition=InsulationCondition.AIR_FREE_MOIST_1_5,
+            enclosure_type=EnclosureType.KIOSK,
+            temperature_correction=5.0,
+        )
+        presentation = BranchPresentation(sheet=self.sheet_guid)
+
+        transformer = TransformerMV(
+            general, [presentation], transformer_type, thermal=thermal
+        )
+        transformer.register(self.network)
+        serialized = transformer.serialize()
+
+        self.assertIn("#Thermal", serialized)
+        self.assertIn("x:0.9", serialized)
+        self.assertIn("y:1.5", serialized)
+        self.assertIn("k11:0.6", serialized)
+        self.assertIn("k21:2.5", serialized)
+        self.assertIn("k22:2.5", serialized)
+        self.assertIn("to:220", serialized)
+        self.assertIn("tw:15", serialized)
+        self.assertIn("Hotspotfactor:1.4", serialized)
+        self.assertIn("PaperThermallyUpgraded:False", serialized)
+        self.assertIn("PaperCondition:'Free1.5'", serialized)
+        self.assertIn("EnclosureType:'Kiosk'", serialized)
+        self.assertIn("TemperatureCorrection:5", serialized)
+
+    def test_transformer_without_thermal_has_no_thermal_section(self) -> None:
+        """Test that transformers without thermal omit the section."""
+        general = TransformerMV.General(
+            guid=self.transformer_guid,
+            name="NoThermal",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+        )
+        transformer_type = TransformerMV.TransformerType(short_name="NoThermalType")
+        presentation = BranchPresentation(sheet=self.sheet_guid)
+
+        transformer = TransformerMV(general, [presentation], transformer_type)
+        transformer.register(self.network)
+        serialized = transformer.serialize()
+
+        self.assertNotIn("#Thermal", serialized)
+
+    def test_thermal_default_enum_values(self) -> None:
+        """Test that thermal defaults use the correct enum values."""
+        thermal = TransformerMV.Thermal()
+
+        self.assertEqual(
+            thermal.paper_condition, InsulationCondition.AIR_FREE_MOIST_0_5
+        )
+        self.assertEqual(thermal.enclosure_type, EnclosureType.OUTSIDE)
 
 
 if __name__ == "__main__":

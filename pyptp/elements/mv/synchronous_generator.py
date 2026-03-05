@@ -86,7 +86,7 @@ class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
         control_sort: str = "C"
         q_ref: float | int = 0
         cos_ref: float = 0.95
-        absorbs_q: bool = False
+        inductive: bool = False
         uref: float = 1.0
         uq_droop: float = 1.0
         q_limiting_type: int = 1
@@ -132,9 +132,9 @@ class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("fpDroop", self.fp_droop, skip=0),
                 write_boolean("IsochronousControl", value=self.isochronous_control),
                 write_quote_string_no_skip("ControlSort", self.control_sort),
-                write_double_no_skip("Qref", self.q_ref),
+                write_double("Qref", self.q_ref),
                 write_double_no_skip("CosRef", self.cos_ref),
-                write_boolean("AbsorbsQ", value=self.absorbs_q),
+                write_boolean("Inductive", value=self.inductive),
                 write_double_no_skip("Uref", self.uref),
                 write_double_no_skip("UQDroop", self.uq_droop),
                 write_integer_no_skip("QlimitingType", self.q_limiting_type),
@@ -146,7 +146,7 @@ class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_guid("EarthingNode", self.earthing_node) if self.earthing_node else "",
                 write_boolean("EmergencyGenerator", value=self.emergency_generator),
                 write_double("Pnom", self.pnom, skip=0),
-                write_guid("Profile", self.profile) if self.profile != DEFAULT_PROFILE_GUID else "",
+                write_guid_no_skip("Profile", self.profile),
                 write_quote_string("SynchronousGeneratorType", self.type, skip=""),
             )
 
@@ -179,7 +179,7 @@ class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 control_sort=data.get("ControlSort", "C"),
                 q_ref=data.get("Qref", 0),
                 cos_ref=data.get("CosRef", 0.95),
-                absorbs_q=data.get("AbsorbsQ", False),
+                inductive=data.get("Inductive", False),
                 uref=data.get("Uref", 1.0),
                 uq_droop=data.get("UQDroop", 1.0),
                 q_limiting_type=data.get("QlimitingType", 1),
@@ -242,7 +242,7 @@ class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("CosNom", self.cos_nom, skip=0),
                 write_double("Qmin", self.qmin, skip=0),
                 write_double("Qmax", self.qmax, skip=0),
-                write_double("rg", self.rg, skip=0),
+                write_double("Rg", self.rg, skip=0),
                 write_double("Xd2sat", self.xd2sat, skip=0),
                 write_integer("ExcitationType", self.excitation_type, skip=0),
                 write_integer("Rotor", self.rotor, skip=0),
