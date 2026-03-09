@@ -201,7 +201,7 @@ class FrameLV:
             """
             return serialize_properties(
                 write_guid("Sheet", self.sheet),
-                write_quote_string("Sort", self.sort, skip=FrameShape.RECTANGLE),
+                write_quote_string("Sort", self.sort),
                 write_integer("NameX", self.name_x),
                 write_integer("NameY", self.name_y),
                 write_boolean("Filled", value=self.filled),

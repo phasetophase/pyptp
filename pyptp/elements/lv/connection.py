@@ -318,14 +318,14 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         """PL."""
 
         number_of: int = 0
-        phases: int = 1
+        phases: int = 0
         pl_type: str = string_field()
 
         def serialize(self) -> str:
             """Serialize PL properties to a string."""
             return serialize_properties(
                 write_integer("NumberOf", self.number_of, skip=0),
-                write_integer("Phases", self.phases, skip=1),
+                write_integer("Phases", self.phases, skip=0),
                 write_quote_string("PLType", self.pl_type),
             )
 
@@ -334,7 +334,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             """Deserialize PL properties."""
             return cls(
                 number_of=data.get("NumberOf", 0),
-                phases=data.get("Phases", 1),
+                phases=data.get("Phases", 0),
                 pl_type=data.get("PLType", ""),
             )
 

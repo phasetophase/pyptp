@@ -96,7 +96,7 @@ class LegendHandler(DeclarativeHandler[TNetworkLSType]):
                         LegendCell(
                             row=current_cell_data.get("Row", 1),
                             column=current_cell_data.get("Column", 1),
-                            text_size=current_cell_data.get("TextSize", 20),
+                            text_size=current_cell_data.get("TextSize", 10),
                             text_lines=current_text_lines.copy(),
                         )
                     )
@@ -118,7 +118,7 @@ class LegendHandler(DeclarativeHandler[TNetworkLSType]):
                     LegendCell(
                         row=current_cell_data.get("Row", 1),
                         column=current_cell_data.get("Column", 1),
-                        text_size=current_cell_data.get("TextSize", 20),
+                        text_size=current_cell_data.get("TextSize", 10),
                         text_lines=current_text_lines.copy(),
                     )
                 )
@@ -131,7 +131,7 @@ class LegendHandler(DeclarativeHandler[TNetworkLSType]):
                 LegendCell(
                     row=current_cell_data.get("Row", 1),
                     column=current_cell_data.get("Column", 1),
-                    text_size=current_cell_data.get("TextSize", 20),
+                    text_size=current_cell_data.get("TextSize", 10),
                     text_lines=current_text_lines.copy(),
                 )
             )

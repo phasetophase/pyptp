@@ -70,7 +70,7 @@ class LegendCell(DataClassJsonMixin):
         return cls(
             row=data.get("Row", 1),
             column=data.get("Column", 1),
-            text_size=data.get("TextSize", 20),
+            text_size=data.get("TextSize", 10),
             text_lines=data.get("text_lines", []),
         )
 
@@ -142,7 +142,7 @@ class LegendPresentation(DataClassJsonMixin):
             width=data.get("Width", 1),
             style=data.get("Style", "Solid"),
             text_color=data.get("TextColor", CL_BLACK),
-            text_size=data.get("TextSize", 20),
+            text_size=data.get("TextSize", 10),
             font=data.get("Font", "Arial"),
             text_style=data.get("TextStyle", 0),
             no_text=data.get("NoText", False),
