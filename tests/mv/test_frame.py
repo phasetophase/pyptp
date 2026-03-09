@@ -249,7 +249,6 @@ class TestFrameMV(unittest.TestCase):
         result = presentation.serialize()
 
         # Should skip default values (except Sheet which uses no_skip)
-        self.assertNotIn("Sort:", result)  # Rectangle is default
         self.assertNotIn("NameX:", result)
         self.assertNotIn("NameY:", result)
         self.assertNotIn("Filled:", result)

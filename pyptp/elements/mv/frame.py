@@ -176,7 +176,7 @@ class FrameMV(DataClassJsonMixin):
             """
             return serialize_properties(
                 write_guid_no_skip("Sheet", self.sheet),
-                write_quote_string("Sort", self.sort, skip=FrameShape.RECTANGLE),
+                write_quote_string("Sort", self.sort),
                 write_integer("NameX", self.name_x, skip=0),
                 write_integer("NameY", self.name_y, skip=0),
                 write_boolean("Filled", value=self.filled),

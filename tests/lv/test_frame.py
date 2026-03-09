@@ -250,7 +250,6 @@ class TestTFrameLS(unittest.TestCase):
 
         # Should skip default values
         self.assertNotIn("Sheet:", result)
-        self.assertNotIn("Sort:", result)  # Rectangle is default
         self.assertNotIn("NameX:", result)
         self.assertNotIn("NameY:", result)
         self.assertNotIn("Filled:", result)

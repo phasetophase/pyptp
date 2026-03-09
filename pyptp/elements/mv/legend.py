@@ -70,7 +70,7 @@ class LegendCell(DataClassJsonMixin):
         return cls(
             row=data.get("Row", 1),
             column=data.get("Column", 1),
-            text_size=data.get("TextSize", 20),
+            text_size=data.get("TextSize", 10),
             text_lines=data.get("text_lines", []),
         )
 
