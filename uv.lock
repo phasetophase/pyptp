@@ -440,7 +440,7 @@ wheels = [
 
 [[package]]
 name = "pyptp"
-version = "0.0.25"
+version = "0.0.28"
 source = { editable = "." }
 dependencies = [
     { name = "dataclasses-json" },
