@@ -8,6 +8,8 @@ be called directly.
 from __future__ import annotations
 
 import ctypes
+import os
+import stat
 import sys
 import tempfile
 import time
@@ -199,6 +201,62 @@ def _wait_for_file(
     return False
 
 
+def _diagnose_migration_input(original: Path, normalized: Path) -> None:
+    """Log diagnostics for a file that failed native migration."""
+    # Original file
+    if not original.exists():
+        logger.warning("  [diagnostic] Original file missing: %s", original)
+        return
+
+    orig_size = original.stat().st_size
+    logger.warning("  [diagnostic] Original file: %d bytes", orig_size)
+
+    # Normalized file
+    if not normalized.exists():
+        logger.warning("  [diagnostic] Normalized file missing: %s", normalized)
+        return
+
+    norm_stat = normalized.stat()
+    norm_size = norm_stat.st_size
+    mode = stat.filemode(norm_stat.st_mode)
+    logger.warning("  [diagnostic] Normalized file: %d bytes, permissions: %s", norm_size, mode)
+
+    if norm_size == 0:
+        logger.warning("  [diagnostic] Normalized file is EMPTY — input may be corrupt")
+        return
+
+    # Read first 2 lines to check version and NETWORK marker
+    try:
+        with normalized.open(encoding="utf-8") as f:
+            line1 = f.readline().strip()
+            line2 = f.readline().strip()
+    except OSError:
+        logger.warning("  [diagnostic] Could not read normalized file")
+        return
+
+    logger.warning("  [diagnostic] Version line: '%s'", line1)
+
+    if line2 != "NETWORK":
+        logger.warning("  [diagnostic] Second line is '%s', expected 'NETWORK'", line2)
+
+    # Check temp dir is writable
+    tmp_dir = normalized.parent
+    try:
+        probe = tmp_dir / "_probe_write_test"
+        probe.write_text("test")
+        probe.unlink()
+    except OSError:
+        logger.warning("  [diagnostic] Temp directory not writable: %s", tmp_dir)
+
+    # Disk space
+    try:
+        fs_stat = os.statvfs(str(tmp_dir))
+        free_mb = (fs_stat.f_bavail * fs_stat.f_frsize) / (1024 * 1024)
+        logger.warning("  [diagnostic] Free disk space in temp dir: %.0f MB", free_mb)
+    except (OSError, AttributeError):
+        pass  # statvfs not available on Windows
+
+
 def migrate_and_read(
     input_path: Path,
     version: str,
@@ -275,6 +333,8 @@ def migrate_and_read(
                     input_path.name,
                     result,
                 )
+                if attempt == 1:
+                    _diagnose_migration_input(input_path, normalized_input)
                 if attempt < max_retries:
                     time.sleep(0.5 * attempt)  # Exponential backoff
                 continue

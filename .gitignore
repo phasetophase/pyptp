@@ -194,6 +194,7 @@ pyptp/__history/
 **/.ruff_cache
 /release_notes/
 tests/input_files/AllComponents.~gnf
+tests/input_files/SO_output_G87.gnf
 tests/output_files/version_aware_saving/
 
 # Internal files (GitHub protection)
