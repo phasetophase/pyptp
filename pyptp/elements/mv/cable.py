@@ -266,10 +266,9 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Geo properties."""
-            props = []
-            if self.coordinates:
-                props.append(f"Coordinates:{encode_float_coords(self.coordinates)}")
-            return " ".join(props)
+            return serialize_properties(
+                f"Coordinates:{encode_float_coords(self.coordinates)}" if self.coordinates else "",
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> CableMV.Geo:
@@ -284,7 +283,13 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
     presentations: list[BranchPresentation]
     geo_cable_parts: list[GeoCablePart] = field(default_factory=list)
     joints: list[Joint] = field(default_factory=list)
-    geo: Geo | None = None
+    geo: list[Geo] = field(default_factory=list)
+    """Cable-level geo coordinate series.
+
+    .. deprecated::
+        Use ``geo_cable_parts`` for per-cable-part geography instead.
+        This field will be removed in a future version.
+    """
 
     def register(self, network: NetworkMV) -> None:
         """Will add cable to the network."""
@@ -311,12 +316,11 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
             if i < len(self.geo_cable_parts):
                 lines.append(f"#GeoCablePart {self.geo_cable_parts[i].serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Joint {joint.serialize()}" for joint in self.joints)
 
-        if self.geo:
-            lines.append(f"#Geo {self.geo.serialize()}")
+        lines.extend(f"#Geo {geo.serialize()}" for geo in self.geo)
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
@@ -378,9 +382,8 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
             joints.append(joint)
 
         # Handle geo
-        geo = None
-        if data.get("geo"):
-            geo = cls.Geo.deserialize(data["geo"][0])
+        geo_data = data.get("geo", [])
+        geo = [cls.Geo.deserialize(g) for g in geo_data]
 
         return cls(
             general=general,

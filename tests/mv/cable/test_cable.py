@@ -436,7 +436,7 @@ class TestCableRegistration(unittest.TestCase):
         cable_type = CableType(short_name="TestType", unom=10.0)
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
-        geo = CableMV.Geo(coordinates=[(1e-9, 23978293.1), (20, 30)])
+        geo = [CableMV.Geo(coordinates=[(1e-9, 23978293.1), (20, 30)])]
 
         cable = CableMV(general, [cable_part], [cable_type], [presentation], geo=geo)
         cable.register(self.network)
@@ -491,6 +491,97 @@ class TestCableRegistration(unittest.TestCase):
 
         serialized = cable.serialize()
         self.assertIn("RailConnectivity:2", serialized)
+
+    def test_cable_with_multiple_geo_entries_serializes_correctly(self) -> None:
+        """Test that cables with multiple geo entries serialize all of them."""
+        general = CableMV.General(
+            guid=self.cable_guid,
+            name="MultiGeoCable",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+        )
+
+        cable_part1 = CableMV.CablePart(length=200.0, cable_type="Type1")
+        cable_part2 = CableMV.CablePart(length=300.0, cable_type="Type2")
+        cable_part3 = CableMV.CablePart(length=150.0, cable_type="Type3")
+
+        cable_type1 = CableType(short_name="Type1", unom=10.0)
+        cable_type2 = CableType(short_name="Type2", unom=10.0)
+        cable_type3 = CableType(short_name="Type3", unom=10.0)
+
+        presentation = BranchPresentation(sheet=self.sheet_guid)
+
+        geo = [
+            CableMV.Geo(coordinates=[(100, 200), (150, 250)]),
+            CableMV.Geo(coordinates=[(150, 250), (300, 400)]),
+            CableMV.Geo(coordinates=[(300, 400), (500, 600)]),
+        ]
+
+        cable = CableMV(
+            general,
+            [cable_part1, cable_part2, cable_part3],
+            [cable_type1, cable_type2, cable_type3],
+            [presentation],
+            geo=geo,
+        )
+        cable.register(self.network)
+
+        serialized = cable.serialize()
+
+        # All three geo entries must be present
+        self.assertEqual(serialized.count("#Geo Coordinates:"), 3)
+        self.assertIn("(100 200)", serialized)
+        self.assertIn("(300 400)", serialized)
+        self.assertIn("(500 600)", serialized)
+
+    def test_cable_multiple_geo_deserialize_roundtrip(self) -> None:
+        """Test that multiple #Geo lines survive a deserialize-serialize round-trip."""
+        data = {
+            "general": [
+                {
+                    "GUID": str(self.cable_guid),
+                    "Name": "RoundTripCable",
+                    "SwitchState1": 1,
+                    "SwitchState2": 1,
+                    "DynModel": "P",
+                    "DynSection": 1,
+                }
+            ],
+            "cable_parts": [
+                {
+                    "Length": 200.0,
+                    "CableType": "Type1",
+                    "ParallelCableCount": 1,
+                    "GroundResistivityIndex": 1,
+                    "AmpacityFactor": 1,
+                },
+                {
+                    "Length": 300.0,
+                    "CableType": "Type2",
+                    "ParallelCableCount": 1,
+                    "GroundResistivityIndex": 1,
+                    "AmpacityFactor": 1,
+                },
+            ],
+            "cable_types": [
+                {"ShortName": "Type1", "Unom": 10},
+                {"ShortName": "Type2", "Unom": 10},
+            ],
+            "presentations": [{"Sheet": str(self.sheet_guid)}],
+            "geo": [
+                {"Coordinates": "'{(100 200) (150 250) }'"},
+                {"Coordinates": "'{(300 400) (500 600) }'"},
+            ],
+            "geo_cable_parts": [],
+            "joints": [],
+        }
+
+        cable = CableMV.deserialize(data)
+        serialized = cable.serialize()
+
+        # Both geo entries must survive the round-trip
+        self.assertEqual(serialized.count("#Geo Coordinates:"), 2)
+        self.assertEqual(len(cable.geo), 2)
 
 
 if __name__ == "__main__":

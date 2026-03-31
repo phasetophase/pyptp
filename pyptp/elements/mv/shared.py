@@ -313,10 +313,9 @@ class GeoCablePart(DataClassJsonMixin):
 
     def serialize(self) -> str:
         """Serialize GeoCablePart properties."""
-        props = []
-        if self.coordinates:
-            props.append(f"Coordinates:{encode_float_coords(self.coordinates)}")
-        return " ".join(props)
+        return serialize_properties(
+            f"Coordinates:{encode_float_coords(self.coordinates)}" if self.coordinates else "",
+        )
 
     @classmethod
     def deserialize(cls, data: dict) -> GeoCablePart:

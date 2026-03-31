@@ -155,20 +155,20 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("FailureFrequency", self.failure_frequency),
                 write_boolean("New", value=self.new),
                 write_double("LoadrateMax", self.loadrate_max),
-                write_integer_no_skip("k1_L1", self.k1_L1),
-                write_integer_no_skip("k1_L2", self.k1_L2),
-                write_integer_no_skip("k1_L3", self.k1_L3),
-                write_integer_no_skip("k1_h1", self.k1_h1),
-                write_integer_no_skip("k1_h2", self.k1_h2),
-                write_integer_no_skip("k1_h3", self.k1_h3),
-                write_integer_no_skip("k1_h4", self.k1_h4),
-                write_integer_no_skip("k2_L1", self.k2_L1),
-                write_integer_no_skip("k2_L2", self.k2_L2),
-                write_integer_no_skip("k2_L3", self.k2_L3),
-                write_integer_no_skip("k2_h1", self.k2_h1),
-                write_integer_no_skip("k2_h2", self.k2_h2),
-                write_integer_no_skip("k2_h3", self.k2_h3),
-                write_integer_no_skip("k2_h4", self.k2_h4),
+                write_integer("k1_L1", self.k1_L1),
+                write_integer("k1_L2", self.k1_L2),
+                write_integer("k1_L3", self.k1_L3),
+                write_integer("k1_h1", self.k1_h1),
+                write_integer("k1_h2", self.k1_h2),
+                write_integer("k1_h3", self.k1_h3),
+                write_integer("k1_h4", self.k1_h4),
+                write_integer("k2_L1", self.k2_L1),
+                write_integer("k2_L2", self.k2_L2),
+                write_integer("k2_L3", self.k2_L3),
+                write_integer("k2_h1", self.k2_h1),
+                write_integer("k2_h2", self.k2_h2),
+                write_integer("k2_h3", self.k2_h3),
+                write_integer("k2_h4", self.k2_h4),
                 write_boolean_no_skip("SwitchState1_h1", value=self.switch_state1_h1),
                 write_boolean_no_skip("SwitchState1_h2", value=self.switch_state1_h2),
                 write_boolean_no_skip("SwitchState1_h3", value=self.switch_state1_h3),
@@ -571,9 +571,6 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.cablepart_geography:
             lines.append(f"#GeoCablePart {self.cablepart_geography.serialize()}")
 
-        if self.geography:
-            lines.append(f"#Geo {self.geography.serialize()}")
-
         if self.fuse1_h1 is not None:
             lines.append(f"#FuseType1_h1 {self.fuse1_h1.serialize()}")
 
@@ -586,18 +583,6 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.fuse1_h4 is not None:
             lines.append(f"#FuseType1_h4 {self.fuse1_h4.serialize()}")
 
-        if self.fuse2_h1 is not None:
-            lines.append(f"#FuseType2_h1 {self.fuse2_h1.serialize()}")
-
-        if self.fuse2_h2 is not None:
-            lines.append(f"#FuseType2_h2 {self.fuse2_h2.serialize()}")
-
-        if self.fuse2_h3 is not None:
-            lines.append(f"#FuseType2_h3 {self.fuse2_h3.serialize()}")
-
-        if self.fuse2_h4 is not None:
-            lines.append(f"#FuseType2_h4 {self.fuse2_h4.serialize()}")
-
         if self.current1_h1 is not None:
             lines.append(f"#CurrentType1_h1 {self.current1_h1.serialize()}")
 
@@ -609,6 +594,18 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         if self.current1_h4 is not None:
             lines.append(f"#CurrentType1_h4 {self.current1_h4.serialize()}")
+
+        if self.fuse2_h1 is not None:
+            lines.append(f"#FuseType2_h1 {self.fuse2_h1.serialize()}")
+
+        if self.fuse2_h2 is not None:
+            lines.append(f"#FuseType2_h2 {self.fuse2_h2.serialize()}")
+
+        if self.fuse2_h3 is not None:
+            lines.append(f"#FuseType2_h3 {self.fuse2_h3.serialize()}")
+
+        if self.fuse2_h4 is not None:
+            lines.append(f"#FuseType2_h4 {self.fuse2_h4.serialize()}")
 
         if self.current2_h1 is not None:
             lines.append(f"#CurrentType2_h1 {self.current2_h1.serialize()}")
@@ -670,6 +667,9 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         if self.battery_discharge_efficiency:
             lines.append(f"#BatteryDischargeEfficiency {self.battery_discharge_efficiency.serialize()}")
+
+        if self.geography:
+            lines.append(f"#Geo {self.geography.serialize()}")
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.safe_extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.safe_notes)

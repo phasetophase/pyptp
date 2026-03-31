@@ -25,6 +25,7 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
+    write_boolean_no_skip,
     write_double,
     write_double_no_skip,
     write_guid,
@@ -80,7 +81,7 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
         maintenance_duration: float = 0.0
         maintenance_cancel_duration: float = 0.0
         not_preferred: bool = False
-        number_of: int = 0
+        number_of: int = 1
         """Number of motors in parallel."""
         p_mechanic: float = 0.0
         """Actual mechanical power per motor in MW."""
@@ -89,9 +90,9 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
         earthing_reactance: float = 0.0
         connection_type: int = 0
         """Motor starter type: 0=DOL, 1=soft starter, 2=converter (VSDS)."""
-        cos_inverter: float = 0.0
+        cos_inverter: float = 1.0
         """Power factor during motor start (dimensionless)."""
-        istart_inom: float = field(default=0.0, metadata=config(field_name="Istart/Inom"))
+        istart_inom: float = field(default=5.0, metadata=config(field_name="Istart/Inom"))
         ta: float = 0.0
         """Time constant parameter."""
         no_short_circuit_contribution: bool = False
@@ -151,14 +152,14 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 maintenance_duration=data.get("MaintenanceDuration", 0.0),
                 maintenance_cancel_duration=data.get("MaintenanceCancelDuration", 0.0),
                 not_preferred=data.get("NotPreferred", False),
-                number_of=data.get("NumberOf", 0),
+                number_of=data.get("NumberOf", 1),
                 p_mechanic=data.get("Pmechanic", 0.0),
                 earthing=data.get("Earthing", False),
                 earthing_resistance=data.get("Re", 0.0),
                 earthing_reactance=data.get("Xe", 0.0),
                 connection_type=data.get("ConnectionType", 0),
-                cos_inverter=data.get("CosInverter", 0.0),
-                istart_inom=data.get("Istart/Inom", 0.0),
+                cos_inverter=data.get("CosInverter", 1.0),
+                istart_inom=data.get("Istart/Inom", 5.0),
                 ta=data.get("ta", 0.0),
                 no_short_circuit_contribution=data.get("NoShortCircuitContribution", False),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
@@ -175,33 +176,33 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
         pnom: float = 0.0
         r_x: float = field(default=0.0, metadata=config(field_name="R/X"))
         istart_inom: float = field(default=0.0, metadata=config(field_name="Istart/Inom"))
-        poles: int = 0
-        cosnom: float = 0.0
+        poles: int = 2
+        cosnom: float = 0.85
         """Power factor at nominal power (dimensionless)."""
-        efficiency: float = 0.0
-        p2: float = 0.0
+        efficiency: float = 95.0
+        p2: float = 1.25
         """Curve point 2: mechanical power in pu."""
-        cos2: float = 0.0
+        cos2: float = 0.86
         """Curve point 2: power factor (dimensionless)."""
-        n2: float = 0.0
+        n2: float = 95
         """Curve point 2: efficiency in %."""
-        p3: float = 0.0
+        p3: float = 0.75
         """Curve point 3: mechanical power in pu."""
-        cos3: float = 0.0
+        cos3: float = 0.81
         """Curve point 3: power factor (dimensionless)."""
-        n3: float = 0.0
+        n3: float = 95.0
         """Curve point 3: efficiency in %."""
-        p4: float = 0.0
+        p4: float = 0.5
         """Curve point 4: mechanical power in pu."""
-        cos4: float = 0.0
+        cos4: float = 0.75
         """Curve point 4: power factor (dimensionless)."""
-        n4: float = 0.0
+        n4: float = 94.0
         """Curve point 4: efficiency in %."""
-        p5: float = 0.0
+        p5: float = 0.25
         """Curve point 5: mechanical power in pu."""
-        cos5: float = 0.0
+        cos5: float = 0.54
         """Curve point 5: power factor (dimensionless)."""
-        n5: float = 0.0
+        n5: float = 90.0
         """Curve point 5: efficiency in %."""
         starting_torque: float = 0.0
         """Locked rotor torque in %."""
@@ -260,23 +261,23 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
             return serialize_properties(
                 write_double("Unom", self.unom),
                 write_double("Pnom", self.pnom),
-                write_double("R/X", self.r_x),
+                write_double_no_skip("R/X", self.r_x),
                 write_double("Istart/Inom", self.istart_inom),
                 write_integer("Poles", self.poles),
-                write_double("CosNom", self.cosnom),
-                write_double("Efficiency", self.efficiency),
-                write_double("p2", self.p2),
-                write_double("cos2", self.cos2),
-                write_double("n2", self.n2),
-                write_double("p3", self.p3),
-                write_double("cos3", self.cos3),
-                write_double("n3", self.n3),
-                write_double("p4", self.p4),
-                write_double("cos4", self.cos4),
-                write_double("n4", self.n4),
-                write_double("p5", self.p5),
-                write_double("cos5", self.cos5),
-                write_double("n5", self.n5),
+                write_double_no_skip("CosNom", self.cosnom),
+                write_double_no_skip("Efficiency", self.efficiency),
+                write_double_no_skip("p2", self.p2),
+                write_double_no_skip("cos2", self.cos2),
+                write_double_no_skip("n2", self.n2),
+                write_double_no_skip("p3", self.p3),
+                write_double_no_skip("cos3", self.cos3),
+                write_double_no_skip("n3", self.n3),
+                write_double_no_skip("p4", self.p4),
+                write_double_no_skip("cos4", self.cos4),
+                write_double_no_skip("n4", self.n4),
+                write_double_no_skip("p5", self.p5),
+                write_double_no_skip("cos5", self.cos5),
+                write_double_no_skip("n5", self.n5),
                 write_double("StartingTorque", self.starting_torque),
                 write_double("NomSpeed", self.nom_speed),
                 write_double("CriticalTorque", self.critical_torque),
@@ -294,8 +295,12 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Xrl", self.xrl),
                 write_double("Rr2", self.rr2),
                 write_double("Xr2l", self.xr2l),
-                write_boolean("MechanicalTorqueSpeedCharacteristic", value=self.mechanical_torque_speed_characteristic),
-                write_boolean("ElectricalTorqueSpeedCharacteristic", value=self.electrical_torque_speed_characteristic),
+                write_boolean_no_skip(
+                    "MechanicalTorqueSpeedCharacteristic", value=self.mechanical_torque_speed_characteristic
+                ),
+                write_boolean_no_skip(
+                    "ElectricalTorqueSpeedCharacteristic", value=self.electrical_torque_speed_characteristic
+                ),
                 *arr_props,
             )
 
@@ -332,22 +337,22 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 unom=data.get("Unom", 0.0),
                 pnom=data.get("Pnom", 0.0),
                 r_x=data.get("R/X", 0.0),
-                istart_inom=data.get("Istart/Inom", 0.0),
-                poles=data.get("Poles", 0),
-                cosnom=data.get("CosNom", 0.0),
-                efficiency=data.get("Efficiency", 0.0),
-                p2=data.get("p2", 0.0),
-                cos2=data.get("cos2", 0.0),
-                n2=data.get("n2", 0.0),
-                p3=data.get("p3", 0.0),
-                cos3=data.get("cos3", 0.0),
-                n3=data.get("n3", 0.0),
-                p4=data.get("p4", 0.0),
-                cos4=data.get("cos4", 0.0),
-                n4=data.get("n4", 0.0),
-                p5=data.get("p5", 0.0),
-                cos5=data.get("cos5", 0.0),
-                n5=data.get("n5", 0.0),
+                istart_inom=data.get("Istart/Inom", 5.0),
+                poles=data.get("Poles", 1),
+                cosnom=data.get("CosNom", 0.85),
+                efficiency=data.get("Efficiency", 95.0),
+                p2=data.get("p2", 1.25),
+                cos2=data.get("cos2", 0.86),
+                n2=data.get("n2", 95.0),
+                p3=data.get("p3", 0.75),
+                cos3=data.get("cos3", 0.81),
+                n3=data.get("n3", 95.0),
+                p4=data.get("p4", 0.5),
+                cos4=data.get("cos4", 0.75),
+                n4=data.get("n4", 94.0),
+                p5=data.get("p5", 0.25),
+                cos5=data.get("cos5", 0.54),
+                n5=data.get("n5", 90.0),
                 starting_torque=data.get("StartingTorque", 0.0),
                 nom_speed=data.get("NomSpeed", 0.0),
                 critical_speed=data.get("CriticalSpeed", 0.0),
@@ -391,20 +396,6 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
         - If Unom <= 1: R_X = 0.42, else R_X = 0.1
         - Set various default values
         """
-        self._apply_general_defaults()
-        self._apply_node_based_defaults(network)
-        self._apply_type_defaults()
-
-    def _apply_general_defaults(self) -> None:
-        """Populate missing general defaults with safe values."""
-        if self.general.number_of == 0:
-            self.general.number_of = 1
-        if self.general.cos_inverter == 0.0:
-            self.general.cos_inverter = 1
-        if self.general.istart_inom == 0.0:
-            self.general.istart_inom = 5
-
-    def _apply_node_based_defaults(self, network: NetworkMV) -> None:
         """Derive defaults from the connected node when available."""
         if self.general.node == NIL_GUID or self.general.node not in network.nodes:
             return
@@ -416,41 +407,6 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         if self.type.r_x == 0.0:
             self.type.r_x = 0.42 if unom <= 1 else 0.1
-
-    def _apply_type_defaults(self) -> None:
-        """Populate missing asynchronous motor type defaults with safe values."""
-        if self.type.istart_inom == 0.0:
-            self.type.istart_inom = 5
-        if self.type.poles == 0:
-            self.type.poles = 2
-        if self.type.cosnom == 0.0:
-            self.type.cosnom = 0.85
-        if self.type.efficiency == 0.0:
-            self.type.efficiency = 95
-        if self.type.p2 == 0.0:
-            self.type.p2 = 1.25
-        if self.type.cos2 == 0.0:
-            self.type.cos2 = 0.86
-        if self.type.n2 == 0.0:
-            self.type.n2 = 95
-        if self.type.p3 == 0.0:
-            self.type.p3 = 0.75
-        if self.type.cos3 == 0.0:
-            self.type.cos3 = 0.81
-        if self.type.n3 == 0.0:
-            self.type.n3 = 95
-        if self.type.p4 == 0.0:
-            self.type.p4 = 0.5
-        if self.type.cos4 == 0.0:
-            self.type.cos4 = 0.75
-        if self.type.n4 == 0.0:
-            self.type.n4 = 94
-        if self.type.p5 == 0.0:
-            self.type.p5 = 0.25
-        if self.type.cos5 == 0.0:
-            self.type.cos5 = 0.54
-        if self.type.n5 == 0.0:
-            self.type.n5 = 90
 
     def register(self, network: NetworkMV) -> None:
         """Will add asynchronous motor to the network."""
