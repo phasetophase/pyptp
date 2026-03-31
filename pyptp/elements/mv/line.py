@@ -241,9 +241,9 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Geo properties."""
-            if self.coordinates:
-                return f"Coordinates:{encode_float_coords(self.coordinates)}"
-            return ""
+            return serialize_properties(
+                f"Coordinates:{encode_float_coords(self.coordinates)}" if self.coordinates else "",
+            )
 
         @classmethod
         def deserialize(cls, data: dict) -> LineMV.Geo:
@@ -255,7 +255,7 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
     general: General
     lineparts: list[LinePart] = field(default_factory=list)
     joints: list[Joint] = field(default_factory=list)
-    geo: Geo | None = None
+    geo: list[Geo] = field(default_factory=list)
     presentations: list[BranchPresentation] = field(default_factory=list)
 
     def register(self, network: NetworkMV) -> None:
@@ -277,8 +277,7 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.extend(f"#LinePart {linepart.serialize()}" for linepart in self.lineparts)
         lines.extend(f"#Joint {joint.serialize()}" for joint in self.joints)
 
-        if self.geo and self.geo.coordinates:
-            lines.append(f"#Geo {self.geo.serialize()}")
+        lines.extend(f"#Geo {geo.serialize()}" for geo in self.geo)
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
@@ -321,10 +320,8 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
             presentations.append(presentation)
 
         # Parse geo section
-        geo = None
-        geo_data = data.get("geo", [{}])[0] if data.get("geo") else None
-        if geo_data:
-            geo = cls.Geo.deserialize(geo_data)
+        geo_data = data.get("geo", [])
+        geo = [cls.Geo.deserialize(g) for g in geo_data]
 
         return cls(
             general=general,

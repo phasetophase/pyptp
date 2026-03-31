@@ -25,6 +25,7 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
+    write_boolean_no_skip,
     write_double,
     write_double_no_skip,
     write_guid,
@@ -102,7 +103,7 @@ class AsynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("MaintenanceCancelDuration", self.maintenance_cancel_duration),
                 write_boolean("NotPreferred", value=self.not_preferred),
                 write_double("Pref", self.pref),
-                write_boolean("Earthing", value=self.earthing),
+                write_boolean_no_skip("Earthing", value=self.earthing),
                 write_double("Re", self.earthing_resistance),
                 write_double("Xe", self.earthing_reactance),
                 write_guid("Profile", self.profile, skip=NIL_GUID),
@@ -144,25 +145,25 @@ class AsynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
         unom: float = 0.0
         pnom: float = 0.0
         r_x: float = field(default=0.0, metadata=config(field_name="R/X"))
-        istart_inom: float = field(default=0.0, metadata=config(field_name="Istart/Inom"))
-        poles: int = 0
-        cosnom: float = 0.0
+        istart_inom: float = field(default=5.0, metadata=config(field_name="Istart/Inom"))
+        poles: int = 2
+        cosnom: float = 0.85
         """Power factor at nominal power (dimensionless)."""
-        p2: float = 0.0
+        p2: float = 1.25
         """Curve point 2: electrical power in pu."""
-        cos2: float = 0.0
+        cos2: float = 0.86
         """Curve point 2: power factor (dimensionless)."""
-        p3: float = 0.0
+        p3: float = 0.75
         """Curve point 3: electrical power in pu."""
-        cos3: float = 0.0
+        cos3: float = 0.81
         """Curve point 3: power factor (dimensionless)."""
-        p4: float = 0.0
+        p4: float = 0.5
         """Curve point 4: electrical power in pu."""
-        cos4: float = 0.0
+        cos4: float = 0.72
         """Curve point 4: power factor (dimensionless)."""
-        p5: float = 0.0
+        p5: float = 0.25
         """Curve point 5: electrical power in pu."""
-        cos5: float = 0.0
+        cos5: float = 0.5
         """Curve point 5: power factor (dimensionless)."""
         starting_torque: float = 0.0
         """Locked rotor torque in %."""
@@ -222,18 +223,18 @@ class AsynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
             return serialize_properties(
                 write_double("Unom", self.unom),
                 write_double("Pnom", self.pnom),
-                write_double("R/X", self.r_x),
+                write_double_no_skip("R/X", self.r_x),
                 write_double("Istart/Inom", self.istart_inom),
                 write_integer("Poles", self.poles),
-                write_double("CosNom", self.cosnom),
-                write_double("p2", self.p2),
-                write_double("cos2", self.cos2),
-                write_double("p3", self.p3),
-                write_double("cos3", self.cos3),
-                write_double("p4", self.p4),
-                write_double("cos4", self.cos4),
-                write_double("p5", self.p5),
-                write_double("cos5", self.cos5),
+                write_double_no_skip("CosNom", self.cosnom),
+                write_double_no_skip("p2", self.p2),
+                write_double_no_skip("cos2", self.cos2),
+                write_double_no_skip("p3", self.p3),
+                write_double_no_skip("cos3", self.cos3),
+                write_double_no_skip("p4", self.p4),
+                write_double_no_skip("cos4", self.cos4),
+                write_double_no_skip("p5", self.p5),
+                write_double_no_skip("cos5", self.cos5),
                 write_double("StartingTorque", self.starting_torque),
                 write_double("CriticalTorque", self.critical_torque),
                 write_double("CriticalSpeed", self.critical_speed),
@@ -290,17 +291,17 @@ class AsynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 unom=data.get("Unom", 0.0),
                 pnom=data.get("Pnom", 0.0),
                 r_x=data.get("R/X", 0.0),
-                istart_inom=data.get("Istart/Inom", 0.0),
-                poles=data.get("Poles", 0),
-                cosnom=data.get("Cosnom", 0.0),
-                p2=data.get("p2", 0.0),
-                cos2=data.get("cos2", 0.0),
-                p3=data.get("p3", 0.0),
-                cos3=data.get("cos3", 0.0),
-                p4=data.get("p4", 0.0),
-                cos4=data.get("cos4", 0.0),
-                p5=data.get("p5", 0.0),
-                cos5=data.get("cos5", 0.0),
+                istart_inom=data.get("Istart/Inom", 5.0),
+                poles=data.get("Poles", 2),
+                cosnom=data.get("Cosnom", 0.85),
+                p2=data.get("p2", 1.25),
+                cos2=data.get("cos2", 0.86),
+                p3=data.get("p3", 0.75),
+                cos3=data.get("cos3", 0.81),
+                p4=data.get("p4", 0.5),
+                cos4=data.get("cos4", 0.72),
+                p5=data.get("p5", 0.25),
+                cos5=data.get("cos5", 0.5),
                 starting_torque=data.get("StartingTorque", 0.0),
                 critical_speed=data.get("CriticalSpeed", 0.0),
                 critical_torque=data.get("CriticalTorque", 0.0),

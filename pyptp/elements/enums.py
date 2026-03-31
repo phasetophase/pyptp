@@ -138,6 +138,37 @@ class EnclosureType(StrEnum):
     KIOSK = "Kiosk"
 
 
+class ConnectionSort(StrEnum):
+    """Connection type classification for LV customer connections."""
+
+    COMBI = "Combi"
+    SMALL_CUSTOMER = "SmallCustomer"
+    LARGE_CUSTOMER = "LargeCustomer"
+    LIGHT = "Light"
+    CHARGE = "Charge"
+    PV = "PV"
+    WIND = "Wind"
+
+
+class HeatpumpSort(StrEnum):
+    """Heatpump type classification."""
+
+    ONE_KW = "1 kW"
+    GROUND = "Ground"
+    AIR = "Air"
+
+
+class HouseType(StrEnum):
+    """House type classification for heatpump modeling."""
+
+    UNKNOWN = "Unknown"
+    TERRACED = "Terraced"
+    CORNER = "Corner"
+    SEMIDETACHED = "Semidetached"
+    DETACHED = "Detached"
+    APARTMENT = "Apartment"
+
+
 class VoltageControlSort(IntEnum):
     """Voltage control type for tap-changing transformers.
 

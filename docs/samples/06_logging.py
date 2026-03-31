@@ -12,7 +12,7 @@ from pyptp.ptp_log import configure_logging, logger
 configure_logging(level="INFO")
 
 network = NetworkLV()
-logger.info("Created network: {}", network)
+logger.info("Created network: %s", network)
 
 # Example 2: Enable DEBUG logging for troubleshooting
 configure_logging(level="DEBUG", colorize=True)
@@ -28,7 +28,7 @@ configure_logging(level="INFO", sink=log_file)
 # Example 4: Custom format
 configure_logging(
     level="INFO",
-    format_string="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+    format_string="%(asctime)s | %(levelname)s | %(message)s",
 )
 
 # Example 5: Multiple sinks (console + file)

@@ -188,7 +188,7 @@ class TestTHomeLS(unittest.TestCase):
         self.assertIn("Name:'Full Home'", result)
         self.assertNotIn("s_L2:", result)  # False values are skipped
         self.assertIn("FieldName:'Field1'", result)
-        self.assertNotIn("s_PE:", result)  # False values are skipped
+        self.assertIn("s_PE:False", result)  # no_skip: always serialized
         self.assertIn("k_L1:2", result)
         self.assertIn("k_L2:3", result)
         self.assertIn("k_L3:4", result)
@@ -196,10 +196,10 @@ class TestTHomeLS(unittest.TestCase):
         self.assertIn("CableType:'YMVK 4x6'", result)
         self.assertIn("EarthingConfiguration:'TT'", result)
         self.assertIn("s_Nh_PEh:True", result)
-        self.assertNotIn("s_PEh_PEh:", result)  # False values are skipped
+        self.assertIn("s_PEh_PEh:False", result)  # no_skip: always serialized
         self.assertIn("s_PEh_e:True", result)
         self.assertIn("Re:10.5", result)
-        self.assertNotIn("s_Hh:", result)  # False values are skipped
+        self.assertIn("s_Hh:False", result)  # no_skip: always serialized
         self.assertIn("s_h1_h3:True", result)
         self.assertIn("s_h2_h4:True", result)
         self.assertIn("Phases:3", result)
@@ -399,11 +399,95 @@ class TestTHomeLS(unittest.TestCase):
         # Should skip default values
         self.assertNotIn("MutationDate:", result)
         self.assertNotIn("RevisionDate:", result)
-        self.assertIn("s_L1:True", result)  # True values appear
-        self.assertIn("s_L2:True", result)  # True values appear
-        self.assertIn("s_L3:True", result)  # True values appear
-        self.assertIn("s_N:True", result)  # True values appear
-        self.assertIn("s_PE:True", result)  # True values appear
+        self.assertIn("s_L1:True", result)
+        self.assertIn("s_L2:True", result)
+        self.assertIn("s_L3:True", result)
+        self.assertIn("s_N:True", result)
+
+        # no_skip properties: always serialized, even at default
+        self.assertIn("s_PE:True", result)
+        self.assertIn("s_PEh_PEh:True", result)
+        self.assertIn("s_Hh:True", result)
+        self.assertIn("Phases:4", result)
+
+    def test_no_skip_properties_serialize_at_zero_or_false(self) -> None:
+        """No-skip properties must appear even when set to 0 or False.
+
+        This is critical because Gaia/Vision create objects with non-zero defaults
+        before reading file properties. If a no-skip property were omitted, the
+        creation default (not zero) would be used on reload.
+        """
+        general = ConnectionLV.General(
+            guid=self.test_guid,
+            node=self.node_guid,
+            name="NoSkip Test",
+            s_PE=False,
+            s_PEh_PEh=False,
+            s_Hh=False,
+            phases=0,
+        )
+        result = general.serialize()
+
+        # These must appear even though they equal the "would-be-skipped" value
+        self.assertIn("s_PE:False", result)
+        self.assertIn("s_PEh_PEh:False", result)
+        self.assertIn("s_Hh:False", result)
+        self.assertIn("Phases:0", result)
+
+    def test_gm_no_skip_properties(self) -> None:
+        """GM no-skip properties must appear even at zero values."""
+        gm = ConnectionLV.GM(gm_type_number=0, cos=0.0)
+        result = gm.serialize()
+
+        self.assertIn("GMTypeNumber:0", result)
+        self.assertIn("Cos:0", result)
+
+    def test_pv_no_skip_properties(self) -> None:
+        """PV no-skip properties must appear even at zero/false values."""
+        pv = ConnectionLV.PV(
+            q_control_no_p_no_q=False,
+            intersection=0.0,
+            efficiency_type="",
+        )
+        result = pv.serialize()
+
+        self.assertIn("QControlNoPnoQ:False", result)
+        self.assertIn("Intersection:0", result)
+        self.assertIn("EfficiencyType:''", result)
+
+    def test_windturbine_no_skip_properties(self) -> None:
+        """WindTurbine no-skip properties must appear even at zero/false values."""
+        wt = ConnectionLV.WindTurbine(
+            windspeed=0.0,
+            q_control_cosref=0.0,
+            q_control_no_p_no_q=False,
+            intersection=0.0,
+            efficiency_type="",
+        )
+        result = wt.serialize()
+
+        self.assertIn("WindSpeed:0", result)
+        self.assertIn("QControlCosRef:0", result)
+        self.assertIn("QControlNoPnoQ:False", result)
+        self.assertIn("Intersection:0", result)
+        self.assertIn("EfficiencyType:''", result)
+
+    def test_battery_no_skip_properties(self) -> None:
+        """Battery no-skip properties must appear even at zero/empty values."""
+        battery = ConnectionLV.Battery(
+            state_of_charge=0.0,
+            crate=0.0,
+            inverter_cosref=0.0,
+            charge_efficiency_type="",
+            discharge_efficiency_type="",
+        )
+        result = battery.serialize()
+
+        self.assertIn("StateOfCharge:0", result)
+        self.assertIn("Crate:0", result)
+        self.assertIn("InverterCosRef:0", result)
+        self.assertIn("ChargeEfficiencyType:''", result)
+        self.assertIn("DischargeEfficiencyType:''", result)
 
     def test_home_load_serialize_with_defaults(self) -> None:
         """Test Load class serialization with default values."""
@@ -437,11 +521,13 @@ class TestTHomeLS(unittest.TestCase):
 
         result = gm.serialize()
 
-        # Should skip default values
-        self.assertIn("GMTypeNumber:", result)  # 1 is default
-        self.assertIn("Cos:", result)  # 1.0 is default
-        self.assertNotIn("NetawareCharging:", result)  # False is default
-        self.assertNotIn("DownTuning:", result)  # False is default
+        # no_skip: always serialized
+        self.assertIn("GMTypeNumber:0", result)
+        self.assertIn("Cos:1.0", result)
+        # skip: False values omitted
+        self.assertNotIn("P:", result)
+        self.assertNotIn("NetawareCharging:", result)
+        self.assertNotIn("DownTuning:", result)
 
     def test_home_pv_serialize_with_defaults(self) -> None:
         """Test PV class serialization with default values."""
@@ -449,12 +535,17 @@ class TestTHomeLS(unittest.TestCase):
 
         result = pv.serialize()
 
-        # Should skip default values
-        self.assertIn("Panel1Pnom:", result)  # 0 is default
-        self.assertIn("Panel1Orientation:", result)  # 180 is default
-        self.assertIn("Panel1Slope:", result)  # 30 is default
-        self.assertNotIn("InverterSnom:", result)  # 30 is default
-        self.assertIn("Profile:", result)  # DEFAULT_PROFILE_GUID should be skipped
+        # no_skip: always serialized with Delphi creation defaults
+        self.assertIn("Scaling:1000", result)
+        self.assertIn("Panel1Pnom:0", result)
+        self.assertIn("Panel1Orientation:180", result)
+        self.assertIn("Panel1Slope:30", result)
+        self.assertIn("QControlNoPnoQ:True", result)
+        self.assertIn("QControlCosRef:1", result)
+        self.assertIn("Intersection:1.5", result)
+        # skip: 0 values omitted
+        self.assertNotIn("InverterSnom:", result)
+        self.assertNotIn("Phases:", result)
 
     def test_home_battery_serialize_with_defaults(self) -> None:
         """Test Battery class serialization with default values."""
@@ -462,12 +553,14 @@ class TestTHomeLS(unittest.TestCase):
 
         result = battery.serialize()
 
-        # Should skip default values
-        self.assertNotIn("Pref:", result)  # 0.0 is default
-        self.assertIn("Crate:", result)
-        self.assertIn("StateOfCharge:", result)
-        self.assertNotIn("Capacity:", result)  # 0 is default
-        self.assertNotIn("Sort:", result)  # 0 is default
+        # no_skip: always serialized
+        self.assertIn("StateOfCharge:50", result)
+        self.assertIn("Crate:0.5", result)
+        self.assertIn("InverterCosRef:1", result)
+        # skip: 0 values omitted
+        self.assertNotIn("Pref:", result)
+        self.assertNotIn("Capacity:", result)
+        self.assertNotIn(" Sort:", result)
 
     def test_home_geography_serialize_with_empty_coordinates(self) -> None:
         """Test Geography class serialization with empty coordinates."""

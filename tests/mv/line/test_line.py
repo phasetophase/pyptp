@@ -65,7 +65,7 @@ class TestLineRegistration(unittest.TestCase):
         linepart = LineMV.LinePart(length=100.0, description="Test Line Part")
 
         line = LineMV(
-            general, [linepart], joints=[], geo=None, presentations=[presentation]
+            general, [linepart], joints=[], geo=[], presentations=[presentation]
         )
         line.register(self.network)
 
@@ -146,7 +146,7 @@ class TestLineRegistration(unittest.TestCase):
         )
 
         line = LineMV(
-            general, [linepart], joints=[], geo=None, presentations=[presentation]
+            general, [linepart], joints=[], geo=[], presentations=[presentation]
         )
         line.extras.append(Extra(text="foo=bar"))
         line.notes.append(Note(text="Test note"))
@@ -239,7 +239,7 @@ class TestLineRegistration(unittest.TestCase):
             general1,
             [linepart1],
             joints=[],
-            geo=None,
+            geo=[],
             presentations=[BranchPresentation(sheet=self.sheet_guid)],
         )
         line1.register(self.network)
@@ -255,7 +255,7 @@ class TestLineRegistration(unittest.TestCase):
             general2,
             [linepart2],
             joints=[],
-            geo=None,
+            geo=[],
             presentations=[BranchPresentation(sheet=self.sheet_guid)],
         )
         line2.register(self.network)
@@ -287,7 +287,7 @@ class TestLineRegistration(unittest.TestCase):
             general,
             [linepart1, linepart2],
             joints=[],
-            geo=None,
+            geo=[],
             presentations=[presentation],
         )
         line.register(self.network)
@@ -314,7 +314,7 @@ class TestLineRegistration(unittest.TestCase):
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
         line = LineMV(
-            general, [linepart], joints=[], geo=None, presentations=[presentation]
+            general, [linepart], joints=[], geo=[], presentations=[presentation]
         )
         line.register(self.network)
 
@@ -362,7 +362,7 @@ class TestLineRegistration(unittest.TestCase):
         )
 
         line = LineMV(
-            general, [linepart], joints=[], geo=None, presentations=[pres1, pres2]
+            general, [linepart], joints=[], geo=[], presentations=[pres1, pres2]
         )
         line.register(self.network)
 
@@ -387,7 +387,7 @@ class TestLineRegistration(unittest.TestCase):
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
         line = LineMV(
-            general, [linepart], joints=[], geo=None, presentations=[presentation]
+            general, [linepart], joints=[], geo=[], presentations=[presentation]
         )
         line.register(self.network)
 
@@ -415,7 +415,7 @@ class TestLineRegistration(unittest.TestCase):
         )
 
         line = LineMV(
-            general, [linepart], joints=[], geo=None, presentations=[presentation]
+            general, [linepart], joints=[], geo=[], presentations=[presentation]
         )
         line.register(self.network)
 
@@ -445,7 +445,7 @@ class TestLineRegistration(unittest.TestCase):
             general,
             [linepart],
             joints=[joint1, joint2],
-            geo=None,
+            geo=[],
             presentations=[presentation],
         )
         line.register(self.network)
@@ -484,7 +484,7 @@ class TestLineRegistration(unittest.TestCase):
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
         line = LineMV(
-            general, [linepart], joints=[], geo=None, presentations=[presentation]
+            general, [linepart], joints=[], geo=[], presentations=[presentation]
         )
         line.register(self.network)
 
@@ -494,6 +494,85 @@ class TestLineRegistration(unittest.TestCase):
         self.assertNotIn("#Joint", serialized)
         self.assertEqual(serialized.count("#General"), 1)
         self.assertEqual(serialized.count("#LinePart"), 1)
+
+    def test_line_with_geo_serializes_correctly(self) -> None:
+        """Test that lines with geo coordinates serialize correctly."""
+        general = LineMV.General(
+            guid=self.line_guid,
+            name="GeoLine",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+        )
+        linepart = LineMV.LinePart(length=100.0, description="Geo Part")
+        presentation = BranchPresentation(sheet=self.sheet_guid)
+
+        geo = [LineMV.Geo(coordinates=[(10.5, 20.3), (30.0, 40.0)])]
+
+        line = LineMV(general, [linepart], geo=geo, presentations=[presentation])
+        line.register(self.network)
+
+        serialized = line.serialize()
+
+        self.assertEqual(serialized.count("#Geo Coordinates:"), 1)
+        self.assertIn("(10.5 20.3)", serialized)
+        self.assertIn("(30 40)", serialized)
+
+    def test_line_with_multiple_geo_entries_serializes_correctly(self) -> None:
+        """Test that lines with multiple geo entries serialize all of them."""
+        general = LineMV.General(
+            guid=self.line_guid,
+            name="MultiGeoLine",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+        )
+        linepart1 = LineMV.LinePart(length=200.0, description="Part 1")
+        linepart2 = LineMV.LinePart(length=300.0, description="Part 2")
+        presentation = BranchPresentation(sheet=self.sheet_guid)
+
+        geo = [
+            LineMV.Geo(coordinates=[(100, 200), (150, 250)]),
+            LineMV.Geo(coordinates=[(150, 250), (300, 400)]),
+        ]
+
+        line = LineMV(
+            general, [linepart1, linepart2], geo=geo, presentations=[presentation]
+        )
+        line.register(self.network)
+
+        serialized = line.serialize()
+
+        self.assertEqual(serialized.count("#Geo Coordinates:"), 2)
+        self.assertIn("(100 200)", serialized)
+        self.assertIn("(300 400)", serialized)
+
+    def test_line_multiple_geo_deserialize_roundtrip(self) -> None:
+        """Test that multiple #Geo lines survive a deserialize-serialize round-trip."""
+        data = {
+            "general": [
+                {
+                    "GUID": str(self.line_guid),
+                    "Name": "RoundTripLine",
+                    "SwitchState1": 1,
+                    "SwitchState2": 1,
+                }
+            ],
+            "lineparts": [
+                {"Length": 200.0, "Description": "Part 1"},
+                {"Length": 300.0, "Description": "Part 2"},
+            ],
+            "presentations": [{"Sheet": str(self.sheet_guid)}],
+            "geo": [
+                {"Coordinates": "'{(100 200) (150 250) }'"},
+                {"Coordinates": "'{(300 400) (500 600) }'"},
+            ],
+            "joints": [],
+        }
+
+        line = LineMV.deserialize(data)
+        serialized = line.serialize()
+
+        self.assertEqual(len(line.geo), 2)
+        self.assertEqual(serialized.count("#Geo Coordinates:"), 2)
 
 
 if __name__ == "__main__":

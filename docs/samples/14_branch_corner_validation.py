@@ -160,11 +160,11 @@ link5.register(network)
 runner = CheckRunner(network)
 report = runner.run()
 
-logger.info("Validation complete: {}", report.summary())
+logger.info("Validation complete: %s", report.summary())
 
 for issue in report.issues:
     if issue.severity == Severity.WARNING:
-        logger.warning("{}: {}", issue.code, issue.message)
+        logger.warning("%s: %s", issue.code, issue.message)
 
 # Expected: 3 warnings (link3, link4, link5)
 # link1 and link2 should pass

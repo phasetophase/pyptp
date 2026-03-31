@@ -27,17 +27,21 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
+from pyptp.elements.enums import HeatpumpSort, HouseType
 from pyptp.elements.lv.shared import CableType
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
+    write_boolean_no_skip,
     write_double,
     write_double_no_skip,
     write_guid,
     write_guid_no_skip,
     write_integer,
+    write_integer_no_skip,
     write_quote_string,
+    write_quote_string_no_skip,
 )
 from pyptp.ptp_log import logger
 
@@ -120,7 +124,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_boolean("s_L3", value=self.s_L3),
                 write_boolean("s_N", value=self.s_N),
                 write_quote_string("FieldName", self.field_name),
-                write_boolean("s_PE", value=self.s_PE),
+                write_boolean_no_skip("s_PE", value=self.s_PE),
                 write_integer("k_L1", self.k_L1),
                 write_integer("k_L2", self.k_L2),
                 write_integer("k_L3", self.k_L3),
@@ -128,14 +132,14 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_quote_string("CableType", self.cable_type),
                 write_quote_string("EarthingConfiguration", self.earthing_configuration),
                 write_boolean("s_Nh_PEh", value=self.s_Nh_PEh),
-                write_boolean("s_PEh_PEh", value=self.s_PEh_PEh),
+                write_boolean_no_skip("s_PEh_PEh", value=self.s_PEh_PEh),
                 write_boolean("s_PEh_e", value=self.s_PEh_e),
                 write_double("Re", self.re, skip=0.0),
-                write_boolean("s_Hh", value=self.s_Hh),
+                write_boolean_no_skip("s_Hh", value=self.s_Hh),
                 write_quote_string("ProtectionType", value=self.protection_type),
                 write_boolean("s_h1_h3", value=self.s_h1_h3),
                 write_boolean("s_h2_h4", value=self.s_h2_h4),
-                write_integer("Phases", self.phases),
+                write_integer_no_skip("Phases", self.phases),
                 write_quote_string("Sort", self.sort),
                 write_quote_string("ConnectionValue", self.connection_value),
                 write_double("Iearthleak", self.i_earthleak, skip=0.0),
@@ -283,20 +287,20 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
     class GM(DataClassJsonMixin):
         """Gaussian Mixture properties."""
 
-        gm_type_number: int = 1
+        gm_type_number: int = 0
         p: float = 0.0
         cos: float = 1.0
-        small_appliance_phases: int = 1
+        small_appliance_phases: int = 0
         net_aware_charging: bool = False
         adjustable: bool = False
 
         def serialize(self) -> str:
             """Serialize GM properties to a string."""
             return serialize_properties(
-                write_integer("GMTypeNumber", self.gm_type_number),
+                write_integer_no_skip("GMTypeNumber", self.gm_type_number),
                 write_double("P", self.p),
-                write_double("Cos", self.cos),
-                write_integer("SmallAppliancePhases", self.small_appliance_phases, skip=1),
+                write_double_no_skip("Cos", self.cos),
+                write_integer("SmallAppliancePhases", self.small_appliance_phases),
                 write_boolean("NetawareCharging", value=self.net_aware_charging),
                 write_boolean("DownTuning", value=self.adjustable),
             )
@@ -305,10 +309,10 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         def deserialize(cls, data: dict) -> ConnectionLV.GM:
             """Deserialize GM properties."""
             return cls(
-                gm_type_number=data.get("GMTypeNumber", 1),
+                gm_type_number=data.get("GMTypeNumber", 0),
                 p=data.get("P", 0.0),
                 cos=data.get("Cos", 1.0),
-                small_appliance_phases=data.get("SmallAppliancePhases", 1),
+                small_appliance_phases=data.get("SmallAppliancePhases", 0),
                 net_aware_charging=data.get("NetawareCharging", False),
                 adjustable=data.get("DownTuning", False),
             )
@@ -368,10 +372,10 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         """Heatpump properties of a home/connection."""
 
         number_of: int = 0
-        sort: str = "Air"
-        house_type: str = "Apartment"
-        house_area: float = 0.0
-        cosnom: float = 0.0
+        sort: str = HeatpumpSort.GROUND
+        house_type: str = HouseType.UNKNOWN
+        house_area: float = 125.0
+        cosnom: float = 0.9
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
 
         def serialize(self) -> str:
@@ -379,7 +383,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             return serialize_properties(
                 write_integer("NumberOf", self.number_of, skip=0),
                 write_quote_string("Sort", self.sort),
-                write_quote_string("HouseType", self.house_type, skip="Apartment"),
+                write_quote_string("HouseType", self.house_type),
                 write_double("HouseArea", self.house_area),
                 write_double("Cosnom", self.cosnom),
                 write_guid("Profile", self.profile),
@@ -390,10 +394,10 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             """Deserialize Heatpump properties from GNF format."""
             return cls(
                 number_of=data.get("NumberOf", 0),
-                sort=data.get("Sort", "Air"),
-                house_type=data.get("HouseType", "Apartment"),
-                house_area=data.get("HouseArea", 0.0),
-                cosnom=data.get("Cosnom", 0.0),
+                sort=data.get("Sort", HeatpumpSort.GROUND),
+                house_type=data.get("HouseType", HouseType.UNKNOWN),
+                house_area=data.get("HouseArea", 125.0),
+                cosnom=data.get("Cosnom", 0.9),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
             )
 
@@ -401,27 +405,27 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
     class PV(DataClassJsonMixin):
         """PV properties of a home/connection."""
 
-        scaling: float = 0
+        scaling: float = 1000
         panel1_pnom: float = 0
-        panel1_orientation: float = 0
-        panel1_slope: float = 0
+        panel1_orientation: float = 180
+        panel1_slope: float = 30
         panel2_pnom: float = 0
-        panel2_orientation: float = 0
-        panel2_slope: float = 0
+        panel2_orientation: float = 180
+        panel2_slope: float = 30
         panel3_pnom: float = 0
-        panel3_orientation: float = 0
-        panel3_slope: float = 0
+        panel3_orientation: float = 180
+        panel3_slope: float = 30
         inverter_snom: float = 0
         efficiency_type: str = string_field()
-        phases: int = 1
+        phases: int = 0
         u_out: float = 0
         p_controlsort: int = 0
-        p_control_input1: float = 0.0
-        p_control_output1: float = 0.0
-        q_control_input1: float = 0.0
+        p_control_input1: float = 0.9
+        p_control_output1: float = 1.0
+        q_control_input1: float = 1.0
         q_control_output1: float = 0.0
-        p_control_input2: float = 0.0
-        p_control_output2: float = 0.0
+        p_control_input2: float = 1.1
+        p_control_output2: float = 1.0
         q_control_input2: float = 0.0
         q_control_output2: float = 0.0
         p_control_input3: float = 0.0
@@ -437,9 +441,9 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         q_control_input5: float = 0.0
         q_control_output5: float = 0.0
         q_controlsort: int = 0
-        q_control_cosref: float = 0.0
-        q_control_no_p_no_q: bool = False
-        intersection: float = 0.0
+        q_control_cosref: float = 1.0
+        q_control_no_p_no_q: bool = True
+        intersection: float = 1.5
         length: float = 0.0
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
 
@@ -458,8 +462,8 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("Panel3Orientation", self.panel3_orientation),
                 write_double_no_skip("Panel3Slope", self.panel3_slope),
                 write_double("InverterSnom", self.inverter_snom),
-                write_quote_string("EfficiencyType", self.efficiency_type),
-                write_integer("Phases", self.phases, skip=1),
+                write_quote_string_no_skip("EfficiencyType", self.efficiency_type),
+                write_integer("Phases", self.phases),
                 write_double("Uout", self.u_out),
                 write_integer("PcontrolSort", self.p_controlsort),
                 write_double_no_skip("PControlInput1", self.p_control_input1),
@@ -473,7 +477,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("PControlInput5", self.p_control_input5),
                 write_double_no_skip("PControlOutput5", self.p_control_output5),
                 write_double_no_skip("QControlCosRef", self.q_control_cosref),
-                write_boolean("QControlNoPnoQ", value=self.q_control_no_p_no_q),
+                write_boolean_no_skip("QControlNoPnoQ", value=self.q_control_no_p_no_q),
                 write_double_no_skip("QControlInput1", self.q_control_input1),
                 write_double_no_skip("QControlOutput1", self.q_control_output1),
                 write_double_no_skip("QControlInput2", self.q_control_input2),
@@ -485,7 +489,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("QControlInput5", self.q_control_input5),
                 write_double_no_skip("QControlOutput5", self.q_control_output5),
                 write_integer("QControlSort", self.q_controlsort, skip=0),
-                write_double("Intersection", self.intersection),
+                write_double_no_skip("Intersection", self.intersection),
                 write_double_no_skip("Length", self.length),
             )
 
@@ -493,27 +497,27 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         def deserialize(cls, data: dict) -> ConnectionLV.PV:
             """Deserialize PV properties from GNF format."""
             return cls(
-                scaling=data.get("Scaling", 0),
+                scaling=data.get("Scaling", 1000),
                 panel1_pnom=data.get("Panel1Pnom", 0),
-                panel1_orientation=data.get("Panel1Orientation", 0),
-                panel1_slope=data.get("Panel1Slope", 0),
+                panel1_orientation=data.get("Panel1Orientation", 180),
+                panel1_slope=data.get("Panel1Slope", 30),
                 panel2_pnom=data.get("Panel2Pnom", 0),
-                panel2_orientation=data.get("Panel2Orientation", 0),
-                panel2_slope=data.get("Panel2Slope", 0),
+                panel2_orientation=data.get("Panel2Orientation", 180),
+                panel2_slope=data.get("Panel2Slope", 30),
                 panel3_pnom=data.get("Panel3Pnom", 0),
-                panel3_orientation=data.get("Panel3Orientation", 0),
-                panel3_slope=data.get("Panel3Slope", 0),
+                panel3_orientation=data.get("Panel3Orientation", 180),
+                panel3_slope=data.get("Panel3Slope", 30),
                 inverter_snom=data.get("InverterSnom", 0),
                 efficiency_type=data.get("EfficiencyType", ""),
-                phases=data.get("Phases", 1),
+                phases=data.get("Phases", 0),
                 u_out=data.get("Uout", 0),
                 p_controlsort=data.get("PcontrolSort", 0),
-                p_control_input1=data.get("PControlInput1", 0.0),
-                p_control_output1=data.get("PControlOutput1", 0.0),
-                q_control_input1=data.get("QControlInput1", 0.0),
+                p_control_input1=data.get("PControlInput1", 0.9),
+                p_control_output1=data.get("PControlOutput1", 1.0),
+                q_control_input1=data.get("QControlInput1", 1.0),
                 q_control_output1=data.get("QControlOutput1", 0.0),
-                p_control_input2=data.get("PControlInput2", 0.0),
-                p_control_output2=data.get("PControlOutput2", 0.0),
+                p_control_input2=data.get("PControlInput2", 1.1),
+                p_control_output2=data.get("PControlOutput2", 1.0),
                 q_control_input2=data.get("QControlInput2", 0.0),
                 q_control_output2=data.get("QControlOutput2", 0.0),
                 p_control_input3=data.get("PControlInput3", 0.0),
@@ -529,9 +533,9 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 q_control_input5=data.get("QControlInput5", 0.0),
                 q_control_output5=data.get("QControlOutput5", 0.0),
                 q_controlsort=data.get("QControlSort", 0),
-                q_control_cosref=data.get("QControlCosRef", 0.0),
-                q_control_no_p_no_q=data.get("QControlNoPnoQ", False),
-                intersection=data.get("Intersection", 0.0),
+                q_control_cosref=data.get("QControlCosRef", 1.0),
+                q_control_no_p_no_q=data.get("QControlNoPnoQ", True),
+                intersection=data.get("Intersection", 1.5),
                 length=data.get("Length", 0.0),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
             )
@@ -613,9 +617,9 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         phases: int = 0
         u_out: float = 0.0
         q_controlsort: int = 0
-        q_control_cosref: float = 0
-        q_control_no_p_no_q: bool = False
-        q_control_input1: float = 0.0
+        q_control_cosref: float = 1.0
+        q_control_no_p_no_q: bool = True
+        q_control_input1: float = 1.0
         q_control_output1: float = 0.0
         q_control_input2: float = 0.0
         q_control_output2: float = 0.0
@@ -625,23 +629,23 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         q_control_output4: float = 0.0
         q_control_input5: float = 0.0
         q_control_output5: float = 0.0
-        intersection: float = 0.0
+        intersection: float = 1.5
         length: float = 0.0
 
         def serialize(self) -> str:
             """Serialize WindTurbine properties to a string."""
             return serialize_properties(
-                write_double("WindSpeed", self.windspeed),
+                write_double_no_skip("WindSpeed", self.windspeed),
                 write_guid("Profile", self.profile),
                 write_double("Pnom", self.pnom),
                 write_integer("Sort", self.sort, skip=0),
                 write_double("InverterSnom", self.inverter_snom),
-                write_quote_string("EfficiencyType", self.efficiency_type),
+                write_quote_string_no_skip("EfficiencyType", self.efficiency_type),
                 write_integer("Phases", self.phases, skip=0),
                 write_double("Uout", self.u_out),
                 write_integer("QControlSort", self.q_controlsort, skip=0),
-                write_double("QControlCosRef", self.q_control_cosref),
-                write_boolean("QControlNoPnoQ", value=self.q_control_no_p_no_q),
+                write_double_no_skip("QControlCosRef", self.q_control_cosref),
+                write_boolean_no_skip("QControlNoPnoQ", value=self.q_control_no_p_no_q),
                 write_double_no_skip("QControlInput1", self.q_control_input1),
                 write_double_no_skip("QControlOutput1", self.q_control_output1),
                 write_double_no_skip("QControlInput2", self.q_control_input2),
@@ -652,7 +656,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("QControlOutput4", self.q_control_output4),
                 write_double_no_skip("QControlInput5", self.q_control_input5),
                 write_double_no_skip("QControlOutput5", self.q_control_output5),
-                write_double("Intersection", self.intersection),
+                write_double_no_skip("Intersection", self.intersection),
                 write_double_no_skip("Length", self.length),
             )
 
@@ -669,9 +673,9 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 phases=data.get("Phases", 0),
                 u_out=data.get("Uout", 0.0),
                 q_controlsort=data.get("QControlSort", 0),
-                q_control_cosref=data.get("QControlCosRef", 0),
-                q_control_no_p_no_q=data.get("QControlNoPnoQ", False),
-                q_control_input1=data.get("QControlInput1", 0.0),
+                q_control_cosref=data.get("QControlCosRef", 1.0),
+                q_control_no_p_no_q=data.get("QControlNoPnoQ", True),
+                q_control_input1=data.get("QControlInput1", 1.0),
                 q_control_output1=data.get("QControlOutput1", 0.0),
                 q_control_input2=data.get("QControlInput2", 0.0),
                 q_control_output2=data.get("QControlOutput2", 0.0),
@@ -681,7 +685,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 q_control_output4=data.get("QControlOutput4", 0.0),
                 q_control_input5=data.get("QControlInput5", 0.0),
                 q_control_output5=data.get("QControlOutput5", 0.0),
-                intersection=data.get("Intersection", 0.0),
+                intersection=data.get("Intersection", 1.5),
                 length=data.get("Length", 0.0),
             )
 
@@ -698,21 +702,21 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         charge_efficiency_type: str = field(default="", metadata=config(encoder=encode_string))
         discharge_efficiency_type: str = field(default="", metadata=config(encoder=encode_string))
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
-        inverter_cosref: float = 0.0
+        inverter_cosref: float = 1.0
 
         def serialize(self) -> str:
             """Serialize Battery properties to a string."""
             return serialize_properties(
                 write_double("Pref", self.pref),
-                write_double("StateOfCharge", self.state_of_charge),
+                write_double_no_skip("StateOfCharge", self.state_of_charge),
                 write_guid("Profile", self.profile),
                 write_double("Capacity", self.capacity),
-                write_double("Crate", self.crate),
+                write_double_no_skip("Crate", self.crate),
                 write_integer("Sort", self.sort, skip=0),
                 write_double("InverterSnom", self.inverter_snom),
-                write_quote_string("ChargeEfficiencyType", self.charge_efficiency_type),
-                write_quote_string("DischargeEfficiencyType", self.discharge_efficiency_type),
-                write_double("InverterCosRef", self.inverter_cosref),
+                write_quote_string_no_skip("ChargeEfficiencyType", self.charge_efficiency_type),
+                write_quote_string_no_skip("DischargeEfficiencyType", self.discharge_efficiency_type),
+                write_double_no_skip("InverterCosRef", self.inverter_cosref),
             )
 
         @classmethod
@@ -728,7 +732,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 charge_efficiency_type=data.get("ChargeEfficiencyType", ""),
                 discharge_efficiency_type=data.get("DischargeEfficiencyType", ""),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
-                inverter_cosref=data.get("InverterCosRef", 0.0),
+                inverter_cosref=data.get("InverterCosRef", 1.0),
             )
 
     @dataclass
@@ -736,7 +740,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         """Home Energy Management System."""
 
         regime: str = string_field()
-        parameter1: float = 0.0
+        parameter1: float = 60.0
         parameter2: float = 0.0
         parameter3: float = 0.0
 
@@ -754,7 +758,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             """Deserialize HEMS properties from GNF format."""
             return cls(
                 regime=data.get("Regime", ""),
-                parameter1=data.get("Parameter1", 0.0),
+                parameter1=data.get("Parameter1", 60.0),
                 parameter2=data.get("Parameter2", 0.0),
                 parameter3=data.get("Parameter3", 0.0),
             )
