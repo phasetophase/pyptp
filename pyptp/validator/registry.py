@@ -23,7 +23,7 @@ def discover_validators() -> list[type[Validator]]:
             continue
 
         for _cls_name, cls_obj in inspect.getmembers(module, inspect.isclass):
-            if issubclass(cls_obj, Validator) and cls_obj is not Validator:
+            if issubclass(cls_obj, Validator) and cls_obj is not Validator and cls_obj not in found:
                 found.append(cls_obj)
 
     return found
