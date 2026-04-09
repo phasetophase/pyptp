@@ -230,15 +230,24 @@ class NetworkLV:
 
         return GnfImporter().import_gnf(path)
 
-    def save(self, path: str | Path, version: GnfVersion = GnfVersion.G8_9) -> None:
+    def save(
+        self,
+        path: str | Path,
+        version: GnfVersion = GnfVersion.G8_9,
+        *,
+        validate_on_migration_failure: bool = True,
+    ) -> None:
         """Save network to GNF file.
 
         Args:
             path: Target file path for GNF output.
             version: Target GNF version (default: G8.9).
+            validate_on_migration_failure: Run validators and include diagnostics
+                in the error message when version migration fails (default: True).
 
         Raises:
             IOError: If output file cannot be written.
+            RuntimeError: If version migration fails.
 
         Example:
             >>> network.save("output.gnf")  # Saves as G8.9
@@ -247,4 +256,9 @@ class NetworkLV:
         """
         from pyptp.IO.exporters.gnf_exporter import GnfExporter
 
-        GnfExporter.export(self, str(path), version)
+        GnfExporter.export(
+            self,
+            str(path),
+            version,
+            validate_on_migration_failure=validate_on_migration_failure,
+        )

@@ -12,6 +12,7 @@ from pyptp.convert.version_migrator import save_as
 from pyptp.elements.element_utils import Guid
 from pyptp.elements.enums import VnfVersion
 from pyptp.network_mv import NetworkMV
+from pyptp.ptp_log import logger
 
 
 class VnfExporter:
@@ -282,13 +283,17 @@ class VnfExporter:
         network: NetworkMV,
         output_path: str,
         version: VnfVersion = VnfVersion.V9_11,
+        *,
+        validate_on_migration_failure: bool = True,
     ) -> None:
         """Export MV network to VNF format with version migration.
 
         Args:
             network: MV network to export.
             output_path: Target file path for VNF output.
-            version: Target VNF version (default: V9.9).
+            version: Target VNF version (default: V9.11).
+            validate_on_migration_failure: Run validators and include diagnostics
+                in the error message when version migration fails (default: True).
 
         Raises:
             IOError: If output file cannot be written.
@@ -315,4 +320,25 @@ class VnfExporter:
 
                 if "successful" not in result.lower():
                     msg = f"Failed to convert to {version}: {result}"
+                    if validate_on_migration_failure:
+                        msg = VnfExporter._append_validation_diagnostics(network, msg)
                     raise RuntimeError(msg)
+
+    @staticmethod
+    def _append_validation_diagnostics(network: NetworkMV, msg: str) -> str:
+        """Run validators and append ERROR-level issues to the error message."""
+        from pyptp.validator.base import Severity
+        from pyptp.validator.runner import CheckRunner
+
+        try:
+            report = CheckRunner(network).run()
+            errors = [i for i in report.issues if i.severity == Severity.ERROR]
+            if errors:
+                lines = [
+                    f"\n\nValidation found {len(errors)} error(s) that may explain the failure:",
+                    *[f"  - [{issue.object_type}] '{issue.message}'" for issue in errors],
+                ]
+                msg += "\n".join(lines)
+        except Exception:  # noqa: BLE001
+            logger.debug("Validation diagnostics failed during migration error reporting", exc_info=True)
+        return msg
