@@ -249,6 +249,8 @@ class GnfExporter:
         network: NetworkLV,
         output_path: str,
         version: GnfVersion = GnfVersion.G8_9,
+        *,
+        validate_on_migration_failure: bool = True,
     ) -> None:
         """Export LV network to GNF format with version migration.
 
@@ -256,6 +258,8 @@ class GnfExporter:
             network: LV network to export.
             output_path: Target file path for GNF output.
             version: Target GNF version (default: G8.9).
+            validate_on_migration_failure: Run validators and include diagnostics
+                in the error message when version migration fails (default: True).
 
         Raises:
             IOError: If output file cannot be written.
@@ -282,4 +286,25 @@ class GnfExporter:
 
                 if "successful" not in result.lower():
                     msg = f"Failed to convert to {version}: {result}"
+                    if validate_on_migration_failure:
+                        msg = GnfExporter._append_validation_diagnostics(network, msg)
                     raise RuntimeError(msg)
+
+    @staticmethod
+    def _append_validation_diagnostics(network: NetworkLV, msg: str) -> str:
+        """Run validators and append ERROR-level issues to the error message."""
+        from pyptp.validator.base import Severity
+        from pyptp.validator.runner import CheckRunner
+
+        try:
+            report = CheckRunner(network).run()
+            errors = [i for i in report.issues if i.severity == Severity.ERROR]
+            if errors:
+                lines = [
+                    f"\n\nValidation found {len(errors)} error(s) that may explain the failure:",
+                    *[f"  - [{issue.object_type}] '{issue.message}'" for issue in errors],
+                ]
+                msg += "\n".join(lines)
+        except Exception:  # noqa: BLE001
+            logger.debug("Validation diagnostics failed during migration error reporting", exc_info=True)
+        return msg

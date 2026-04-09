@@ -216,15 +216,24 @@ class NetworkMV:
 
         return VnfImporter().import_vnf(path)
 
-    def save(self, path: str | Path, version: VnfVersion = VnfVersion.V9_11) -> None:
+    def save(
+        self,
+        path: str | Path,
+        version: VnfVersion = VnfVersion.V9_11,
+        *,
+        validate_on_migration_failure: bool = True,
+    ) -> None:
         """Save network to VNF file.
 
         Args:
             path: Target file path for VNF output.
             version: Target VNF version (default: V9.11).
+            validate_on_migration_failure: Run validators and include diagnostics
+                in the error message when version migration fails (default: True).
 
         Raises:
             IOError: If output file cannot be written.
+            RuntimeError: If version migration fails.
 
         Example:
             >>> network.save("output.vnf")  # Saves as V9.11
@@ -233,4 +242,9 @@ class NetworkMV:
         """
         from pyptp.IO.exporters.vnf_exporter import VnfExporter
 
-        VnfExporter.export(self, str(path), version)
+        VnfExporter.export(
+            self,
+            str(path),
+            version,
+            validate_on_migration_failure=validate_on_migration_failure,
+        )

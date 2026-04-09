@@ -6,11 +6,13 @@
 from .branch_corner_coordinates import BranchCornerCoordinatesValidator
 from .cable_node_reference import CableNodeReferenceValidator
 from .link_node_reference import LinkNodeReferenceValidator
+from .node_unom_validator import NodeUnomValidator
 from .transformer_node_reference import TransformerNodeReferenceValidator
 
 __all__ = [
     "BranchCornerCoordinatesValidator",
     "CableNodeReferenceValidator",
     "LinkNodeReferenceValidator",
+    "NodeUnomValidator",
     "TransformerNodeReferenceValidator",
 ]
