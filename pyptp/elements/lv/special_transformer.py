@@ -199,7 +199,7 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
     class SpecialTransformerType(DataClassJsonMixin):
         """Special Transformer type properties."""
 
-        sort: SpecialTransformerSort = SpecialTransformerSort.AUTO_YNA0_ASYM
+        sort: SpecialTransformerSort = SpecialTransformerSort.NONE
         short_name: str = string_field()
         snom: float | int = 0
         unom1: float | int = optional_field(0)
@@ -241,6 +241,13 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize SpecialTransformerType properties."""
+            if self.sort == SpecialTransformerSort.NONE:
+                msg = (
+                    "SpecialTransformer type has sort=SpecialTransformerSort.NONE; "
+                    "set an explicit sort (e.g. AUTO_YD11) before saving. "
+                    "Vision/Gaia cannot load a special transformer without a sort."
+                )
+                raise ValueError(msg)
             return serialize_properties(
                 write_integer_no_skip("Sort", int(self.sort)),
                 write_quote_string("ShortName", self.short_name),

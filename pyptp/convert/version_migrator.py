@@ -8,7 +8,7 @@ be called directly.
 from __future__ import annotations
 
 import ctypes
-import os
+import shutil
 import stat
 import sys
 import tempfile
@@ -248,13 +248,11 @@ def _diagnose_migration_input(original: Path, normalized: Path) -> None:
     except OSError:
         logger.warning("  [diagnostic] Temp directory not writable: %s", tmp_dir)
 
-    # Disk space
     try:
-        fs_stat = os.statvfs(str(tmp_dir))
-        free_mb = (fs_stat.f_bavail * fs_stat.f_frsize) / (1024 * 1024)
+        free_mb = shutil.disk_usage(str(tmp_dir)).free / (1024 * 1024)
         logger.warning("  [diagnostic] Free disk space in temp dir: %.0f MB", free_mb)
-    except (OSError, AttributeError):
-        pass  # statvfs not available on Windows
+    except OSError:
+        pass
 
 
 def migrate_and_read(

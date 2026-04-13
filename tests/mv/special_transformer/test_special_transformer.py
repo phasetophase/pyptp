@@ -4,6 +4,7 @@ import unittest
 from uuid import UUID
 
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import SpecialTransformerSort
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import BranchPresentation, NodePresentation
@@ -95,7 +96,9 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
         )
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
-        special_transformer_type = SpecialTransformerMV.SpecialTransformerType()
+        special_transformer_type = SpecialTransformerMV.SpecialTransformerType(
+            sort=SpecialTransformerSort.AUTO_YD11
+        )
         special_transformer = SpecialTransformerMV(
             general, [presentation], special_transformer_type
         )
@@ -164,7 +167,9 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
         )
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
-        special_transformer_type = SpecialTransformerMV.SpecialTransformerType()
+        special_transformer_type = SpecialTransformerMV.SpecialTransformerType(
+            sort=SpecialTransformerSort.AUTO_YD11
+        )
         special_transformer = SpecialTransformerMV(
             general, [presentation], special_transformer_type
         )
@@ -188,7 +193,11 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
         special_transformer = SpecialTransformerMV(
-            general, [presentation], SpecialTransformerMV.SpecialTransformerType()
+            general,
+            [presentation],
+            SpecialTransformerMV.SpecialTransformerType(
+                sort=SpecialTransformerSort.AUTO_YD11
+            ),
         )
         special_transformer.extras.append(Extra(text="foo=bar"))
         special_transformer.notes.append(Note(text="Test note"))

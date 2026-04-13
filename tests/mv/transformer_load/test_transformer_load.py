@@ -182,8 +182,8 @@ class TestTransformerLoadRegistration(unittest.TestCase):
             serialized,
         )
         self.assertIn("PVPnom:150.0", serialized)
-        self.assertIn(f"PvGrowth:'{{{str(pv_growth_guid).upper()}}}'", serialized)
-        self.assertIn(f"PvProfile:'{{{str(pv_profile_guid).upper()}}}'", serialized)
+        self.assertIn(f"PVGrowth:'{{{str(pv_growth_guid).upper()}}}'", serialized)
+        self.assertIn(f"PVProfile:'{{{str(pv_profile_guid).upper()}}}'", serialized)
 
     def test_transformer_load_with_harmonics_type_serializes_correctly(self) -> None:
         """Test that transformer loads with HarmonicsType serialize correctly."""

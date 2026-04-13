@@ -364,6 +364,13 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize SpecialTransformerType properties."""
+            if self.sort == SpecialTransformerSort.NONE:
+                msg = (
+                    "SpecialTransformer type has sort=SpecialTransformerSort.NONE; "
+                    "set an explicit sort (e.g. AUTO_YD11) before saving. "
+                    "Vision/Gaia cannot load a special transformer without a sort."
+                )
+                raise ValueError(msg)
             return serialize_properties(
                 write_integer_no_skip("Sort", int(self.sort)),
                 write_quote_string_no_skip("ShortName", self.short_name),

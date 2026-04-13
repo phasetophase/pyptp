@@ -25,6 +25,7 @@ from pyptp.elements.enums import VoltageControlSort
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
+    write_boolean,
     write_boolean_no_skip,
     write_double,
     write_double_no_skip,
@@ -115,7 +116,7 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("CreationTime", self.creation_time),
                 write_integer("MutationDate", self.mutation_date) if self.mutation_date != 0 else "",
                 write_double("RevisionDate", self.revision_date) if self.revision_date != 0.0 else "",
-                write_boolean_no_skip("Variant", value=self.variant) if self.variant else "",
+                write_boolean("Variant", value=self.variant) if self.variant else "",
                 write_guid("Node1", self.node1) if self.node1 != NIL_GUID else "",
                 write_guid("Node2", self.node2) if self.node2 != NIL_GUID else "",
                 write_guid("Node3", self.node3) if self.node3 != NIL_GUID else "",
