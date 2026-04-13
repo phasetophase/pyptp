@@ -320,10 +320,10 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.extend(f"#Geo {geo.serialize()}" for geo in self.geo)
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

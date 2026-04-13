@@ -201,7 +201,6 @@ class TestTFrameLS(unittest.TestCase):
         self.assertEqual(frame.general.name, "")
         self.assertEqual(frame.general.creation_time, 0)
         self.assertEqual(frame.general.container, False)
-
         # Optional sections should be empty lists
         self.assertEqual(frame.lines, [])
         self.assertEqual(frame.geo_series, [])

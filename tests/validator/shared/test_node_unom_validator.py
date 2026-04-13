@@ -50,6 +50,7 @@ class TestNodeUnomLV(unittest.TestCase):
         self.assertEqual(len(issues), 1)
         self.assertEqual(issues[0].code, "invalid_node_unom")
         self.assertEqual(issues[0].object_type, "Node")
+        assert issues[0].details is not None
         self.assertEqual(issues[0].details["unom"], 0)
 
 

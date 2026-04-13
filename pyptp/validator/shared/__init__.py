@@ -7,6 +7,7 @@ from .branch_corner_coordinates import BranchCornerCoordinatesValidator
 from .cable_node_reference import CableNodeReferenceValidator
 from .link_node_reference import LinkNodeReferenceValidator
 from .node_unom_validator import NodeUnomValidator
+from .special_transformer_sort import SpecialTransformerSortValidator
 from .transformer_node_reference import TransformerNodeReferenceValidator
 
 __all__ = [
@@ -14,5 +15,6 @@ __all__ = [
     "CableNodeReferenceValidator",
     "LinkNodeReferenceValidator",
     "NodeUnomValidator",
+    "SpecialTransformerSortValidator",
     "TransformerNodeReferenceValidator",
 ]

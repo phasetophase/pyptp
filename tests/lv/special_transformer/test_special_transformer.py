@@ -462,7 +462,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
             node2=self.node2_guid,
         )
         special_transformer_type = SpecialTransformerLV.SpecialTransformerType(
-            short_name="MinimalType"
+            short_name="MinimalType", sort=SpecialTransformerSort.AUTO_YD11
         )
         presentation = BranchPresentation(sheet=self.sheet_guid)
 
@@ -500,7 +500,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
             node2=self.node2_guid,
         )
         special_transformer_type = SpecialTransformerLV.SpecialTransformerType(
-            short_name="MultiType"
+            short_name="MultiType", sort=SpecialTransformerSort.AUTO_YD11
         )
 
         pres1 = BranchPresentation(sheet=self.sheet_guid, color=DelphiColor("$FF0000"))
@@ -548,7 +548,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
     def test_special_transformer_type_serialize_with_defaults(self) -> None:
         """Test SpecialTransformerType class serialization with default values."""
         special_transformer_type = SpecialTransformerLV.SpecialTransformerType(
-            short_name="Test Type"
+            short_name="Test Type", sort=SpecialTransformerSort.AUTO_YNA0_ASYM
         )
 
         result = special_transformer_type.serialize()
@@ -559,6 +559,16 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
         self.assertIn("Ik2s:0", result)
         self.assertIn("TapSize:0", result)
         self.assertIn("Sort:4", result)
+
+    def test_special_transformer_type_serialize_raises_on_none_sort(self) -> None:
+        """Serializing with sort=NONE must raise to prevent unusable files."""
+        special_transformer_type = SpecialTransformerLV.SpecialTransformerType(
+            short_name="Test Type"
+        )
+
+        with self.assertRaises(ValueError) as ctx:
+            special_transformer_type.serialize()
+        self.assertIn("SpecialTransformerSort.NONE", str(ctx.exception))
 
     def test_voltage_control_serialize_with_defaults(self) -> None:
         """Test VoltageControl class serialization with default values."""
@@ -587,6 +597,7 @@ class TestSpecialTransformerRegistration(unittest.TestCase):
 
         original_special_transformer_type = SpecialTransformerLV.SpecialTransformerType(
             short_name="TestType",
+            sort=SpecialTransformerSort.AUTO_YD11,
             snom=1000.0,
             unom1=10.0,
             unom2=0.4,

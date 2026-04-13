@@ -111,7 +111,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("CreationTime", self.creation_time),
                 write_integer("MutationDate", self.mutation_date) if self.mutation_date != 0 else "",
                 write_double("RevisionDate", self.revision_date) if self.revision_date != 0.0 else "",
-                write_boolean_no_skip("Variant", value=self.variant),
+                write_boolean("Variant", value=self.variant),
                 write_quote_string_no_skip("Name", self.name),
                 write_integer_no_skip("SwitchState", self.switch_state),
                 write_quote_string_no_skip("FieldName", self.field_name),
@@ -131,8 +131,8 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_guid("GenerationGrowth", self.generation_growth) if self.generation_growth != NIL_GUID else "",
                 write_guid("GenerationProfile", self.generation_profile) if self.generation_profile != NIL_GUID else "",
                 write_double("PVPnom", self.pv_pnom),
-                write_guid("PvGrowth", self.pv_growth) if self.pv_growth != NIL_GUID else "",
-                write_guid("PvProfile", self.pv_profile) if self.pv_profile != NIL_GUID else "",
+                write_guid("PVGrowth", self.pv_growth) if self.pv_growth != NIL_GUID else "",
+                write_guid("PVProfile", self.pv_profile) if self.pv_profile != NIL_GUID else "",
                 write_integer("LargeConsumers", self.large_consumers),
                 write_integer("GenerousConsumers", self.generous_consumers),
                 write_integer("SmallConsumers", self.small_consumers),
@@ -172,8 +172,8 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 generation_growth=decode_guid(data.get("GenerationGrowth", str(NIL_GUID))),
                 generation_profile=decode_guid(data.get("GenerationProfile", str(NIL_GUID))),
                 pv_pnom=data.get("PVPnom", 0),
-                pv_growth=decode_guid(data.get("PvGrowth", str(NIL_GUID))),
-                pv_profile=decode_guid(data.get("PvProfile", str(NIL_GUID))),
+                pv_growth=decode_guid(data.get("PVGrowth", str(NIL_GUID))),
+                pv_profile=decode_guid(data.get("PVProfile", str(NIL_GUID))),
                 large_consumers=data.get("LargeConsumers", 0),
                 generous_consumers=data.get("GenerousConsumers", 0),
                 small_consumers=data.get("SmallConsumers", 0),
@@ -189,15 +189,15 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Thermal properties of the transformer load."""
 
         hotspot_factor: float = 1.3
-        paper_thermally_upgraded: bool = False
+        paper_thermally_upgraded: bool = True
         temperature_correction: float | int = 0
 
         def serialize(self) -> str:
             """Serialize Thermal properties."""
             return serialize_properties(
-                write_double_no_skip("Hotspotfactor", self.hotspot_factor),
+                write_double("Hotspotfactor", self.hotspot_factor),
                 write_boolean_no_skip("PaperThermallyUpgraded", value=self.paper_thermally_upgraded),
-                write_double_no_skip("TemperatureCorrection", self.temperature_correction),
+                write_double("TemperatureCorrection", self.temperature_correction),
             )
 
         @classmethod
@@ -313,10 +313,10 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
             if ceres_props:
                 lines.append(f"#CERES {' '.join(ceres_props)}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 
