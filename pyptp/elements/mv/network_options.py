@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
 from pyptp.elements.element_utils import decode_int_list, encode_int_list
-from pyptp.elements.serialization_helpers import serialize_properties, write_string
 
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
@@ -38,14 +37,6 @@ class NetworkOptionsMV(DataClassJsonMixin):
             default_factory=list, metadata=config(encoder=encode_int_list, decoder=decode_int_list)
         )
 
-        def serialize(self) -> str:
-            """Serialize network options to VNF format."""
-            return serialize_properties(
-                write_string("WinterProfileItems", encode_int_list(self.winter_profile_items)),
-                write_string("LowTacticsProfileItems", encode_int_list(self.low_tactics_profile_items)),
-                write_string("HighTacticsProfileItems", encode_int_list(self.high_tactics_profile_items)),
-            ).strip()
-
         @classmethod
         def deserialize(cls, data: dict) -> NetworkOptionsMV.General:
             """Deserialize network options from VNF section data."""
@@ -64,15 +55,19 @@ class NetworkOptionsMV(DataClassJsonMixin):
         )
 
     def serialize(self) -> str:
-        """Serialize the node to the VNF format.
+        """Serialize the network options to VNF format.
 
-        Returns:
-            str: The serialized representation.
-
+        Each populated profile-item list is emitted on its own ``#General``
+        line, matching the form Vision accepts.
         """
-        lines = []
-
-        lines.append(f"#General {self.general.serialize()}")
+        g = self.general
+        lines: list[str] = []
+        if g.winter_profile_items:
+            lines.append(f"#General WinterProfileItems:{encode_int_list(g.winter_profile_items)}")
+        if g.high_tactics_profile_items:
+            lines.append(f"#General HighTacticsProfileItems:{encode_int_list(g.high_tactics_profile_items)}")
+        if g.low_tactics_profile_items:
+            lines.append(f"#General LowTacticsProfileItems:{encode_int_list(g.low_tactics_profile_items)}")
         return "\n".join(lines)
 
     def register(self, network: NetworkMV) -> None:
