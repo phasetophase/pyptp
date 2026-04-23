@@ -17,9 +17,9 @@ from pyptp.network_mv import NetworkMV
 class TestNetworkOptionsSerialize(unittest.TestCase):
     """Serialization of NetworkOptionsMV to the VNF #General line."""
 
-    def test_empty_network_options_serializes_to_bare_general(self) -> None:
+    def test_empty_network_options_serializes_to_empty_string(self) -> None:
         network_options = NetworkOptionsMV(general=NetworkOptionsMV.General())
-        self.assertEqual("#General ", network_options.serialize())
+        self.assertEqual("", network_options.serialize())
 
     def test_winter_profile_items_only(self) -> None:
         network_options = NetworkOptionsMV(
@@ -47,7 +47,7 @@ class TestNetworkOptionsSerialize(unittest.TestCase):
         network_options = NetworkOptionsMV(
             general=NetworkOptionsMV.General(high_tactics_profile_items=[])
         )
-        self.assertEqual("#General ", network_options.serialize())
+        self.assertEqual("", network_options.serialize())
 
     def test_all_three_fields_populated(self) -> None:
         network_options = NetworkOptionsMV(
@@ -58,9 +58,25 @@ class TestNetworkOptionsSerialize(unittest.TestCase):
             )
         )
         self.assertEqual(
-            "#General WinterProfileItems:1,2 LowTacticsProfileItems:16,26 HighTacticsProfileItems:12",
+            "#General WinterProfileItems:1,2\n"
+            "#General HighTacticsProfileItems:12\n"
+            "#General LowTacticsProfileItems:16,26",
             network_options.serialize(),
         )
+
+    def test_all_three_fields_emit_three_separate_lines(self) -> None:
+        network_options = NetworkOptionsMV(
+            general=NetworkOptionsMV.General(
+                winter_profile_items=[4, 5, 6, 7, 8],
+                low_tactics_profile_items=[1, 2, 3, 6, 7, 8, 11],
+                high_tactics_profile_items=[4, 5, 9, 10],
+            )
+        )
+        lines = network_options.serialize().split("\n")
+        self.assertEqual(3, len(lines))
+        self.assertEqual("#General WinterProfileItems:4,5,6,7,8", lines[0])
+        self.assertEqual("#General HighTacticsProfileItems:4,5,9,10", lines[1])
+        self.assertEqual("#General LowTacticsProfileItems:1,2,3,6,7,8,11", lines[2])
 
     def test_single_element_list(self) -> None:
         network_options = NetworkOptionsMV(
@@ -131,6 +147,20 @@ class TestNetworkOptionsHandler(unittest.TestCase):
         self.assertEqual([1, 2], general.winter_profile_items)
         self.assertEqual([16, 26], general.low_tactics_profile_items)
         self.assertEqual([12], general.high_tactics_profile_items)
+
+    def test_handler_parses_three_separate_general_lines(self) -> None:
+        """Vision emits one `#General` line per profile list; all must land."""
+        network = self._run_handler(
+            "#General WinterProfileItems:4,5,6,7,8\n"
+            "#General HighTacticsProfileItems:4,5,9,10\n"
+            "#General LowTacticsProfileItems:1,2,3,6,7,8,11"
+        )
+        self.assertIsNotNone(network.network_options)
+        assert network.network_options is not None
+        general = network.network_options.general
+        self.assertEqual([4, 5, 6, 7, 8], general.winter_profile_items)
+        self.assertEqual([4, 5, 9, 10], general.high_tactics_profile_items)
+        self.assertEqual([1, 2, 3, 6, 7, 8, 11], general.low_tactics_profile_items)
 
     def test_handler_parses_only_winter(self) -> None:
         network = self._run_handler("#General WinterProfileItems:5,10,15")
@@ -252,6 +282,23 @@ class TestNetworkOptionsRoundtrip(unittest.TestCase):
         network.save(self.output_file)
         reloaded = NetworkMV.from_file(self.output_file)
         self.assertIsNone(reloaded.network_options)
+
+    def test_roundtrip_all_three_fields_written_as_three_general_lines(self) -> None:
+        """Regression: the saved file must contain one `#General` line per populated list."""
+        original = NetworkOptionsMV.General(
+            winter_profile_items=[4, 5, 6, 7, 8],
+            low_tactics_profile_items=[1, 2, 3, 6, 7, 8, 11],
+            high_tactics_profile_items=[4, 5, 9, 10],
+        )
+        content = self._save_and_read_file(original)
+        self.assertIn("[NETWORKOPTIONS]", content)
+        section_start = content.index("[NETWORKOPTIONS]")
+        section_end = content.index("[]", section_start)
+        section = content[section_start:section_end]
+        self.assertEqual(3, section.count("#General "))
+        self.assertIn("#General WinterProfileItems:4,5,6,7,8", section)
+        self.assertIn("#General HighTacticsProfileItems:4,5,9,10", section)
+        self.assertIn("#General LowTacticsProfileItems:1,2,3,6,7,8,11", section)
 
     def test_roundtrip_single_element(self) -> None:
         original = NetworkOptionsMV.General(high_tactics_profile_items=[7])
