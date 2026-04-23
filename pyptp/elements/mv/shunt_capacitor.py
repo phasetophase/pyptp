@@ -85,7 +85,7 @@ class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin):
         name: str = string_field()
         """Name of the shunt capacitor."""
 
-        switch_state: int = 0
+        switch_state: int = 1
         """Switch state: 1=closed (capacitor energized), 0=open (capacitor de-energized)."""
 
         field_name: str = string_field()
@@ -197,7 +197,7 @@ class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 revision_date=data.get("RevisionDate", 0),
                 variant=data.get("Variant", False),
                 name=data.get("Name", ""),
-                switch_state=data.get("SwitchState", 0),
+                switch_state=data.get("SwitchState", 1),
                 field_name=data.get("FieldName", ""),
                 failure_frequency=data.get("FailureFrequency", 0.0),
                 repair_duration=data.get("RepairDuration", 0.0),

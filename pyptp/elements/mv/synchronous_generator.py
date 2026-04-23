@@ -72,7 +72,7 @@ class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
         revision_date: float | int = 0
         variant: bool = False
         name: str = string_field()
-        switch_state: int = 0
+        switch_state: int = 1
         field_name: str = string_field()
         failure_frequency: float = 0.0
         repair_duration: float = 0.0
@@ -165,7 +165,7 @@ class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 revision_date=data.get("RevisionDate", 0),
                 variant=data.get("Variant", False),
                 name=data.get("Name", ""),
-                switch_state=data.get("SwitchState", 0),
+                switch_state=data.get("SwitchState", 1),
                 field_name=data.get("FieldName", ""),
                 failure_frequency=data.get("FailureFrequency", 0.0),
                 repair_duration=data.get("RepairDuration", 0.0),

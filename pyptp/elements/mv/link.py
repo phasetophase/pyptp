@@ -140,7 +140,7 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
                 node1=decode_guid(data.get("Node1", str(NIL_GUID))),
                 node2=decode_guid(data.get("Node2", str(NIL_GUID))),
                 name=data.get("Name", ""),
-                switch_state1=data.get("SwitchState1", 0),
+                switch_state1=data.get("SwitchState1", 1),
                 switch_state2=data.get("SwitchState2", 1),
                 field_name1=data.get("FieldName1", ""),
                 field_name2=data.get("FieldName2", ""),

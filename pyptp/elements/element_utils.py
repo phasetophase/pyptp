@@ -450,3 +450,32 @@ def guid_to_string(g: Guid) -> str:
     if g.is_nil():
         return ""
     return f"{{{str(g).upper()}}}"
+
+
+def encode_int_list(int_list: list[int]) -> str:
+    """Encode list of integers to GNF format string.
+
+    Args:
+        int_list: List of integers
+
+    Returns:
+        GNF formatted string
+
+    """
+    if len(int_list) == 0:
+        return ""
+    return ",".join(str(x) for x in int_list)
+
+
+def decode_int_list(string_int_list: str) -> list[int]:
+    """Decode GNF format string to list of integers.
+
+    Args:
+        string_int_list: GNF formatted string with list of integers
+    Returns:
+        List of integers
+
+    """
+    if not string_int_list.strip():
+        return []
+    return [int(x.strip()) for x in string_int_list.split(",")]

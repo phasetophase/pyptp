@@ -243,7 +243,7 @@ class TestShuntCapacitorRegistration(unittest.TestCase):
         # Default values should be included since using no_skip
         self.assertIn("CreationTime:0", serialized)
         self.assertNotIn("Variant:", serialized)  # False values are skipped
-        self.assertIn("SwitchState:0", serialized)
+        self.assertIn("SwitchState:1", serialized)
         self.assertIn("NotPreferred:False", serialized)
         self.assertIn("Q:0", serialized)
         self.assertIn("Unom:0", serialized)

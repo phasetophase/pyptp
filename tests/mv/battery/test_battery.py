@@ -224,9 +224,7 @@ class TestBatteryRegistration(unittest.TestCase):
 
         # Should have basic properties with updated defaults
         self.assertIn("Name:'MinimalBattery'", serialized)
-        self.assertIn(
-            "SwitchState:0", serialized
-        )  # Now always appears as integer due to write_boolean_as_byte_no_skip
+        self.assertIn("SwitchState:1", serialized)
         self.assertIn("StateOfCharge:50", serialized)  # New default is 50.0
         self.assertIn("Crate:0.5", serialized)  # New default is 0.5
         self.assertIn("Ik/Inom:1", serialized)  # New default is 1.0 and always appears
