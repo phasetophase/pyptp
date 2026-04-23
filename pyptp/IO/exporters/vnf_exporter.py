@@ -225,15 +225,19 @@ class VnfExporter:
             if not elems:
                 return
             fh.write(f"[{header}]\n")
-            for elem in elems:
-                fh.write(elem.serialize() + "\n")
+            fh.writelines(elem.serialize() + "\n" for elem in elems)
             fh.write("[]\n\n")
 
         _write_section("PROPERTIES", [network.properties])
         _write_section("COMMENTS", network.comments)
         _write_section("HYPERLINKS", network.hyperlinks)
         _write_section("VARIABLES", network.variables)
-        _write_section("NETWORKOPTIONS", [network.network_options] if network.network_options else [])
+        _write_section(
+            "NETWORKOPTIONS",
+            [network.network_options]
+            if network.network_options is not None and not network.network_options.is_empty()
+            else [],
+        )
         _write_section("PROFILEFILES", network.profile_files)
         _write_section("MEASUREMENTFILES", network.measurement_files)
         _write_section("SHEET", network.sheets.values())

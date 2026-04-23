@@ -18,6 +18,12 @@ if TYPE_CHECKING:
 NetworkModel = TypeVar("NetworkModel")
 ParsedSection = dict[str, list[str]]
 
+# VNF keys whose values are comma-separated integer lists.
+# The generic parser would otherwise coerce "1,2" to float 1.2.
+_VNF_RAW_COMMA_LIST_KEYS: frozenset[str] = frozenset(
+    {"WinterProfileItems", "LowTacticsProfileItems", "HighTacticsProfileItems"}
+)
+
 
 @dataclass
 class SectionConfig:
@@ -83,6 +89,11 @@ class DeclarativeHandler(Generic[NetworkModel]):
                         payload = line[len(gnf_tag) :].strip()
                         parsed[gnf_tag].append(payload)
                         break
+                    # Tags typically end with a space (e.g. "#General "); match a
+                    # bare tag line too so sections with no properties round-trip.
+                    if line == gnf_tag.rstrip():
+                        parsed[gnf_tag].append("")
+                        break
 
             yield parsed
 
@@ -106,9 +117,12 @@ class DeclarativeHandler(Generic[NetworkModel]):
 
         for match in key_value_pattern.finditer(payload):
             key = match.group(1)
-            # Value is either the quoted group (2) or the unquoted group (3)
             val_str = match.group(2) if match.group(2) is not None else match.group(3)
 
+            if key in _VNF_RAW_COMMA_LIST_KEYS:
+                parsed_dict[key] = val_str
+                continue
+            # Value is either the quoted group (2) or the unquoted group (3)
             if match.group(2) is None:
                 if val_str == "true":
                     parsed_dict[key] = True

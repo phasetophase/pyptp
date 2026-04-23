@@ -138,6 +138,23 @@ def write_unquoted_string_no_skip(prop: str, value: str) -> str:
     return f"{prop}:{value}"
 
 
+def write_string(prop: str, value: str, skip: str = "") -> str:
+    """Serialize string property with optional skipping.
+
+    Args:
+        prop: Property name.
+        value: String value to serialize.
+        skip: Value to skip (default: "").
+
+    Returns:
+        Formatted property string or empty string if skipped.
+
+    """
+    if value != skip:
+        return f"{prop}:{value}"
+    return ""
+
+
 def write_float_no_skip(prop: str, value: float) -> str:
     """Serialize float property without skipping.
 

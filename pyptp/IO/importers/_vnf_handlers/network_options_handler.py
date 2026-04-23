@@ -1,28 +1,25 @@
 """Handler for parsing VNF NETWORKOPTIONS sections."""
 
-import re
-from typing import TYPE_CHECKING
+from __future__ import annotations
+
+from typing import ClassVar
 
 from pyptp.elements.mv.network_options import NetworkOptionsMV
+from pyptp.IO.importers._base_handler import DeclarativeHandler, SectionConfig
+from pyptp.network_mv import NetworkMV
 
-if TYPE_CHECKING:
-    from pyptp.network_mv import NetworkMV
 
-
-class NetworkOptionsHandler:
+class NetworkOptionsHandler(DeclarativeHandler[NetworkMV]):
     """Handler for VNF NETWORKOPTIONS sections."""
 
-    def handle(self, network: "NetworkMV", chunk: str) -> None:
-        """Parse and register network options from a NETWORKOPTIONS section chunk.
+    COMPONENT_CLS = NetworkOptionsMV
 
-        Args:
-            network: Target network for registration.
-            chunk: Raw text content from NETWORKOPTIONS section.
+    COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
+        SectionConfig("general", "#General ", required=True),
+    ]
 
-        """
-        pattern = re.compile(r"^#General\s+WinterProfileItems:(\S+)", re.MULTILINE)
-
-        match = pattern.search(chunk)
-        if match:
-            options = NetworkOptionsMV(winter_profile_items=match.group(1))
-            options.register(network)
+    def resolve_target_class(self, kwarg_name: str) -> type | None:
+        """Resolve target class for Network Options."""
+        if kwarg_name == "general":
+            return NetworkOptionsMV.General
+        return None

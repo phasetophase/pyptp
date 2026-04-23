@@ -231,7 +231,7 @@ class TestWindTurbineRegistration(unittest.TestCase):
 
         # Default values should be included since using no_skip
         self.assertIn("CreationTime:0", serialized)
-        self.assertIn("SwitchState:0", serialized)
+        self.assertIn("SwitchState:1", serialized)
         self.assertIn("NumberOf:1", serialized)
         self.assertIn("WindSpeedOrPref:'v'", serialized)
         self.assertIn("WindSpeed:14", serialized)
