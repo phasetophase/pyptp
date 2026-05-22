@@ -132,7 +132,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("LoadrateMaxWinter", self.loadrate_max_winter),
                 write_double("LoadrateMaxmax", self.loadrate_max_emergency),
                 write_double("LoadrateMaxmaxWinter", self.loadrate_max_emergency_winter),
-                write_quote_string_no_skip("TransformerType", self.type),
+                write_quote_string("TransformerType", self.type),
                 write_double("Snom", self.snom),
                 write_boolean("StepUp", value=self.step_up),
                 write_integer_no_skip("ClockNumber", self.clock_number),
@@ -145,7 +145,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Re2", self.re2),
                 write_double("Xe2", self.xe2),
                 write_guid("EarthingNode2", self.earthing_node2) if self.earthing_node2 != NIL_GUID else "",
-                write_double_no_skip("TapPosition", self.tap_position),
+                write_double("TapPosition", self.tap_position),
             )
 
         @classmethod
@@ -391,17 +391,17 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_guid("ControlNode", self.control_node) if self.control_node != NIL_GUID else "",
                 write_double("SetPoint", self.setpoint),
                 write_double("DeadBand", self.deadband),
-                write_integer_no_skip("ControlSort", self.control_sort),
+                write_integer("ControlSort", self.control_sort),
                 write_double("Rc", self.rc),
                 write_double("Xc", self.xc),
                 write_boolean_no_skip("CompoundingAtGeneration", value=self.compounding_at_generation),
-                write_integer_no_skip("Pmin1", self.pmin1),
+                write_integer("Pmin1", self.pmin1),
                 write_double("Umin1", self.umin1),
-                write_integer_no_skip("Pmax1", self.pmax1),
+                write_integer("Pmax1", self.pmax1),
                 write_double("Umax1", self.umax1),
-                write_integer_no_skip("Pmin2", self.pmin2),
+                write_integer("Pmin2", self.pmin2),
                 write_double("Umin2", self.umin2),
-                write_integer_no_skip("Pmax2", self.pmax2),
+                write_integer("Pmax2", self.pmax2),
                 write_double("Umax2", self.umax2),
                 write_guid("MasterTransformer", self.master_transformer) if self.master_transformer != NIL_GUID else "",
             )
@@ -529,10 +529,9 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.dynamics:
             lines.append(f"#Dynamics {self.dynamics.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

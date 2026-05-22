@@ -387,11 +387,11 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
                 conductor_distance=data.get("ConductorDistance", 0.0),
                 person_distance=data.get("PersonDistance", 0.0),
                 enclosed=data.get("Enclosed", False),
-                kb=data.get("Kb", 0.0),
+                kb=data.get("Kb", 0.5),
                 kp=data.get("Kp", 0.0),
-                kp_max=data.get("KpMax", False),
-                kp_auto=data.get("KpAuto", False),
-                kt=data.get("Kt", 0.0),
+                kp_max=data.get("KpMax", True),
+                kp_auto=data.get("KpAuto", True),
+                kt=data.get("Kt", 1.0),
                 electrode_configuration=data.get("ElectrodeConfiguration", 0),
                 enclosed_height=data.get("EnclosedHeight", 0.0),
                 enclosed_width=data.get("EnclosedWidth", 0.0),
@@ -546,7 +546,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     railtype: Railtype = field(default_factory=Railtype)
     fields: list[Field] | None = None
     customer: Customer | None = None
-    installation: Installation = field(default_factory=Installation)
+    installation: Installation | None = None
     icon: Icon | None = None
     differential_protection: DifferentialProtection | None = None
     differential_protection_switches: list[DifferentialProtectionSwitch] = field(default_factory=list)
@@ -641,7 +641,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         # Parse installation section
         installation_data = data.get("installation", [{}])[0] if data.get("installation") else {}
-        installation = cls.Installation.deserialize(installation_data) if installation_data else cls.Installation()
+        installation = cls.Installation.deserialize(installation_data) if installation_data else None
 
         # Parse railtype section
         railtype_data = data.get("railtype", [{}])[0] if data.get("railtype") else {}

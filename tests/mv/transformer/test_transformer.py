@@ -264,7 +264,6 @@ class TestTransformerRegistration(unittest.TestCase):
         self.assertIn("MeasureSide:2", serialized)
         self.assertIn("SetPoint:1.05", serialized)
         self.assertIn("DeadBand:0.02", serialized)
-        self.assertIn("ControlSort:0", serialized)
         self.assertIn("Rc:0.5", serialized)
         self.assertIn("Xc:1.5", serialized)
         self.assertIn("CompoundingAtGeneration:False", serialized)
@@ -378,7 +377,6 @@ class TestTransformerRegistration(unittest.TestCase):
         self.assertIn("ClockNumber:0", serialized)
         self.assertIn("Earthing1:0", serialized)
         self.assertIn("Earthing2:0", serialized)
-        self.assertIn("TapPosition:0", serialized)
 
         # Should have transformer type
         self.assertIn("ShortName:'MinimalType'", serialized)

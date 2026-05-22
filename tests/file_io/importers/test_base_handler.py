@@ -101,14 +101,16 @@ class TestDeclarativeHandler(unittest.TestCase):
 
     def test_parse_gnf_line_to_dict_boolean_values(self) -> None:
         """Validate boolean value parsing and conversion."""
-        line = "Active:true Visible:false"
-        result = self.handler._parse_gnf_line_to_dict(line)
-
+        line1 = "Active:true Visible:false"
+        line2 = "Active:True Visible:False"
+        line3 = "Active:1 Visible:0"
         expected = {
             "Active": True,
             "Visible": False,
         }
-        self.assertEqual(result, expected)
+        for line in [line1, line2, line3]:
+            result = self.handler._parse_gnf_line_to_dict(line)
+            self.assertEqual(result, expected)
 
     def test_parse_gnf_line_to_dict_numeric_values(self) -> None:
         """Validate numeric value parsing with int/float detection."""

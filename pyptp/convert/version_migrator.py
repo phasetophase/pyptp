@@ -44,10 +44,10 @@ def _resolve_library(file_type: str) -> tuple[str, LoaderType]:
         msg = f"Unsupported file type '{file_type}'"
         raise ValueError(msg)
 
-    if platform.startswith("win"):
+    if sys.platform == "win32":
         names = {"GNF": "GaiaMigrator.dll", "VNF": "VisionMigrator.dll"}
         loader: LoaderType = ctypes.WinDLL
-    elif platform.startswith("linux"):
+    elif sys.platform == "linux":
         names = {"GNF": "libGaiaMigrator.so", "VNF": "libVisionMigrator.so"}
         loader = ctypes.CDLL
     else:

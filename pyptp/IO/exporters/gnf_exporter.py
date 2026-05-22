@@ -204,8 +204,7 @@ class GnfExporter:
         fh.write("[]\n\n")
 
         fh.write("[COMMENTS]\n")
-        for comment in network.comments:
-            fh.write(comment.serialize() + "\n")
+        fh.writelines(comment.serialize() + "\n" for comment in network.comments)
         fh.write("[]\n\n")
 
         sections: list[tuple[str, Iterable]] = [
@@ -240,8 +239,7 @@ class GnfExporter:
         for header, elements in sections:
             if elements:
                 fh.write(f"[{header}]\n")
-                for elem in elements:
-                    fh.write(elem.serialize() + "\n")
+                fh.writelines(elem.serialize() + "\n" for elem in elements)
                 fh.write("[]\n\n")
 
     @staticmethod
