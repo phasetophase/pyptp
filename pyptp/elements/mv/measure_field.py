@@ -33,7 +33,6 @@ from pyptp.elements.serialization_helpers import (
     write_integer_no_skip,
     write_quote_string,
     write_quote_string_no_skip,
-    write_string_no_skip,
 )
 from pyptp.ptp_log import logger
 
@@ -309,9 +308,7 @@ class MeasureFieldMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Measurement properties."""
-            return serialize_properties(
-                write_string_no_skip("Text", self.text),
-            )
+            return f"Text:{self.text}"
 
         @classmethod
         def deserialize(cls, data: dict) -> MeasureFieldMV.Measurement:

@@ -13,6 +13,8 @@ class TestNetworkLVIO(unittest.TestCase):
         """Set up test paths."""
         self.test_root = Path(__file__).parent
         self.input_file = self.test_root / "input_files" / "AllComponents.gnf"
+        self.vnf_input_file = self.test_root / "input_files" / "AllComponents.vnf"
+        self.wrong_input_file = self.test_root / "input_files" / "Types.xlsx"
         self.output_dir = self.test_root / "output_files" / "network_io"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.output_file = self.output_dir / "test_output.gnf"
@@ -37,6 +39,24 @@ class TestNetworkLVIO(unittest.TestCase):
 
         self.assertIsInstance(network, NetworkLV)
         self.assertGreater(len(network.nodes), 0)
+
+    def test_networklv_from_file_gives_vnf_exception(self) -> None:
+        """Test that the errormessage in networklv from file gives useful information if a vnf file is provided instead of a gnf file"""
+        with self.assertRaises(ValueError) as cm:
+            NetworkLV.from_file(self.vnf_input_file)
+        self.assertIn(
+            "is not a .gnf file. Did you mean NetworkMV?",
+            str(cm.exception),
+        )
+
+    def test_networklv_from_file_gives_wrong_extension_exception(self) -> None:
+        """Test that the errormessage in networklv from file gives useful information if an incorrect filetype (not gnf) is provided"""
+        with self.assertRaises(ValueError) as cm:
+            NetworkLV.from_file(self.wrong_input_file)
+        self.assertIn(
+            "is not a .gnf file.",
+            str(cm.exception),
+        )
 
     def test_save_creates_file(self) -> None:
         """Test that save() creates a valid GNF file."""
@@ -97,6 +117,8 @@ class TestNetworkMVIO(unittest.TestCase):
         """Set up test paths."""
         self.test_root = Path(__file__).parent
         self.input_file = self.test_root / "input_files" / "AllComponents.vnf"
+        self.gnf_input_file = self.test_root / "input_files" / "AllComponents.gnf"
+        self.wrong_input_file = self.test_root / "input_files" / "Types.xlsx"
         self.output_dir = self.test_root / "output_files" / "network_io"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.output_file = self.output_dir / "test_output.vnf"
@@ -121,6 +143,24 @@ class TestNetworkMVIO(unittest.TestCase):
 
         self.assertIsInstance(network, NetworkMV)
         self.assertGreater(len(network.nodes), 0)
+
+    def test_networkmv_from_file_gives_gnf_exception(self) -> None:
+        """Test that the errormessage in networkmv from file gives useful information if a gnf file is provided instead of a vnf file"""
+        with self.assertRaises(ValueError) as cm:
+            NetworkMV.from_file(self.gnf_input_file)
+        self.assertIn(
+            "is not a .vnf file. Did you mean NetworkLV?",
+            str(cm.exception),
+        )
+
+    def test_networkmv_from_file_gives_wrong_extension_exception(self) -> None:
+        """Test that the errormessage in networkmv from file gives useful information if a wrong filetype (not vnf) is provided"""
+        with self.assertRaises(ValueError) as cm:
+            NetworkMV.from_file(self.wrong_input_file)
+        self.assertIn(
+            "is not a .vnf file.",
+            str(cm.exception),
+        )
 
     def test_save_creates_file(self) -> None:
         """Test that save() creates a valid VNF file."""

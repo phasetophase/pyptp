@@ -6,6 +6,7 @@ positive/negative/zero sequence analysis, and traditional power system calculati
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyptp.elements.enums import VnfVersion
@@ -13,8 +14,6 @@ from pyptp.elements.mv.properties import PropertiesMV
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from pyptp.elements.element_utils import Guid
     from pyptp.elements.mv.async_generator import AsynchronousGeneratorMV
     from pyptp.elements.mv.async_motor import AsynchronousMotorMV
@@ -204,6 +203,7 @@ class NetworkMV:
             Populated NetworkMV instance with all components from file.
 
         Raises:
+            ValueError: If the file does not have a .vnf extension.
             RuntimeError: If file migration fails or content is invalid.
             FileNotFoundError: If specified file does not exist.
 
@@ -213,6 +213,12 @@ class NetworkMV:
 
         """
         from pyptp.IO.importers.vnf_importer import VnfImporter
+
+        file_extension = Path(path).suffix.lower()
+        if file_extension != ".vnf":
+            hint = " Did you mean NetworkLV?" if file_extension == ".gnf" else ""
+            msg = f"Input file {path} is not a .vnf file.{hint}"
+            raise ValueError(msg)
 
         return VnfImporter().import_vnf(path)
 

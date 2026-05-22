@@ -6,6 +6,7 @@ complex impedance modeling, and unbalanced load flow analysis.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from pyptp.elements.enums import GnfVersion
@@ -13,8 +14,6 @@ from pyptp.elements.lv.properties import PropertiesLV
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from pyptp.elements.element_utils import Guid
     from pyptp.elements.lv.async_generator import AsynchronousGeneratorLV
     from pyptp.elements.lv.async_motor import AsynchronousMotorLV
@@ -218,6 +217,7 @@ class NetworkLV:
             Populated NetworkLV instance with all components from file.
 
         Raises:
+            ValueError: If the file does not have a .gnf extension.
             RuntimeError: If file migration fails or content is invalid.
             FileNotFoundError: If specified file does not exist.
 
@@ -227,6 +227,12 @@ class NetworkLV:
 
         """
         from pyptp.IO.importers.gnf_importer import GnfImporter
+
+        file_extension = Path(path).suffix.lower()
+        if file_extension != ".gnf":
+            hint = " Did you mean NetworkMV?" if file_extension == ".vnf" else ""
+            msg = f"Input file {path} is not a .gnf file.{hint}"
+            raise ValueError(msg)
 
         return GnfImporter().import_gnf(path)
 

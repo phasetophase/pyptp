@@ -124,21 +124,21 @@ class DeclarativeHandler(Generic[NetworkModel]):
                 continue
             # Value is either the quoted group (2) or the unquoted group (3)
             if match.group(2) is None:
-                if val_str == "true":
+                if val_str.upper() in ["TRUE", "WAAR", "WAHR"]:
                     parsed_dict[key] = True
                     continue
-                if val_str == "false":
+                if val_str.upper() in ["FALSE", "ONWAAR", "UNWAHR"]:
                     parsed_dict[key] = False
                     continue
 
-                if val_str.isdigit():
-                    parsed_dict[key] = int(val_str)
-                else:
-                    try:
-                        # Handle European decimal separator
-                        parsed_dict[key] = float(val_str.replace(",", "."))
-                    except (ValueError, TypeError):
-                        parsed_dict[key] = val_str
+                normalized = val_str.replace(",", ".")
+                try:
+                    if "." not in normalized and "e" not in normalized and "E" not in normalized:
+                        parsed_dict[key] = int(normalized)
+                    else:
+                        parsed_dict[key] = float(normalized)
+                except (ValueError, TypeError):
+                    parsed_dict[key] = val_str
             else:
                 parsed_dict[key] = val_str
 
@@ -190,6 +190,19 @@ class DeclarativeHandler(Generic[NetworkModel]):
                 msg = f"Required GNF section '{config.gnf_tag}' is missing"
                 raise ValueError(msg)
             return None
+        if config.gnf_tag == "#Measurement " and config.kwarg_name == "measurements":
+            target_cls = self._get_target_class(config.kwarg_name)
+            text_prefix = "Text:"
+            items: list[Any] = []
+            for payload in raw_data:
+                text = payload.removeprefix(text_prefix)
+                if target_cls is not None and hasattr(target_cls, "deserialize"):
+                    items.append(target_cls.deserialize({"Text": text}))
+                elif target_cls is not None:
+                    items.append(target_cls(text=text))
+                else:
+                    items.append({"Text": text})
+            return items
 
         # Process text-based sections with format-specific handling
         if config.gnf_tag in (

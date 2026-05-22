@@ -32,7 +32,6 @@ from pyptp.elements.serialization_helpers import (
     write_integer,
     write_integer_no_skip,
     write_quote_string,
-    write_quote_string_no_skip,
 )
 from pyptp.ptp_log import logger
 
@@ -91,7 +90,7 @@ class GeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer("MutationDate", self.mutation_date, skip=0),
                 write_double("RevisionDate", self.revision_date, skip=0.0),
                 write_boolean("Variant", value=self.variant),
-                write_quote_string_no_skip("Name", self.name),
+                write_quote_string("Name", self.name),
                 write_integer_no_skip("SwitchState", self.switch_state),
                 write_quote_string("FieldName", self.field_name, skip=""),
                 write_double("FailureFrequency", self.failure_frequency, skip=0.0),
