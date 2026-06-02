@@ -95,6 +95,27 @@ class LinkLV(ExtrasNotesMixin, HasPresentationsMixin):
         protection_type2_h3: str = optional_field("")
         protection_type2_h4: str = optional_field("")
 
+        def switches_open(self) -> bool:
+            """Return True when every L and h switch on both sides is open (N/PE deliberately excluded)."""
+            return not any(
+                (
+                    self.switch_state1_L1,
+                    self.switch_state1_L2,
+                    self.switch_state1_L3,
+                    self.switch_state1_h1,
+                    self.switch_state1_h2,
+                    self.switch_state1_h3,
+                    self.switch_state1_h4,
+                    self.switch_state2_L1,
+                    self.switch_state2_L2,
+                    self.switch_state2_L3,
+                    self.switch_state2_h1,
+                    self.switch_state2_h2,
+                    self.switch_state2_h3,
+                    self.switch_state2_h4,
+                )
+            )
+
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(

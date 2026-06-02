@@ -77,6 +77,10 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
         maintenance_cancel_duration: float = 0.0
         type: str = string_field()
 
+        def switches_open(self) -> bool:
+            """Return True when both side switches are open."""
+            return not any((self.switch_state1, self.switch_state2))
+
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(

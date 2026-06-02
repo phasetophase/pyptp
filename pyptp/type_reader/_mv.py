@@ -13,9 +13,9 @@ def load_cables(path: str) -> dict[str, Any]:
     """Return by_name dict of MV CableType objects (Name-only)."""
     from pyptp.elements.mv.shared import CableType as MVCableType
 
-    cable_frame = read_frame_with_fallback(path, sheet_name="Cable", rename={"Shortname": "ShortName"})
+    cable_rows = read_frame_with_fallback(path, sheet_name="Cable", rename={"Shortname": "ShortName"})
     by_name: dict[str, Any] = {}
-    for _, row in cable_frame.iterrows():
+    for row in cable_rows:
         row_dict = clean_row_dict(row)
         name = str(row_dict.get("Name", "")).strip()
         row_dict.setdefault("Info", name)
@@ -33,9 +33,9 @@ def load_fuses(path: str) -> dict[str, Any]:
     """Return by_name dict of MV FuseType objects (Name-only)."""
     from pyptp.elements.mv.shared import FuseType as MVFuseType
 
-    fuse_frame = read_frame_with_fallback(path, sheet_name="Fuse", rename={"Shortname": "ShortName"})
+    fuse_rows = read_frame_with_fallback(path, sheet_name="Fuse", rename={"Shortname": "ShortName"})
     by_name: dict[str, Any] = {}
-    for _, row in fuse_frame.iterrows():
+    for row in fuse_rows:
         row_dict = clean_row_dict(row)
         name = str(row_dict.get("Name", "")).strip()
         try:

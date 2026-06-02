@@ -31,18 +31,13 @@ jobs:
           version: "latest"
 
       - name: Install dependencies
-        run: |
-          uv venv
-          uv pip install -e .
+        run: uv sync
 
       - name: Run tests
-        run: |
-          source .venv/bin/activate
-          python -m unittest discover -s tests -p "test_*.py" -v
+        run: uv run python -m unittest discover -s tests -p "test_*.py" -v
 
       - name: Report Python version
         if: always()
         run: |
-          source .venv/bin/activate
-          python --version
-          pip list
+          uv run python --version
+          uv pip list

@@ -94,6 +94,10 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
 
+        def switches_open(self) -> bool:
+            """Return True when both side switches are open."""
+            return not any((self.switch_state1, self.switch_state2))
+
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(

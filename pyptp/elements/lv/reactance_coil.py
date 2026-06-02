@@ -75,6 +75,19 @@ class ReactanceCoilLV(ExtrasNotesMixin, HasPresentationsMixin):
         field_name2: str = string_field()
         type: str = field(default="", metadata=config(encoder=encode_string))
 
+        def switches_open(self) -> bool:
+            """Return True when every L switch on both sides is open (N/PE deliberately excluded)."""
+            return not any(
+                (
+                    self.switch_state1_L1,
+                    self.switch_state1_L2,
+                    self.switch_state1_L3,
+                    self.switch_state2_L1,
+                    self.switch_state2_L2,
+                    self.switch_state2_L3,
+                )
+            )
+
         def serialize(self) -> str:
             """Serialize General properties."""
             props = []

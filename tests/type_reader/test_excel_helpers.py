@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 import pandas as pd
 
-from pyptp.type_reader._excel import normalize_frame, read_sheet
+from pyptp.type_reader._excel import normalize_rows, read_sheet
 
 
 class TestExcelHelpers(unittest.TestCase):
@@ -19,20 +19,16 @@ class TestExcelHelpers(unittest.TestCase):
                     writer, sheet_name="Other", index=False
                 )
 
-            df = read_sheet(
-                str(path), sheet_name="Unknown", index_col=None, skiprows=()
-            )
-            self.assertTrue(df.empty)
+            rows = read_sheet(str(path), sheet_name="Unknown", skiprows=())
+            self.assertEqual(rows, [])
 
-    def test_normalize_frame_rename_and_drop(self) -> None:
-        frame = pd.DataFrame(
-            {
-                "Shortname": ["S1", None],
-                "Name": ["N1", None],
-            }
-        )
-        norm = normalize_frame(frame, rename={"Shortname": "ShortName"})
-        self.assertIn("ShortName", norm.columns)
+    def test_normalize_rows_rename_and_drop(self) -> None:
+        rows = [
+            {"Shortname": "S1", "Name": "N1"},
+            {"Shortname": None, "Name": None},
+        ]
+        norm = normalize_rows(rows, rename={"Shortname": "ShortName"})
+        self.assertIn("ShortName", norm[0])
         # One all-empty row dropped
         self.assertEqual(len(norm), 1)
 

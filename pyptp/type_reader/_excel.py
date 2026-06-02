@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import pandas as pd
+from openpyxl import load_workbook
 
 from pyptp.ptp_log import logger
 
@@ -17,39 +17,67 @@ def read_sheet(
     path: str,
     sheet_name: str,
     *,
-    index_col: int | None = None,
     skiprows: Iterable[int] | None = (1,),
-) -> pd.DataFrame:
-    """Read a sheet, on failure returns an empty DataFrame."""
+) -> list[dict[str, object]]:
+    """Read a sheet into a list of header->value row dicts; on failure returns an empty list."""
+    skip = set(skiprows or ())
+    wb = None
     try:
-        return pd.read_excel(path, sheet_name=sheet_name, index_col=index_col, skiprows=list(skiprows or []))
+        wb = load_workbook(path, read_only=True, data_only=True)
+        if sheet_name not in wb.sheetnames:
+            return []
+        ws = wb[sheet_name]
+        header: list[object] | None = None
+        rows: list[dict[str, object]] = []
+        for index, values in enumerate(ws.iter_rows(values_only=True)):
+            if index in skip:
+                continue
+            if header is None:
+                header = list(values)
+                continue
+            rows.append({str(col): val for col, val in zip(header, values, strict=False) if col is not None})
+        return rows
     except Exception as exc:  # noqa: BLE001
         logger.debug("Failed reading sheet %s from %s: %s", sheet_name, path, exc)
-        return pd.DataFrame()
+        return []
+    finally:
+        if wb is not None:
+            wb.close()
 
 
-def normalize_frame(frame: pd.DataFrame, rename: dict[str, str] | None = None) -> pd.DataFrame:
-    """Drop-all-empty rows and apply a simple rename mapping."""
-    if frame.empty:
-        return frame
-    if rename:
-        frame = frame.rename(columns=rename)
-    return frame.dropna(axis="index", how="all")
+def normalize_rows(
+    rows: list[dict[str, object]],
+    rename: dict[str, str] | None = None,
+) -> list[dict[str, object]]:
+    """Drop all-empty rows and apply a simple key rename mapping."""
+    normalized: list[dict[str, object]] = []
+    for row in rows:
+        if all(value is None for value in row.values()):
+            continue
+        if rename:
+            normalized.append({rename.get(key, key): value for key, value in row.items()})
+        else:
+            normalized.append(row)
+    return normalized
 
 
-def read_frame_with_fallback(path: str, sheet_name: str, rename: dict[str, str]) -> pd.DataFrame:
+def read_frame_with_fallback(
+    path: str,
+    sheet_name: str,
+    rename: dict[str, str],
+) -> list[dict[str, object]]:
     """Read sheet trying (1) unit-row skip, then (2) no-skip fallback."""
-    frame = normalize_frame(read_sheet(path, sheet_name=sheet_name, index_col=None, skiprows=(1,)), rename=rename)
-    if not frame.empty and ("Name" in frame.columns or "ShortName" in frame.columns):
-        return frame
+    rows = normalize_rows(read_sheet(path, sheet_name=sheet_name, skiprows=(1,)), rename=rename)
+    if rows and ("Name" in rows[0] or "ShortName" in rows[0]):
+        return rows
     # Fallback without skiprows
-    return normalize_frame(read_sheet(path, sheet_name=sheet_name, index_col=None, skiprows=()), rename=rename)
+    return normalize_rows(read_sheet(path, sheet_name=sheet_name, skiprows=()), rename=rename)
 
 
-def clean_row_dict(row: pd.Series) -> dict[str, object]:
-    """Return a dict[str, object] from a Series, filtering out NaNs and coercing keys to str."""
+def clean_row_dict(row: dict[str, object]) -> dict[str, object]:
+    """Return a dict[str, object] from a row dict, filtering out None values and coercing keys to str."""
     clean: dict[str, object] = {}
     for key, value in row.items():
-        if pd.notna(value):
+        if value is not None:
             clean[str(key)] = value
     return clean

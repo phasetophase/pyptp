@@ -82,6 +82,10 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         resistance_symbol: bool = False
 
+        def switches_open(self) -> bool:
+            """Return True when both side switches are open."""
+            return not any((self.switch_state1, self.switch_state2))
+
         def serialize(self) -> str:
             """Serialize General properties following exact Delphi order."""
             return serialize_properties(
