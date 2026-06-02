@@ -88,14 +88,14 @@ class TestTypesWorkbookRegression(unittest.TestCase):
 
     def test_lv_cable_exact_values_match_excel_row(self) -> None:
         path = _workbook_path()
-        frame = read_frame_with_fallback(
+        rows = read_frame_with_fallback(
             str(path),
             sheet_name="Cable",
             rename={"Shortname": "ShortName", "Tan_delta": "TanDelta"},
         )
-        self.assertFalse(frame.empty, "Cable sheet is empty in workbook")
+        self.assertTrue(rows, "Cable sheet is empty in workbook")
 
-        row = frame.iloc[0]
+        row = rows[0]
         row_dict = clean_row_dict(row)
         name = str(row_dict.get("Name", "")).strip()
         self.assertTrue(name)
@@ -122,12 +122,12 @@ class TestTypesWorkbookRegression(unittest.TestCase):
 
     def test_lv_fuse_exact_values_match_excel_row(self) -> None:
         path = _workbook_path()
-        frame = read_frame_with_fallback(
+        rows = read_frame_with_fallback(
             str(path), sheet_name="Fuse", rename={"Shortname": "ShortName"}
         )
-        self.assertFalse(frame.empty, "Fuse sheet is empty in workbook")
+        self.assertTrue(rows, "Fuse sheet is empty in workbook")
 
-        row = frame.iloc[0]
+        row = rows[0]
         row_dict = clean_row_dict(row)
         name = str(row_dict.get("Name", "")).strip()
         self.assertTrue(name)
@@ -154,17 +154,17 @@ class TestTypesWorkbookRegression(unittest.TestCase):
     def test_lv_cable_all_names_match_excel_rows(self) -> None:
         # Verify ALL Name rows match exactly between workbook and Types (for rows that deserialize)
         path = _workbook_path()
-        frame = read_frame_with_fallback(
+        rows = read_frame_with_fallback(
             str(path),
             sheet_name="Cable",
             rename={"Shortname": "ShortName", "Tan_delta": "TanDelta"},
         )
-        self.assertFalse(frame.empty, "Cable sheet is empty in workbook")
+        self.assertTrue(rows, "Cable sheet is empty in workbook")
 
         types = Types()
         # Build expected objects using the same deserializer, skipping rows that would be skipped by loader
         expected_by_name: dict[str, LVCableType] = {}
-        for _, row in frame.iterrows():
+        for row in rows:
             row_dict = clean_row_dict(row)
             name = str(row_dict.get("Name", "")).strip()
             if not name:
@@ -196,14 +196,14 @@ class TestTypesWorkbookRegression(unittest.TestCase):
     def test_lv_fuse_all_names_match_excel_rows(self) -> None:
         # Verify ALL Name rows match exactly between workbook and Types (for rows that deserialize)
         path = _workbook_path()
-        frame = read_frame_with_fallback(
+        rows = read_frame_with_fallback(
             str(path), sheet_name="Fuse", rename={"Shortname": "ShortName"}
         )
-        self.assertFalse(frame.empty, "Fuse sheet is empty in workbook")
+        self.assertTrue(rows, "Fuse sheet is empty in workbook")
 
         types = Types()
         expected_by_name: dict[str, LVFuseType] = {}
-        for _, row in frame.iterrows():
+        for row in rows:
             row_dict = clean_row_dict(row)
             name = str(row_dict.get("Name", "")).strip()
             if not name:

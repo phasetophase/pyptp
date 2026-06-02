@@ -84,6 +84,10 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
         inom: float = 0.0
         ik1s: float = 0.0
 
+        def switches_open(self) -> bool:
+            """Return True when both side switches are open."""
+            return not any((self.switch_state1, self.switch_state2))
+
         def serialize(self) -> str:
             """Serialize link properties to VNF format.
 

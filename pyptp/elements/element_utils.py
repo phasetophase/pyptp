@@ -87,6 +87,18 @@ class HasGuid(Protocol):
     """
 
 
+class HasNameAndGuid(Protocol):
+    """Protocol for the General record of an element, carrying a name and a GUID."""
+
+    name: str
+    guid: Guid
+
+
+def name_or_guid(general: HasNameAndGuid) -> str:
+    """Return the element's name, or its GUID as a string when the name is empty."""
+    return general.name or str(general.guid)
+
+
 IntCoords: TypeAlias = list[tuple[int, int]]
 FloatCoords: TypeAlias = list[tuple[float, float]]
 

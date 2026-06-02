@@ -13,13 +13,13 @@ def load_cables(path: str) -> dict[str, Any]:
     """Return by_name dict of LV CableType objects (Name-only)."""
     from pyptp.elements.lv.shared import CableType as LVCableType
 
-    cable_frame = read_frame_with_fallback(
+    cable_rows = read_frame_with_fallback(
         path,
         sheet_name="Cable",
         rename={"Shortname": "ShortName", "Tan_delta": "TanDelta"},
     )
     by_name: dict[str, Any] = {}
-    for _, row in cable_frame.iterrows():
+    for row in cable_rows:
         row_dict = clean_row_dict(row)
         name = str(row_dict.get("Name", "")).strip()
         try:
@@ -36,9 +36,9 @@ def load_fuses(path: str) -> dict[str, Any]:
     """Return by_name dict of LV FuseType objects (Name-only)."""
     from pyptp.elements.lv.shared import FuseType as LVFuseType
 
-    fuse_frame = read_frame_with_fallback(path, sheet_name="Fuse", rename={"Shortname": "ShortName"})
+    fuse_rows = read_frame_with_fallback(path, sheet_name="Fuse", rename={"Shortname": "ShortName"})
     by_name: dict[str, Any] = {}
-    for _, row in fuse_frame.iterrows():
+    for row in fuse_rows:
         row_dict = clean_row_dict(row)
         name = str(row_dict.get("Name", "")).strip()
         try:

@@ -471,13 +471,12 @@ wheels = [
 
 [[package]]
 name = "pyptp"
-version = "0.0.34"
+version = "0.0.36"
 source = { editable = "." }
 dependencies = [
     { name = "dataclasses-json" },
     { name = "networkx" },
     { name = "openpyxl" },
-    { name = "pandas" },
     { name = "pydantic-settings" },
     { name = "requests" },
 ]
@@ -485,6 +484,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "coverage" },
+    { name = "pandas" },
     { name = "pyright" },
     { name = "ruff" },
 ]
@@ -494,7 +494,6 @@ requires-dist = [
     { name = "dataclasses-json", specifier = ">=0.6.7,<1" },
     { name = "networkx", specifier = ">=3.4.2,<4" },
     { name = "openpyxl", specifier = ">=3.1.5,<4" },
-    { name = "pandas", specifier = ">=2.3.3,<3" },
     { name = "pydantic-settings", specifier = ">=2.0,<3" },
     { name = "requests", specifier = ">=2.31.0,<3" },
 ]
@@ -502,6 +501,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "coverage", specifier = ">=7.8.0,<8" },
+    { name = "pandas", specifier = ">=2.3.3,<3" },
     { name = "pyright" },
     { name = "ruff", specifier = "==0.14.11" },
 ]
