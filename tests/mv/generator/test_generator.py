@@ -1,6 +1,8 @@
 """Tests for GeneratorMV registration and serialization."""
 
+import tempfile
 import unittest
+from pathlib import Path
 from uuid import UUID
 
 from pyptp.elements.element_utils import Guid
@@ -184,6 +186,52 @@ class TestGeneratorMV(unittest.TestCase):
         self.assertLess(restriction_pos, extra_pos)
         self.assertLess(extra_pos, note_pos)
         self.assertLess(note_pos, presentation_pos)
+
+    def test_multiple_notes_serialize_to_single_line(self) -> None:
+        """Multiple notes collapse into one chr(20)-joined #Note Text: line."""
+        generator = self._make_generator()
+        generator.notes.append(Note(text="a"))
+        generator.notes.append(Note(text="b"))
+        generator.register(self.network)
+        serialized = generator.serialize()
+
+        self.assertEqual(serialized.count("#Note"), 1)
+        self.assertIn("#Note Text:a\x14b", serialized)
+
+    def test_multiple_notes_round_trip(self) -> None:
+        """Two notes survive a save/load round trip as two list entries."""
+        generator = self._make_generator()
+        generator.notes.append(Note(text="a"))
+        generator.notes.append(Note(text="b"))
+        generator.register(self.network)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "notes.vnf"
+            self.network.save(str(path))
+            reloaded = NetworkMV.from_file(str(path))
+
+        loaded = reloaded.generators[self.generator_guid]
+        self.assertEqual([note.text for note in loaded.notes], ["a", "b"])
+
+    def test_note_with_embedded_newline_round_trip(self) -> None:
+        """A note with an embedded newline reloads as two notes (Vision-identical).
+
+        Vision stores one note as a single string and has no list to preserve, so a
+        newline inside a note reloads as two lines / two list entries.
+        """
+        generator = self._make_generator()
+        generator.notes.append(Note(text="line1\nline2"))
+        generator.register(self.network)
+        serialized = generator.serialize()
+        self.assertIn("#Note Text:line1\x14line2", serialized)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "notes.vnf"
+            self.network.save(str(path))
+            reloaded = NetworkMV.from_file(str(path))
+
+        loaded = reloaded.generators[self.generator_guid]
+        self.assertEqual([note.text for note in loaded.notes], ["line1", "line2"])
 
 
 if __name__ == "__main__":

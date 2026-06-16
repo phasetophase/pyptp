@@ -23,6 +23,7 @@ from pyptp.elements.element_utils import (
 )
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
+    serialize_notes,
     serialize_properties,
     write_boolean,
     write_double,
@@ -227,7 +228,7 @@ class NodeLV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#Fields {self.fields.serialize()}")
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.safe_extras)
-        lines.extend(f"#Note Text:{note.text}" for note in self.safe_notes)
+        lines.extend(serialize_notes(self.safe_notes))
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)

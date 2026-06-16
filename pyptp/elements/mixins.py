@@ -98,10 +98,16 @@ class Line(DataClassJsonMixin):
 @dataclass_json
 @dataclass
 class Note(DataClassJsonMixin):
-    """Free-text note annotation for electrical network elements.
+    """A free-text annotation attached to a network element.
 
-    Provides descriptive commentary or operational notes for
-    electrical elements that aid in network understanding.
+    Notes are persisted as a single block of text with one note per line. As a
+    result, a note containing line breaks is split into one note per line when the
+    network is reloaded, which may change the number of notes in the list. To keep
+    the list identical across a save and reload, limit each note to a single line.
+
+    Attributes:
+        text: The note's text content.
+
     """
 
     text: str = string_field()

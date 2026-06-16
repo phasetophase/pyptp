@@ -6,10 +6,15 @@ with consistent formatting and optional default value skipping for minimal file 
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Protocol
+
 from pyptp.ptp_log import logger
 
 from .color_utils import CL_BLACK, DelphiColor
 from .element_utils import NIL_GUID, Guid
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def write_guid(prop: str, value: Guid, skip: Guid = NIL_GUID) -> str:
@@ -366,6 +371,31 @@ def serialize_properties(*props: str) -> str:
 
     """
     return " ".join(prop for prop in props if prop) + " "
+
+
+NOTE_LINE_SEPARATOR = "\x14"  # Delphi #20 (decimal 20, DC4); encodes a note's line breaks on disk
+
+
+class _HasText(Protocol):
+    text: str
+
+
+def serialize_notes(notes: Iterable[_HasText]) -> list[str]:
+    """Serialize notes into a single Vision/Gaia-compatible `#Note Text:` line.
+
+    Vision/Gaia store one note per element as a single string whose line breaks are
+    written as chr(20). Each list entry becomes one line; newlines inside an entry are
+    also encoded as chr(20). Returns [] when there is no note content (no line written).
+    """
+    if not notes:
+        return []
+    encoded = NOTE_LINE_SEPARATOR.join(
+        note.text.replace("\r\n", NOTE_LINE_SEPARATOR)
+        .replace("\r", NOTE_LINE_SEPARATOR)
+        .replace("\n", NOTE_LINE_SEPARATOR)
+        for note in notes
+    )
+    return [f"#Note Text:{encoded}"] if encoded else []
 
 
 def write_section_if_not_empty(section_name: str, serialized_content: str | None) -> str:

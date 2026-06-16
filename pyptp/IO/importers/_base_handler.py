@@ -214,8 +214,9 @@ class DeclarativeHandler(Generic[NetworkModel]):
         ):
             if config.kwarg_name == "notes":
                 from pyptp.elements.mixins import Note
+                from pyptp.elements.serialization_helpers import NOTE_LINE_SEPARATOR
 
-                return [Note(text=text) for text in raw_data]
+                return [Note(text=line) for payload in raw_data for line in payload.split(NOTE_LINE_SEPARATOR)]
             if config.kwarg_name == "extras":
                 from pyptp.elements.mixins import Extra
 

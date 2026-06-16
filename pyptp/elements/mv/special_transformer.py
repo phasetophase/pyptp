@@ -12,6 +12,7 @@ from pyptp.elements.element_utils import NIL_GUID, Guid, decode_guid, encode_gui
 from pyptp.elements.enums import SpecialTransformerSort, VoltageControlSort
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
+    serialize_notes,
     serialize_properties,
     write_boolean,
     write_boolean_no_skip,
@@ -464,7 +465,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
-        lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(serialize_notes(self.notes))
 
         return "\n".join(lines)
 

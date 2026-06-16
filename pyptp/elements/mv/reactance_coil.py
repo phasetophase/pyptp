@@ -16,6 +16,7 @@ from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 from pyptp.elements.element_utils import NIL_GUID, Guid, decode_guid, encode_guid, string_field
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
+    serialize_notes,
     serialize_properties,
     write_boolean,
     write_double,
@@ -207,7 +208,7 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
-        lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(serialize_notes(self.notes))
 
         return "\n".join(lines)
 
