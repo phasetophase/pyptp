@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import tempfile
 import unittest
-from uuid import uuid4
+from pathlib import Path
+from uuid import UUID, uuid4
 
 from pyptp.elements.element_utils import NIL_GUID, Guid
 from pyptp.elements.lv.connection import ConnectionLV
-from pyptp.elements.lv.presentations import ElementPresentation
+from pyptp.elements.lv.node import NodeLV
+from pyptp.elements.lv.presentations import ElementPresentation, NodePresentation
 from pyptp.elements.lv.shared import CableType, FuseType
+from pyptp.elements.lv.sheet import SheetLV
 from pyptp.elements.mixins import Extra, Note
 from pyptp.network_lv import NetworkLV
 
@@ -651,6 +655,72 @@ class TestTHomeLS(unittest.TestCase):
         )
         self.assertEqual(deserialized.gms[0].p, original_home.gms[0].p)
         self.assertEqual(deserialized.gms[0].cos, original_home.gms[0].cos)
+
+    def _build_saveable_network(self, notes: list[Note]) -> tuple[NetworkLV, Guid]:
+        """Build a minimal LV network containing one home with the given notes."""
+        network = NetworkLV()
+
+        sheet = SheetLV(
+            SheetLV.General(
+                guid=Guid(UUID("9c038adb-5a44-4f33-8cb4-8f0518f2b4c2")),
+                name="TestSheet",
+            ),
+        )
+        sheet.register(network)
+        sheet_guid = sheet.general.guid
+
+        node_guid = Guid(UUID("fec2228f-a78e-4f54-9ed2-0a7dbd48b3f5"))
+        node = NodeLV(
+            NodeLV.General(guid=node_guid, name="TestNode"),
+            [NodePresentation(sheet=sheet_guid, x=100, y=200)],
+        )
+        node.register(network)
+
+        home_guid = Guid(UUID("6301d096-5f64-46f3-b50c-b6717a4ea14c"))
+        home = ConnectionLV(
+            general=ConnectionLV.General(
+                guid=home_guid, node=node_guid, name="TestHome"
+            ),
+            presentations=[ElementPresentation(sheet=sheet_guid)],
+            gms=[],
+        )
+        home.notes.extend(notes)
+        home.register(network)
+        return network, home_guid
+
+    def test_multiple_notes_serialize_to_single_line(self) -> None:
+        """Multiple notes collapse into one chr(20)-joined #Note Text: line."""
+        network, home_guid = self._build_saveable_network([Note("a"), Note("b")])
+        serialized = network.homes[home_guid].serialize()
+
+        self.assertEqual(serialized.count("#Note"), 1)
+        self.assertIn("#Note Text:a\x14b", serialized)
+
+    def test_multiple_notes_round_trip(self) -> None:
+        """Two notes survive a save/load round trip as two list entries."""
+        network, home_guid = self._build_saveable_network([Note("a"), Note("b")])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "notes.gnf"
+            network.save(str(path))
+            reloaded = NetworkLV.from_file(str(path))
+
+        loaded = reloaded.homes[home_guid]
+        self.assertEqual([note.text for note in loaded.notes], ["a", "b"])
+
+    def test_note_with_embedded_newline_round_trip(self) -> None:
+        """A note with an embedded newline reloads as two notes (Vision-identical)."""
+        network, home_guid = self._build_saveable_network([Note("line1\nline2")])
+        serialized = network.homes[home_guid].serialize()
+        self.assertIn("#Note Text:line1\x14line2", serialized)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "notes.gnf"
+            network.save(str(path))
+            reloaded = NetworkLV.from_file(str(path))
+
+        loaded = reloaded.homes[home_guid]
+        self.assertEqual([note.text for note in loaded.notes], ["line1", "line2"])
 
 
 if __name__ == "__main__":

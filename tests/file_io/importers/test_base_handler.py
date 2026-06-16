@@ -264,7 +264,11 @@ class TestDeclarativeHandler(unittest.TestCase):
         self.assertEqual(result[1].X, 300)
 
     def test_process_section_data_notes(self) -> None:
-        """Validate notes section processing into Note objects."""
+        """Validate notes section processing into Note objects.
+
+        Legacy files pyptp previously wrote emit one #Note Text: line per note;
+        both must still load (back-compat).
+        """
         section = {
             "#Note Text:": ["First note", "Second note"],
         }
@@ -279,6 +283,22 @@ class TestDeclarativeHandler(unittest.TestCase):
         assert isinstance(result[1], Note)
         self.assertEqual(result[0].text, "First note")
         self.assertEqual(result[1].text, "Second note")
+
+    def test_process_section_data_notes_chr20_payload(self) -> None:
+        """A single chr(20)-joined payload splits into one Note per segment."""
+        section = {
+            "#Note Text:": ["a\x14b"],
+        }
+        config = SectionConfig("notes", "#Note Text:")
+
+        result = self.handler._process_section_data(section, config)
+
+        assert isinstance(result, list)
+        assert len(result) == 2
+        assert isinstance(result[0], Note)
+        assert isinstance(result[1], Note)
+        self.assertEqual(result[0].text, "a")
+        self.assertEqual(result[1].text, "b")
 
     def test_process_section_data_extras(self) -> None:
         """Validate extras section processing into Extra objects."""

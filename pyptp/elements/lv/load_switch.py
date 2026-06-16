@@ -22,6 +22,7 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.serialization_helpers import serialize_notes
 from pyptp.ptp_log import logger
 
 from .presentations import SecundairPresentation
@@ -153,7 +154,7 @@ class LoadSwitchLV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#LoadSwitchType {self.type.serialize()}")
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
-        lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(serialize_notes(self.notes))
 
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 

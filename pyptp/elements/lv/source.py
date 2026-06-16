@@ -22,6 +22,7 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.serialization_helpers import serialize_notes
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
@@ -147,7 +148,7 @@ class SourceLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
-        lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(serialize_notes(self.notes))
 
         return "\n".join(lines)
 

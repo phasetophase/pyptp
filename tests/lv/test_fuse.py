@@ -116,8 +116,9 @@ class TestTFuseLS(unittest.TestCase):
         # Verify extras and notes
         self.assertIn("#Extra Text:key1=value1", result)
         self.assertIn("#Extra Text:key2=value2", result)
-        self.assertIn("#Note Text:Test note 1", result)
-        self.assertIn("#Note Text:Test note 2", result)
+        # Notes collapse to a single Vision/Gaia-compatible line joined by chr(20).
+        self.assertIn("#Note Text:Test note 1\x14Test note 2", result)
+        self.assertEqual(result.count("#Note"), 1)
 
     def test_fuse_deserialization_works(self) -> None:
         """Test deserialization from GNF format data."""

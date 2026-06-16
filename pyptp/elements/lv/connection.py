@@ -31,6 +31,7 @@ from pyptp.elements.enums import HeatpumpSort, HouseType
 from pyptp.elements.lv.shared import CableType
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
+    serialize_notes,
     serialize_properties,
     write_boolean,
     write_boolean_no_skip,
@@ -839,7 +840,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.hems:
             lines.append(f"#HEMS {self.hems.serialize()}")
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
-        lines.extend(f"#Note Text:{note.text}" for note in self.notes)
+        lines.extend(serialize_notes(self.notes))
         lines.extend(f"#Presentation {p.serialize()}" for p in self.presentations)
         return "\n".join(lines)
 

@@ -479,11 +479,11 @@ class TestReactanceCoilRegistration(unittest.TestCase):
 
         serialized = reactance_coil.serialize()
         self.assertEqual(serialized.count("#Extra"), 2)
-        self.assertEqual(serialized.count("#Note"), 2)
+        # Notes collapse to a single Vision/Gaia-compatible line joined by chr(20).
+        self.assertEqual(serialized.count("#Note"), 1)
         self.assertIn("#Extra Text:key1=value1", serialized)
         self.assertIn("#Extra Text:key2=value2", serialized)
-        self.assertIn("#Note Text:First note", serialized)
-        self.assertIn("#Note Text:Second note", serialized)
+        self.assertIn("#Note Text:First note\x14Second note", serialized)
 
 
 if __name__ == "__main__":
