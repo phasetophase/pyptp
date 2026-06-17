@@ -44,11 +44,17 @@ class ScenarioMV:
         """General properties for a scenario."""
 
         name: str = string_field()
+        description: str = string_field()
+        message: str = string_field()
+        related_variants: str = string_field()
 
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(
                 write_quote_string_no_skip("Name", self.name),
+                write_quote_string_no_skip("Description", self.description),
+                write_quote_string_no_skip("Message", self.message),
+                write_quote_string_no_skip("RelatedVariants", self.related_variants),
             )
 
         @classmethod
@@ -56,6 +62,9 @@ class ScenarioMV:
             """Deserialize General properties."""
             return cls(
                 name=data.get("Name", ""),
+                description=data.get("Description", ""),
+                message=data.get("Message", ""),
+                related_variants=data.get("RelatedVariants", ""),
             )
 
     @dataclass_json
