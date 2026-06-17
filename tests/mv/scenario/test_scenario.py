@@ -31,6 +31,9 @@ class TestScenarioRegistration(unittest.TestCase):
         """Test that scenarios with all properties serialize correctly."""
         general = ScenarioMV.General(
             name="FullScenario",
+            description="Full scenario description",
+            message="Full scenario message",
+            related_variants="variant1,variant2",
         )
 
         scenario = ScenarioMV(general)
@@ -44,6 +47,9 @@ class TestScenarioRegistration(unittest.TestCase):
 
         # Verify general properties
         self.assertIn("Name:'FullScenario'", serialized)
+        self.assertIn("Description:'Full scenario description'", serialized)
+        self.assertIn("Message:'Full scenario message'", serialized)
+        self.assertIn("RelatedVariants:'variant1,variant2'", serialized)
 
     def test_duplicate_registration_overwrites(self) -> None:
         """Test that registering a scenario with the same name overwrites the existing one."""
@@ -77,39 +83,45 @@ class TestScenarioRegistration(unittest.TestCase):
         self.assertIn("Name:'MinimalScenario'", serialized)
 
         # Empty strings should be included since using no_skip
+        self.assertIn("Description:''", serialized)
+        self.assertIn("Message:''", serialized)
+        self.assertIn("RelatedVariants:''", serialized)
 
     def test_scenario_with_description_serializes_correctly(self) -> None:
-        """Test that scenarios serialize correctly with only Name."""
+        """Test that scenarios with description serialize correctly."""
         general = ScenarioMV.General(
             name="DescriptionScenario",
+            description="Test description",
         )
         scenario = ScenarioMV(general)
         scenario.register(self.network)
 
         serialized = scenario.serialize()
-        self.assertIn("Name:'DescriptionScenario'", serialized)
+        self.assertIn("Description:'Test description'", serialized)
 
     def test_scenario_with_message_serializes_correctly(self) -> None:
-        """Test that scenarios serialize correctly with only Name."""
+        """Test that scenarios with message serialize correctly."""
         general = ScenarioMV.General(
             name="MessageScenario",
+            message="Test message",
         )
         scenario = ScenarioMV(general)
         scenario.register(self.network)
 
         serialized = scenario.serialize()
-        self.assertIn("Name:'MessageScenario'", serialized)
+        self.assertIn("Message:'Test message'", serialized)
 
     def test_scenario_with_related_variants_serializes_correctly(self) -> None:
-        """Test that scenarios serialize correctly with only Name."""
+        """Test that scenarios with related variants serialize correctly."""
         general = ScenarioMV.General(
             name="VariantScenario",
+            related_variants="variant1,variant2,variant3",
         )
         scenario = ScenarioMV(general)
         scenario.register(self.network)
 
         serialized = scenario.serialize()
-        self.assertIn("Name:'VariantScenario'", serialized)
+        self.assertIn("RelatedVariants:'variant1,variant2,variant3'", serialized)
 
     def test_scenario_with_empty_name_serializes_correctly(self) -> None:
         """Test that scenarios with empty name serialize correctly."""
@@ -126,6 +138,9 @@ class TestScenarioRegistration(unittest.TestCase):
             "general": [
                 {
                     "Name": "TestScenario",
+                    "Description": "Test description",
+                    "Message": "Test message",
+                    "RelatedVariants": "variant1,variant2",
                 }
             ],
         }
@@ -133,6 +148,9 @@ class TestScenarioRegistration(unittest.TestCase):
         scenario = ScenarioMV.deserialize(data)
 
         self.assertEqual(scenario.general.name, "TestScenario")
+        self.assertEqual(scenario.general.description, "Test description")
+        self.assertEqual(scenario.general.message, "Test message")
+        self.assertEqual(scenario.general.related_variants, "variant1,variant2")
 
     def test_scenario_deserialization_with_missing_data_works(self) -> None:
         """Test that scenario deserialization works with missing data."""
@@ -141,15 +159,24 @@ class TestScenarioRegistration(unittest.TestCase):
         scenario = ScenarioMV.deserialize(data)
 
         self.assertEqual(scenario.general.name, "")
+        self.assertEqual(scenario.general.description, "")
+        self.assertEqual(scenario.general.message, "")
+        self.assertEqual(scenario.general.related_variants, "")
 
     def test_scenario_general_serialization_works(self) -> None:
         """Test that scenario general serialization works correctly."""
         general = ScenarioMV.General(
             name="TestScenario",
+            description="Test description",
+            message="Test message",
+            related_variants="variant1,variant2",
         )
         serialized = general.serialize()
 
         self.assertIn("Name:'TestScenario'", serialized)
+        self.assertIn("Description:'Test description'", serialized)
+        self.assertIn("Message:'Test message'", serialized)
+        self.assertIn("RelatedVariants:'variant1,variant2'", serialized)
 
     def test_scenario_item_serialization_works(self) -> None:
         """Test that scenario item serialization works correctly."""
