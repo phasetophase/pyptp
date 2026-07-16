@@ -40,9 +40,9 @@ class MeasureFieldHandler(DeclarativeHandler[TNetworkMSType]):
         if kwarg_name == "voltage_measure_transformer_type":
             return MeasureFieldMV.VoltageMeasureTransformerType
         if kwarg_name == "current_measure_transformer1_type":
-            return MeasureFieldMV.CurrentMeasureTransformer1Type
+            return MeasureFieldMV.CurrentMeasureTransformerType
         if kwarg_name == "current_measure_transformer2_type":
-            return MeasureFieldMV.CurrentMeasureTransformer2Type
+            return MeasureFieldMV.CurrentMeasureTransformerType
         if kwarg_name == "current_measure_transformer3_type":
-            return MeasureFieldMV.CurrentMeasureTransformer3Type
+            return MeasureFieldMV.CurrentMeasureTransformerType
         return None
