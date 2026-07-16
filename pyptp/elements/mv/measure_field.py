@@ -170,8 +170,8 @@ class MeasureFieldMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class CurrentMeasureTransformer1Type(DataClassJsonMixin):
-        """CurrentMeasureTransformer1Type."""
+    class CurrentMeasureTransformerType(DataClassJsonMixin):
+        """CurrentMeasureTransformerType."""
 
         transfer_ratio: str = string_field()
         transformer_class: str = string_field()
@@ -188,7 +188,7 @@ class MeasureFieldMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Thermal short-circuit duration in s."""
 
         def serialize(self) -> str:
-            """Serialize CurrentMeasureTransformer1Type properties."""
+            """Serialize CurrentMeasureTransformerType properties."""
             return serialize_properties(
                 write_quote_string("TransferRatio", self.transfer_ratio),
                 write_quote_string("Class", self.transformer_class),
@@ -200,96 +200,8 @@ class MeasureFieldMV(ExtrasNotesMixin, HasPresentationsMixin):
             )
 
         @classmethod
-        def deserialize(cls, data: dict) -> MeasureFieldMV.CurrentMeasureTransformer1Type:
-            """Deserialize CurrentMeasureTransformer1Type properties."""
-            return cls(
-                transfer_ratio=data.get("TransferRatio", ""),
-                transformer_class=data.get("Class", ""),
-                power=data.get("Power", 0.0),
-                inom=data.get("Inom", 0.0),
-                ik_dynamic=data.get("IkDynamic", 0.0),
-                ik_thermal=data.get("IkThermal", 0.0),
-                t_thermal=data.get("TThermal", 0.0),
-            )
-
-    @dataclass_json
-    @dataclass
-    class CurrentMeasureTransformer2Type(DataClassJsonMixin):
-        """CurrentMeasureTransformer2Type."""
-
-        transfer_ratio: str = string_field()
-        transformer_class: str = string_field()
-        """Accuracy class of the current measuring transformer."""
-        power: float = 0.0
-        """Rated power of the current measuring transformer in VA."""
-        inom: float = 0.0
-        """Rated current of the current measurement transformer in A."""
-        ik_dynamic: float = 0.0
-        """Dynamic short-circuit current in kA."""
-        ik_thermal: float = 0.0
-        """Thermal short-circuit current in kA."""
-        t_thermal: float = 0.0
-        """Thermal short-circuit duration in s."""
-
-        def serialize(self) -> str:
-            """Serialize CurrentMeasureTransformer2Type properties."""
-            return serialize_properties(
-                write_quote_string("TransferRatio", self.transfer_ratio),
-                write_quote_string("Class", self.transformer_class),
-                write_double("Power", self.power),
-                write_double("Inom", self.inom),
-                write_double("IkDynamic", self.ik_dynamic),
-                write_double("IkThermal", self.ik_thermal),
-                write_double("TThermal", self.t_thermal),
-            )
-
-        @classmethod
-        def deserialize(cls, data: dict) -> MeasureFieldMV.CurrentMeasureTransformer2Type:
-            """Deserialize CurrentMeasureTransformer2Type properties."""
-            return cls(
-                transfer_ratio=data.get("TransferRatio", ""),
-                transformer_class=data.get("Class", ""),
-                power=data.get("Power", 0.0),
-                inom=data.get("Inom", 0.0),
-                ik_dynamic=data.get("IkDynamic", 0.0),
-                ik_thermal=data.get("IkThermal", 0.0),
-                t_thermal=data.get("TThermal", 0.0),
-            )
-
-    @dataclass_json
-    @dataclass
-    class CurrentMeasureTransformer3Type(DataClassJsonMixin):
-        """CurrentMeasureTransformer3Type."""
-
-        transfer_ratio: str = string_field()
-        transformer_class: str = string_field()
-        """Accuracy class of the current measuring transformer."""
-        power: float = 0.0
-        """Rated power of the current measuring transformer in VA."""
-        inom: float = 0.0
-        """Rated current of the current measurement transformer in A."""
-        ik_dynamic: float = 0.0
-        """Dynamic short-circuit current in kA."""
-        ik_thermal: float = 0.0
-        """Thermal short-circuit current in kA."""
-        t_thermal: float = 0.0
-        """Thermal short-circuit duration in s."""
-
-        def serialize(self) -> str:
-            """Serialize CurrentMeasureTransformer3Type properties."""
-            return serialize_properties(
-                write_quote_string("TransferRatio", self.transfer_ratio),
-                write_quote_string("Class", self.transformer_class),
-                write_double("Power", self.power),
-                write_double("Inom", self.inom),
-                write_double("IkDynamic", self.ik_dynamic),
-                write_double("IkThermal", self.ik_thermal),
-                write_double("TThermal", self.t_thermal),
-            )
-
-        @classmethod
-        def deserialize(cls, data: dict) -> MeasureFieldMV.CurrentMeasureTransformer3Type:
-            """Deserialize CurrentMeasureTransformer3Type properties."""
+        def deserialize(cls, data: dict) -> MeasureFieldMV.CurrentMeasureTransformerType:
+            """Deserialize CurrentMeasureTransformerType properties."""
             return cls(
                 transfer_ratio=data.get("TransferRatio", ""),
                 transformer_class=data.get("Class", ""),
@@ -343,10 +255,18 @@ class MeasureFieldMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     general: General
     presentations: list[SecondaryPresentation]
-    voltage_measure_transformer_type: VoltageMeasureTransformerType | None = None
-    current_measure_transformer1_type: CurrentMeasureTransformer1Type | None = None
-    current_measure_transformer2_type: CurrentMeasureTransformer2Type | None = None
-    current_measure_transformer3_type: CurrentMeasureTransformer3Type | None = None
+    voltage_measure_transformer_type: VoltageMeasureTransformerType = field(
+        default_factory=VoltageMeasureTransformerType,
+    )
+    current_measure_transformer1_type: CurrentMeasureTransformerType = field(
+        default_factory=CurrentMeasureTransformerType,
+    )
+    current_measure_transformer2_type: CurrentMeasureTransformerType = field(
+        default_factory=CurrentMeasureTransformerType,
+    )
+    current_measure_transformer3_type: CurrentMeasureTransformerType = field(
+        default_factory=CurrentMeasureTransformerType,
+    )
     measurements: list[Measurement] = field(default_factory=list)
     measurementfiles: list[MeasurementsFile] = field(default_factory=list)
 
@@ -367,26 +287,40 @@ class MeasureFieldMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.append(f"#General {self.general.serialize()}")
 
         if self.general.is_voltage_measure_transformer_present:
-            if self.voltage_measure_transformer_type:
-                lines.append(f"#VoltageMeasureTransformerType {self.voltage_measure_transformer_type.serialize()}")
-            else:
-                lines.append("#VoltageMeasureTransformerType ")
+            content = (
+                self.voltage_measure_transformer_type.serialize().strip()
+                if self.voltage_measure_transformer_type
+                else ""
+            )
+            lines.append(f"#VoltageMeasureTransformerType {content} " if content else "#VoltageMeasureTransformerType ")
 
         if self.general.is_current_measure_transformer1_present:
-            if self.current_measure_transformer1_type:
-                lines.append(f"#CurrentMeasureTransformer1Type {self.current_measure_transformer1_type.serialize()}")
-            else:
-                lines.append("#CurrentMeasureTransformer1Type ")
+            content = (
+                self.current_measure_transformer1_type.serialize().strip()
+                if self.current_measure_transformer1_type
+                else ""
+            )
+            lines.append(
+                f"#CurrentMeasureTransformer1Type {content} " if content else "#CurrentMeasureTransformer1Type "
+            )
         if self.general.is_current_measure_transformer2_present:
-            if self.current_measure_transformer2_type:
-                lines.append(f"#CurrentMeasureTransformer2Type {self.current_measure_transformer2_type.serialize()}")
-            else:
-                lines.append("#CurrentMeasureTransformer2Type ")
+            content = (
+                self.current_measure_transformer2_type.serialize().strip()
+                if self.current_measure_transformer2_type
+                else ""
+            )
+            lines.append(
+                f"#CurrentMeasureTransformer2Type {content} " if content else "#CurrentMeasureTransformer2Type "
+            )
         if self.general.is_current_measure_transformer3_present:
-            if self.current_measure_transformer3_type:
-                lines.append(f"#CurrentMeasureTransformer3Type {self.current_measure_transformer3_type.serialize()}")
-            else:
-                lines.append("#CurrentMeasureTransformer3Type ")
+            content = (
+                self.current_measure_transformer3_type.serialize().strip()
+                if self.current_measure_transformer3_type
+                else ""
+            )
+            lines.append(
+                f"#CurrentMeasureTransformer3Type {content} " if content else "#CurrentMeasureTransformer3Type "
+            )
 
         lines.extend(f"#Measurement {measurement.serialize()}" for measurement in self.measurements)
 
@@ -413,27 +347,27 @@ class MeasureFieldMV(ExtrasNotesMixin, HasPresentationsMixin):
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
         general = cls.General.deserialize(general_data)
 
-        voltage_measure_transformer_type = None
+        voltage_measure_transformer_type = cls.VoltageMeasureTransformerType()
         if data.get("voltageMeasureTransformerType"):
             voltage_measure_transformer_type = cls.VoltageMeasureTransformerType.deserialize(
                 data["voltageMeasureTransformerType"][0],
             )
 
-        current_measure_transformer1_type = None
+        current_measure_transformer1_type = cls.CurrentMeasureTransformerType()
         if data.get("currentMeasureTransformer1Type"):
-            current_measure_transformer1_type = cls.CurrentMeasureTransformer1Type.deserialize(
+            current_measure_transformer1_type = cls.CurrentMeasureTransformerType.deserialize(
                 data["currentMeasureTransformer1Type"][0],
             )
 
-        current_measure_transformer2_type = None
+        current_measure_transformer2_type = cls.CurrentMeasureTransformerType()
         if data.get("currentMeasureTransformer2Type"):
-            current_measure_transformer2_type = cls.CurrentMeasureTransformer2Type.deserialize(
+            current_measure_transformer2_type = cls.CurrentMeasureTransformerType.deserialize(
                 data["currentMeasureTransformer2Type"][0],
             )
 
-        current_measure_transformer3_type = None
+        current_measure_transformer3_type = cls.CurrentMeasureTransformerType()
         if data.get("currentMeasureTransformer3Type"):
-            current_measure_transformer3_type = cls.CurrentMeasureTransformer3Type.deserialize(
+            current_measure_transformer3_type = cls.CurrentMeasureTransformerType.deserialize(
                 data["currentMeasureTransformer3Type"][0],
             )
 

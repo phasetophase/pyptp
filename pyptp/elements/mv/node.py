@@ -545,9 +545,9 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     general: General
     presentations: list[NodePresentation]
     railtype: Railtype = field(default_factory=Railtype)
-    fields: list[Field] | None = None
+    fields: list[Field] = field(default_factory=list)
     customer: Customer | None = None
-    installation: Installation | None = None
+    installation: Installation = field(default_factory=Installation)
     icon: Icon | None = None
     differential_protection: DifferentialProtection | None = None
     differential_protection_switches: list[DifferentialProtectionSwitch] = field(default_factory=list)
@@ -579,7 +579,8 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.append(f"#General {self.general.serialize()}")
 
-        lines.append(f"#Railtype {self.railtype.serialize()}" if self.railtype is not None else "#Railtype ")
+        railtype_content = self.railtype.serialize().strip() if self.railtype is not None else ""
+        lines.append(f"#Railtype {railtype_content} " if railtype_content else "#Railtype ")
 
         if self.fields is not None:
             lines.extend(f"#Field {field.serialize()}" for field in self.fields)
@@ -587,9 +588,8 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.customer is not None:
             lines.append(f"#Customer {self.customer.serialize()}")
 
-        lines.append(
-            f"#Installation {self.installation.serialize()}" if self.installation is not None else "#Installation "
-        )
+        installation_content = self.installation.serialize().strip() if self.installation is not None else ""
+        lines.append(f"#Installation {installation_content} " if installation_content else "#Installation ")
 
         if self.icon is not None:
             lines.append(f"#Icon {self.icon.serialize()}")
@@ -641,7 +641,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         # Parse installation section
         installation_data = data.get("installation", [{}])[0] if data.get("installation") else {}
-        installation = cls.Installation.deserialize(installation_data) if installation_data else None
+        installation = cls.Installation.deserialize(installation_data) if installation_data else cls.Installation()
 
         # Parse railtype section
         railtype_data = data.get("railtype", [{}])[0] if data.get("railtype") else {}
