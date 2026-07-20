@@ -17,6 +17,7 @@ class ShuntCoilHandler(DeclarativeHandler[TNetworkMSType]):
     COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation ", required=False),
+        SectionConfig("icon", "#Icon ", required=False),
         SectionConfig("extras", "#Extra Text:", required=False),
         SectionConfig("notes", "#Note Text:", required=False),
     ]

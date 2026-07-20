@@ -444,6 +444,10 @@ class ElementPresentation(DataClassJsonMixin):
     """X offset relative to the object coordinates for the note text."""
     note_y: int = 0
     """Y offset relative to the object coordinates for the note text."""
+    icon_x: int = 0
+    """X offset relative to the object coordinates for the icon."""
+    icon_y: int = 0
+    """Y offset relative to the object coordinates for the icon."""
     flag_flipped: bool = False
     """Flips the flag upside down if the switch is opened."""
 
@@ -469,6 +473,8 @@ class ElementPresentation(DataClassJsonMixin):
             write_integer("SymbolStringsY", self.symbol_strings_y, skip=0),
             write_integer("NoteX", self.note_x, skip=0),
             write_integer("NoteY", self.note_y, skip=0),
+            write_integer("IconX", self.icon_x, skip=0),
+            write_integer("IconY", self.icon_y, skip=0),
             write_boolean("FlagFlipped", value=self.flag_flipped, skip=False),
         )
 
@@ -495,6 +501,8 @@ class ElementPresentation(DataClassJsonMixin):
             symbol_strings_y=data.get("SymbolStringsY", 0),
             note_x=data.get("NoteX", 0),
             note_y=data.get("NoteY", 0),
+            icon_x=data.get("IconX", 0),
+            icon_y=data.get("IconY", 0),
             flag_flipped=data.get("FlagFlipped", False),
         )
 

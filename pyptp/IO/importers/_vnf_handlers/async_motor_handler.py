@@ -19,6 +19,7 @@ class AsyncMotorHandler(DeclarativeHandler[NetworkMV]):
         SectionConfig("presentations", "#Presentation "),
         SectionConfig("type", "#AsynchronousMotorType ", required=True),
         SectionConfig("harmonics", "#Harmonics "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]

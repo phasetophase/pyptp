@@ -21,7 +21,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -38,7 +38,7 @@ from pyptp.elements.serialization_helpers import (
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
-    from pyptp.elements.mv.shared import PControl, QControl
+    from pyptp.elements.mv.shared import QControl
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
 
@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
+class LoadMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Medium-voltage load element for symmetrical modeling.
 
     Supports balanced three-phase load modeling with power control,
@@ -222,8 +222,8 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class PIControl(DataClassJsonMixin):
-        """Power-current control characteristics for load response."""
+    class PUControl(DataClassJsonMixin):
+        """Power-voltage control characteristics for load response."""
 
         input1: float = 1.0
         output1: float = 0.0
@@ -235,9 +235,6 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         output4: float = 0.0
         input5: float = 0.0
         output5: float = 0.0
-        measure_field1: str = string_field()
-        measure_field2: str = string_field()
-        measure_field3: str = string_field()
 
         def serialize(self) -> str:
             """Serialize PI control properties to VNF format."""
@@ -252,13 +249,10 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
             props.append(f"Output4:{self.output4}")
             props.append(f"Input5:{self.input5}")
             props.append(f"Output5:{self.output5}")
-            props.append(f"MeasureField1:'{self.measure_field1}'")
-            props.append(f"MeasureField2:'{self.measure_field2}'")
-            props.append(f"MeasureField3:'{self.measure_field3}'")
             return " ".join(props)
 
         @classmethod
-        def deserialize(cls, data: dict) -> LoadMV.PIControl:
+        def deserialize(cls, data: dict) -> LoadMV.PUControl:
             """Parse PI control properties from VNF data."""
             return cls(
                 input1=data.get("Input1", 1.0),
@@ -271,9 +265,101 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 output4=data.get("Output4", 0.0),
                 input5=data.get("Input5", 0.0),
                 output5=data.get("Output5", 0.0),
-                measure_field1=data.get("MeasureField1", ""),
-                measure_field2=data.get("MeasureField2", ""),
-                measure_field3=data.get("MeasureField3", ""),
+            )
+
+    @dataclass_json
+    @dataclass
+    class PIControl(DataClassJsonMixin):
+        """Power-current control characteristics for load response."""
+
+        input1: float = 1.0
+        output1: float = 1.0
+        input2: float = 0.0
+        output2: float = 0.0
+        input3: float = 0.0
+        output3: float = 0.0
+        input4: float = 0.0
+        output4: float = 0.0
+        input5: float = 0.0
+        output5: float = 0.0
+        measure_field1: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
+        measure_field2: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
+        measure_field3: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
+
+        def serialize(self) -> str:
+            """Serialize PI control properties to VNF format."""
+            return serialize_properties(
+                write_double("Input1", self.input1),
+                write_double("Output1", self.output1),
+                write_double("Input2", self.input2),
+                write_double("Output2", self.output2),
+                write_double("Input3", self.input3),
+                write_double("Output3", self.output3),
+                write_double("Input4", self.input4),
+                write_double("Output4", self.output4),
+                write_double("Input5", self.input5),
+                write_double("Output5", self.output5),
+                write_guid("MeasureField1", self.measure_field1) if self.measure_field1 else "",
+                write_guid("MeasureField2", self.measure_field2) if self.measure_field2 else "",
+                write_guid("MeasureField3", self.measure_field3) if self.measure_field3 else "",
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> LoadMV.PIControl:
+            """Parse PI control properties from VNF data."""
+            measure_field1 = data.get("MeasureField1")
+            measure_field2 = data.get("MeasureField2")
+            measure_field3 = data.get("MeasureField3")
+
+            return cls(
+                input1=data.get("Input1", 1.0),
+                output1=data.get("Output1", 1.0),
+                input2=data.get("Input2", 0.0),
+                output2=data.get("Output2", 0.0),
+                input3=data.get("Input3", 0.0),
+                output3=data.get("Output3", 0.0),
+                input4=data.get("Input4", 0.0),
+                output4=data.get("Output4", 0.0),
+                input5=data.get("Input5", 0.0),
+                output5=data.get("Output5", 0.0),
+                measure_field1=decode_guid(measure_field1) if measure_field1 else None,
+                measure_field2=decode_guid(measure_field2) if measure_field2 else None,
+                measure_field3=decode_guid(measure_field3) if measure_field3 else None,
+            )
+
+    @dataclass_json
+    @dataclass
+    class Customer(DataClassJsonMixin):
+        """Customer for load."""
+
+        ean: str = string_field()
+        contracted_capacity: str = string_field()
+        contracted_feed_in_capacity: str = string_field()
+
+        def serialize(self) -> str:
+            """Serialize Customer properties to VNF format."""
+            return serialize_properties(
+                write_quote_string("EAN", self.ean),
+                write_quote_string("ContractedCapacity", self.contracted_capacity),
+                write_quote_string("ContractedFeedInCapacity", self.contracted_feed_in_capacity),
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> LoadMV.Customer:
+            """Parse Customer properties from VNF data."""
+            return cls(
+                ean=data.get("EAN", ""),
+                contracted_capacity=data.get("ContractedCapacity", ""),
+                contracted_feed_in_capacity=data.get("ContractedFeedInCapacity", ""),
             )
 
     @dataclass_json
@@ -313,11 +399,12 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     general: General
     presentations: list[ElementPresentation]
-    p_control: PControl | None = None
     q_control: QControl | None = None
+    pu_control: PUControl | None = None
     pi_control: PIControl | None = None
     ceres: dict | None = None
     restrictions: Capacity | None = None
+    customers: list[Customer] = field(default_factory=list)
 
     def register(self, network: NetworkMV) -> None:
         """Register load in MV network with GUID-based indexing.
@@ -340,29 +427,33 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
             str: The serialized representation.
 
         """
-        lines = []
-        lines.append(f"#General {self.general.serialize()}")
+        lines = [f"#General {self.general.serialize()}"]
 
-        if self.p_control:
-            lines.append(f"#P(U)Control {self.p_control.serialize()}")
-
-        if self.q_control:
-            lines.append(f"#QControl {self.q_control.serialize()}")
+        if self.pu_control:
+            lines.append(f"#P(U)Control {self.pu_control.serialize()}")
 
         if self.pi_control:
             lines.append(f"#P(I)Control {self.pi_control.serialize()}")
 
+        if self.q_control:
+            lines.append(f"#QControl {self.q_control.serialize()}")
+
         if self.ceres:
             lines.append(f"#CERES {self.ceres}")
+
+        lines.extend(f"#Customer {customer.serialize()}" for customer in self.customers)
 
         if self.restrictions:
             lines.append(f"#Restriction {self.restrictions.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 
@@ -380,19 +471,17 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
         general = cls.General.deserialize(general_data)
 
-        pcontrol_data = data.get("pControl", [{}])[0] if data.get("pControl") else {}
-        pcontrol = None
-        if pcontrol_data:
-            from .shared import PControl
-
-            pcontrol = PControl.deserialize(pcontrol_data)
-
         qcontrol_data = data.get("qControl", [{}])[0] if data.get("qControl") else {}
         qcontrol = None
         if qcontrol_data:
             from .shared import QControl
 
             qcontrol = QControl.deserialize(qcontrol_data)
+
+        pucontrol_data = data.get("puControl", [{}])[0] if data.get("puControl") else {}
+        pucontrol = None
+        if pucontrol_data:
+            pucontrol = cls.PUControl.deserialize(pucontrol_data)
 
         picontrol_data = data.get("piControl", [{}])[0] if data.get("piControl") else {}
         picontrol = None
@@ -409,6 +498,8 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         if restrictions_data:
             restrictions = cls.Capacity.deserialize(restrictions_data)
 
+        customers = [cls.Customer.deserialize(customer_data) for customer_data in data.get("customers", [])]
+
         presentations_data = data.get("presentations", [])
         presentations = []
         for pres_data in presentations_data:
@@ -420,9 +511,10 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         return cls(
             general=general,
             presentations=presentations,
-            p_control=pcontrol,
+            pu_control=pucontrol,
             q_control=qcontrol,
             pi_control=picontrol,
             ceres=ceres,
             restrictions=restrictions,
+            customers=customers,
         )

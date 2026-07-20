@@ -117,9 +117,9 @@ class TestPvRegistration(unittest.TestCase):
             output1=0.5,
             input2=2.0,
             output2=1.0,
-            measure_field1="Field1",
-            measure_field2="Field2",
-            measure_field3="Field3",
+            measure_field1=Guid(UUID("11111111-1111-1111-1111-111111111111")),
+            measure_field2=Guid(UUID("22222222-2222-2222-2222-222222222222")),
+            measure_field3=Guid(UUID("33333333-3333-3333-3333-333333333333")),
         )
 
         capacity = PVMV.Capacity(
@@ -388,14 +388,17 @@ class TestPvRegistration(unittest.TestCase):
             guid=self.pv_guid, name="PIControlPV", node=self.node_guid
         )
         inverter = PVMV.Inverter(snom=100.0)
+        measure_field1 = Guid(UUID("11111111-1111-1111-1111-111111111111"))
+        measure_field2 = Guid(UUID("22222222-2222-2222-2222-222222222222"))
+        measure_field3 = Guid(UUID("33333333-3333-3333-3333-333333333333"))
         pi_control = PVMV.PIControl(
             input1=1.0,
             output1=0.5,
             input2=2.0,
             output2=1.0,
-            measure_field1="Field1",
-            measure_field2="Field2",
-            measure_field3="Field3",
+            measure_field1=measure_field1,
+            measure_field2=measure_field2,
+            measure_field3=measure_field3,
         )
         presentation = ElementPresentation(sheet=self.sheet_guid)
 
@@ -408,9 +411,9 @@ class TestPvRegistration(unittest.TestCase):
         self.assertIn("Output1:0.5", serialized)
         self.assertIn("Input2:2.0", serialized)
         self.assertIn("Output2:1.0", serialized)
-        self.assertIn("MeasureField1:'Field1'", serialized)
-        self.assertIn("MeasureField2:'Field2'", serialized)
-        self.assertIn("MeasureField3:'Field3'", serialized)
+        self.assertIn(f"MeasureField1:'{{{str(measure_field1).upper()}}}'", serialized)
+        self.assertIn(f"MeasureField2:'{{{str(measure_field2).upper()}}}'", serialized)
+        self.assertIn(f"MeasureField3:'{{{str(measure_field3).upper()}}}'", serialized)
 
     def test_pv_with_capacity_restriction_serializes_correctly(self) -> None:
         """Test that PVs with capacity restrictions serialize correctly."""

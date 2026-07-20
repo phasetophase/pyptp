@@ -33,14 +33,19 @@ class SelectionLV(DataClassJsonMixin):
     class General(DataClassJsonMixin):
         """Core identification properties for LV selections.
 
-        Contains the selection name for user identification.
+        Contains the selection GUID and name for user identification.
         """
 
+        guid: Guid = field(
+            default_factory=lambda: Guid(uuid4()),
+            metadata=config(encoder=encode_guid, decoder=decode_guid),
+        )
         name: str = string_field()
 
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(
+                write_guid_no_skip("GUID", self.guid),
                 write_quote_string("Name", self.name),
             )
 
@@ -48,6 +53,7 @@ class SelectionLV(DataClassJsonMixin):
         def deserialize(cls, data: dict) -> SelectionLV.General:
             """Deserialize General properties."""
             return cls(
+                guid=decode_guid(data.get("GUID", str(uuid4()))),
                 name=data.get("Name", ""),
             )
 

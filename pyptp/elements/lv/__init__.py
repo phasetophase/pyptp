@@ -24,6 +24,7 @@ from pyptp.elements.lv.link import LinkLV
 from pyptp.elements.lv.load import LoadLV
 from pyptp.elements.lv.load_switch import LoadSwitchLV
 from pyptp.elements.lv.measure_field import MeasureFieldLV
+from pyptp.elements.lv.measurement_file import MeasurementFileLV
 from pyptp.elements.lv.node import NodeLV
 
 # Presentation classes
@@ -34,6 +35,7 @@ from pyptp.elements.lv.presentations import (
     SecundairPresentation,
 )
 from pyptp.elements.lv.profile import ProfileLV
+from pyptp.elements.lv.profile_file import ProfileFileLV
 from pyptp.elements.lv.properties import PropertiesLV
 from pyptp.elements.lv.pv import PVLV
 from pyptp.elements.lv.reactance_coil import ReactanceCoilLV
@@ -49,7 +51,6 @@ from pyptp.elements.lv.shared import (
     FuseType,
     GeoCablePart,
     HarmonicsType,
-    PControl,
     Text,
 )
 from pyptp.elements.lv.sheet import SheetLV
@@ -87,9 +88,10 @@ __all__ = [
     "LoadLV",
     "LoadSwitchLV",
     "MeasureFieldLV",
+    "MeasurementFileLV",
     "NodeLV",
     "NodePresentation",
-    "PControl",
+    "ProfileFileLV",
     "ProfileLV",
     "PropertiesLV",
     "ReactanceCoilLV",

@@ -31,8 +31,10 @@ if TYPE_CHECKING:
     from pyptp.elements.lv.load import LoadLV
     from pyptp.elements.lv.load_switch import LoadSwitchLV
     from pyptp.elements.lv.measure_field import MeasureFieldLV
+    from pyptp.elements.lv.measurement_file import MeasurementFileLV
     from pyptp.elements.lv.node import NodeLV
     from pyptp.elements.lv.profile import ProfileLV
+    from pyptp.elements.lv.profile_file import ProfileFileLV
     from pyptp.elements.lv.pv import PVLV
     from pyptp.elements.lv.reactance_coil import ReactanceCoilLV
     from pyptp.elements.lv.selection import SelectionLV
@@ -85,6 +87,8 @@ class NetworkLV:
         self.pvs: dict[Guid, PVLV] = {}
         self.load_switches: dict[Guid, LoadSwitchLV] = {}
         self.measure_fields: dict[Guid, MeasureFieldLV] = {}
+        self.profile_files: list[ProfileFileLV] = []
+        self.measurement_files: list[MeasurementFileLV] = []
         self.selections: list[SelectionLV] = []
 
     def get_transformer(self, guid: str) -> TransformerLV | None:
@@ -239,7 +243,7 @@ class NetworkLV:
     def save(
         self,
         path: str | Path,
-        version: GnfVersion = GnfVersion.G8_9,
+        version: GnfVersion = GnfVersion.G8_12,
         *,
         validate_on_migration_failure: bool = True,
     ) -> None:
@@ -247,7 +251,7 @@ class NetworkLV:
 
         Args:
             path: Target file path for GNF output.
-            version: Target GNF version (default: G8.9).
+            version: Target GNF version (default: G8.12).
             validate_on_migration_failure: Run validators and include diagnostics
                 in the error message when version migration fails (default: True).
 
@@ -256,7 +260,7 @@ class NetworkLV:
             RuntimeError: If version migration fails.
 
         Example:
-            >>> network.save("output.gnf")  # Saves as G8.9
+            >>> network.save("output.gnf")  # Saves as G8.12
             >>> network.save("output.gnf", GnfVersion.G8_7)  # Saves as G8.7
 
         """

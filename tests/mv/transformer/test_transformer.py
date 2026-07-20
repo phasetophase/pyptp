@@ -5,7 +5,12 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid
-from pyptp.elements.enums import EnclosureType, InsulationCondition, VoltageControlSort
+from pyptp.elements.enums import (
+    EnclosureType,
+    InsulationCondition,
+    VoltageControlSort,
+    VoltageControlStatus,
+)
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import BranchPresentation, NodePresentation
@@ -149,7 +154,7 @@ class TestTransformerRegistration(unittest.TestCase):
 
         voltage_control = TransformerMV.VoltageControl(
             present=True,
-            status=True,
+            status=VoltageControlStatus.OWN,
             measure_side=2,
             setpoint=1.05,
             deadband=0.02,
@@ -157,14 +162,18 @@ class TestTransformerRegistration(unittest.TestCase):
             rc=0.5,
             xc=1.5,
             compounding_at_generation=False,
-            pmin1=-50,
-            umin1=0.95,
-            pmax1=50,
-            umax1=1.05,
-            pmin2=-25,
-            umin2=0.98,
-            pmax2=25,
-            umax2=1.02,
+            load_dependencies=[
+                TransformerMV.LoadDependent(
+                    p_smaller=-50,
+                    u_smaller=0.95,
+                    p_small=50,
+                    u_small=1.05,
+                    p_great=-25,
+                    u_great=0.98,
+                    p_greater=25,
+                    u_greater=1.02,
+                ),
+            ],
         )
 
         dynamics = TransformerMV.Dynamics(
@@ -259,18 +268,18 @@ class TestTransformerRegistration(unittest.TestCase):
         self.assertIn(f"Node2:'{{{str(self.node2_guid).upper()}}}'", serialized)
 
         # Verify voltage control properties
-        self.assertIn("OwnControl:True", serialized)
-        self.assertIn("ControlStatus:1", serialized)
+        self.assertIn("OwnPresent:True", serialized)
+        self.assertIn("Status:1", serialized)
         self.assertIn("MeasureSide:2", serialized)
         self.assertIn("SetPoint:1.05", serialized)
         self.assertIn("DeadBand:0.02", serialized)
         self.assertIn("Rc:0.5", serialized)
         self.assertIn("Xc:1.5", serialized)
         self.assertIn("CompoundingAtGeneration:False", serialized)
-        self.assertIn("Pmin1:-50", serialized)
-        self.assertIn("Umin1:0.95", serialized)
-        self.assertIn("Pmax1:50", serialized)
-        self.assertIn("Umax1:1.05", serialized)
+        self.assertIn("1.Pmin1:-50", serialized)
+        self.assertIn("1.Umin1:0.95", serialized)
+        self.assertIn("1.Pmax1:50", serialized)
+        self.assertIn("1.Umax1:1.05", serialized)
 
         # Verify transformer type properties
         self.assertIn("ShortName:'FullType'", serialized)
@@ -396,7 +405,7 @@ class TestTransformerRegistration(unittest.TestCase):
         transformer_type = TransformerMV.TransformerType(short_name="VCType")
         voltage_control = TransformerMV.VoltageControl(
             present=True,
-            status=True,
+            status=VoltageControlStatus.OWN,
             measure_side=2,
             setpoint=1.05,
             deadband=0.02,
@@ -410,15 +419,16 @@ class TestTransformerRegistration(unittest.TestCase):
 
         serialized = transformer.serialize()
         self.assertIn("#VoltageControl", serialized)
-        self.assertIn("OwnControl:True", serialized)
-        self.assertIn("ControlStatus:1", serialized)
+        self.assertIn("OwnPresent:True", serialized)
+        self.assertIn("Status:1", serialized)
         self.assertIn("MeasureSide:2", serialized)
         self.assertIn("SetPoint:1.05", serialized)
         self.assertIn("DeadBand:0.02", serialized)
-        # Should have defaults
+        # Should have defaults (four load-dependent sets, each -100/100)
         self.assertIn("CompoundingAtGeneration:True", serialized)
-        self.assertIn("Pmin1:-100", serialized)
-        self.assertIn("Pmax1:100", serialized)
+        for j in range(1, 5):
+            self.assertIn(f"{j}.Pmin1:-100", serialized)
+            self.assertIn(f"{j}.Pmax1:100", serialized)
 
     def test_transformer_with_dynamics_only(self) -> None:
         """Test that transformers with only dynamics serialize correctly."""

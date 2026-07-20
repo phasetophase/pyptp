@@ -28,6 +28,7 @@ from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
+    write_boolean,
     write_boolean_no_skip,
     write_double,
     write_double_no_skip,
@@ -40,8 +41,15 @@ from pyptp.elements.serialization_helpers import (
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
-    from pyptp.elements.lv.shared import EfficiencyType, HarmonicsType, PControl
+    from pyptp.elements.lv.shared import EfficiencyType, HarmonicsType
     from pyptp.network_lv import NetworkLV
+
+
+def _default_efficiency() -> EfficiencyType:
+    """Build the default '0,1..1 pu: 95 %' efficiency curve."""
+    from pyptp.elements.lv.shared import EfficiencyType
+
+    return EfficiencyType(input1=0.0, output1=10.0, input2=0.1, output2=95.0, input3=1.0, output3=95.0)
 
 
 @dataclass_json
@@ -77,13 +85,11 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
         phase: int = 0
         pref: float = 0.0
         """Active power generation in MW (positive = charging from network)."""
-        state_of_charge: float = 0.0
+        state_of_charge: float = 50.0
         """Initial state of charge in %."""
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
-        capacity: float = 100
+        capacity: float = 0.0
         """Storage capacity in MWh."""
-        c_rate: float = 0.5
-        """1 hour nominal discharge rate in /h."""
         harmonics_type: str = string_field()
 
         def serialize(self) -> str:
@@ -105,13 +111,12 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_boolean_no_skip("s_L3", value=self.s_L3),
                 write_boolean_no_skip("s_N", value=self.s_N),
                 write_quote_string("FieldName", self.field_name),
-                write_boolean_no_skip("OnePhase", value=self.single_phase),
+                write_boolean("OnePhase", value=self.single_phase),
                 write_integer_no_skip("Phase", self.phase),
-                write_double_no_skip("Pref", self.pref),
+                write_double("Pref", self.pref),
                 write_double_no_skip("StateOfCharge", self.state_of_charge),
                 write_guid("Profile", self.profile),
-                write_double_no_skip("Capacity", self.capacity),
-                write_double_no_skip("Crate", self.c_rate),
+                write_double("Capacity", self.capacity),
                 write_quote_string("HarmonicsType", self.harmonics_type),
             )
 
@@ -141,10 +146,9 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
                 single_phase=data.get("OnePhase", False),
                 phase=data.get("Phase", 0),
                 pref=data.get("Pref", 0.0),
-                state_of_charge=data.get("StateOfCharge", 0.0),
+                state_of_charge=data.get("StateOfCharge", 50.0),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
-                capacity=data.get("Capacity", 100),
-                c_rate=data.get("Crate", 0.5),
+                capacity=data.get("Capacity", 0.0),
                 harmonics_type=data.get("HarmonicsType", ""),
             )
 
@@ -156,11 +160,11 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
         accurate power flow modeling in both charging and discharging modes.
         """
 
-        s_nom: float = 12.5
+        s_nom: float = 0.0
         """Nominal power of the inverter in MVA."""
-        charge_efficiency_type: str = string_field()
+        charge_efficiency_type: str = string_field("0,1..1 pu: 95 %")
         """Type of the charging efficiency, as function of the input power."""
-        discharge_efficiency_type: str = string_field()
+        discharge_efficiency_type: str = string_field("0,1..1 pu: 95 %")
         """Type of the discharging efficiency, as function of the output power."""
         cos_ref: float = 1.0
         """Power factor."""
@@ -173,10 +177,10 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
 
             """
             return serialize_properties(
-                write_double_no_skip("Snom", self.s_nom),
+                write_double("Snom", self.s_nom),
                 write_quote_string("ChargeEfficiencyType", self.charge_efficiency_type),
                 write_quote_string("DischargeEfficiencyType", self.discharge_efficiency_type),
-                write_double_no_skip("Cosref", self.cos_ref),
+                write_double("Cosref", self.cos_ref),
             )
 
         @classmethod
@@ -191,17 +195,113 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
 
             """
             return cls(
-                s_nom=data.get("Snom", 12.5),
+                s_nom=data.get("Snom", 0.0),
                 charge_efficiency_type=data.get("ChargeEfficiencyType", ""),
                 discharge_efficiency_type=data.get("DischargeEfficiencyType", ""),
                 cos_ref=data.get("Cosref", 1.0),
             )
 
+    @dataclass
+    class PUControl(DataClassJsonMixin):
+        """Power(voltage) control curve for battery active power."""
+
+        input1: float = 1.0
+        output1: float = 0.0
+        input2: float = 0.0
+        output2: float = 0.0
+        input3: float = 0.0
+        output3: float = 0.0
+        input4: float = 0.0
+        output4: float = 0.0
+        input5: float = 0.0
+        output5: float = 0.0
+
+        def serialize(self) -> str:
+            """Serialize PUControl properties to GNF format."""
+            return serialize_properties(
+                write_double_no_skip("Input1", self.input1),
+                write_double_no_skip("Output1", self.output1),
+                write_double_no_skip("Input2", self.input2),
+                write_double_no_skip("Output2", self.output2),
+                write_double_no_skip("Input3", self.input3),
+                write_double_no_skip("Output3", self.output3),
+                write_double_no_skip("Input4", self.input4),
+                write_double_no_skip("Output4", self.output4),
+                write_double_no_skip("Input5", self.input5),
+                write_double_no_skip("Output5", self.output5),
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> BatteryLV.PUControl:
+            """Parse PUControl properties from GNF section data."""
+            return cls(
+                input1=data.get("Input1", 1.0),
+                output1=data.get("Output1", 0.0),
+                input2=data.get("Input2", 0.0),
+                output2=data.get("Output2", 0.0),
+                input3=data.get("Input3", 0.0),
+                output3=data.get("Output3", 0.0),
+                input4=data.get("Input4", 0.0),
+                output4=data.get("Output4", 0.0),
+                input5=data.get("Input5", 0.0),
+                output5=data.get("Output5", 0.0),
+            )
+
+    @dataclass
+    class PIControl(DataClassJsonMixin):
+        """Power(current) control curve for battery active power."""
+
+        input1: float = 1.0
+        output1: float = 0.0
+        input2: float = 0.0
+        output2: float = 0.0
+        input3: float = 0.0
+        output3: float = 0.0
+        input4: float = 0.0
+        output4: float = 0.0
+        input5: float = 0.0
+        output5: float = 0.0
+        measure_field1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
+
+        def serialize(self) -> str:
+            """Serialize PIControl properties to GNF format."""
+            return serialize_properties(
+                write_double_no_skip("Input1", self.input1),
+                write_double_no_skip("Output1", self.output1),
+                write_double_no_skip("Input2", self.input2),
+                write_double_no_skip("Output2", self.output2),
+                write_double_no_skip("Input3", self.input3),
+                write_double_no_skip("Output3", self.output3),
+                write_double_no_skip("Input4", self.input4),
+                write_double_no_skip("Output4", self.output4),
+                write_double_no_skip("Input5", self.input5),
+                write_double_no_skip("Output5", self.output5),
+                write_guid("MeasureField1", self.measure_field1, skip=NIL_GUID),
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> BatteryLV.PIControl:
+            """Parse PIControl properties from GNF section data."""
+            return cls(
+                input1=data.get("Input1", 1.0),
+                output1=data.get("Output1", 0.0),
+                input2=data.get("Input2", 0.0),
+                output2=data.get("Output2", 0.0),
+                input3=data.get("Input3", 0.0),
+                output3=data.get("Output3", 0.0),
+                input4=data.get("Input4", 0.0),
+                output4=data.get("Output4", 0.0),
+                input5=data.get("Input5", 0.0),
+                output5=data.get("Output5", 0.0),
+                measure_field1=decode_guid(data.get("MeasureField1", str(NIL_GUID))),
+            )
+
     general: General
     presentations: list[ElementPresentation]
-    charge_efficiency: EfficiencyType
-    discharge_efficiency: EfficiencyType
-    power_control: PControl | None = None
+    charge_efficiency: EfficiencyType = field(default_factory=_default_efficiency)
+    discharge_efficiency: EfficiencyType = field(default_factory=_default_efficiency)
+    pu_control: PUControl | None = None
+    pi_control: PIControl | None = None
     inverter: Inverter | None = None
     harmonics: HarmonicsType | None = None
 
@@ -237,8 +337,11 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
         if self.inverter:
             lines.append(f"#Inverter {self.inverter.serialize()}")
 
-        if self.power_control:
-            lines.append(f"#PControl {self.power_control.serialize()}")
+        if self.pu_control:
+            lines.append(f"#P(U)Control {self.pu_control.serialize()}")
+
+        if self.pi_control:
+            lines.append(f"#P(I)Control {self.pi_control.serialize()}")
 
         if self.charge_efficiency:
             lines.append(f"#ChargeEfficiencyType {self.charge_efficiency.serialize()}")
@@ -266,7 +369,7 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
                   inverter, efficiency, and control information.
 
         Returns:
-            Initialized TBatteryLS instance with all parsed battery components.
+            Initialized BatteryLV instance with all parsed battery components.
 
         """
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
@@ -275,22 +378,27 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
         inverter_data = data.get("inverter", [{}])[0] if data.get("inverter") else None
         inverter = cls.Inverter.deserialize(inverter_data) if inverter_data else None
 
-        power_control_data = data.get("power_control", [{}])[0] if data.get("power_control") else None
-        power_control = None
-        if power_control_data:
-            from pyptp.elements.lv.shared import PControl
+        pu_data = data.get("pu_control", [{}])[0] if data.get("pu_control") else None
+        pu_control = cls.PUControl.deserialize(pu_data) if pu_data else None
 
-            power_control = PControl.deserialize(power_control_data)
+        pi_data = data.get("pi_control", [{}])[0] if data.get("pi_control") else None
+        pi_control = cls.PIControl.deserialize(pi_data) if pi_data else None
 
-        charge_efficiency_data = data.get("charge_efficiency", [{}])[0] if data.get("charge_efficiency") else {}
         from pyptp.elements.lv.shared import EfficiencyType
 
-        charge_efficiency = EfficiencyType.deserialize(charge_efficiency_data)
+        charge_efficiency_data = data.get("charge_efficiency", [{}])[0] if data.get("charge_efficiency") else None
+        charge_efficiency = (
+            EfficiencyType.deserialize(charge_efficiency_data) if charge_efficiency_data else _default_efficiency()
+        )
 
         discharge_efficiency_data = (
-            data.get("discharge_efficiency", [{}])[0] if data.get("discharge_efficiency") else {}
+            data.get("discharge_efficiency", [{}])[0] if data.get("discharge_efficiency") else None
         )
-        discharge_efficiency = EfficiencyType.deserialize(discharge_efficiency_data)
+        discharge_efficiency = (
+            EfficiencyType.deserialize(discharge_efficiency_data)
+            if discharge_efficiency_data
+            else _default_efficiency()
+        )
 
         harmonics_data = data.get("harmonics", [{}])[0] if data.get("harmonics") else None
         harmonics = None
@@ -300,17 +408,15 @@ class BatteryLV(ExtrasNotesMixin, HasPresentationsMixin):
             harmonics = HarmonicsType.deserialize(harmonics_data)
 
         presentations_data = data.get("presentations", [])
-        presentations = []
-        for pres_data in presentations_data:
-            presentation = ElementPresentation.deserialize(pres_data)
-            presentations.append(presentation)
+        presentations = [ElementPresentation.deserialize(pres_data) for pres_data in presentations_data]
 
         return cls(
             general=general,
             presentations=presentations,
             charge_efficiency=charge_efficiency,
             discharge_efficiency=discharge_efficiency,
-            power_control=power_control,
+            pu_control=pu_control,
+            pi_control=pi_control,
             inverter=inverter,
             harmonics=harmonics,
         )

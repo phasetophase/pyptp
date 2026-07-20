@@ -21,6 +21,7 @@ class SourceHandler(DeclarativeHandler[NetworkMV]):
     COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]

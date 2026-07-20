@@ -18,6 +18,7 @@ class ShuntCapacitorHandler(DeclarativeHandler[TNetworkMSType]):
         SectionConfig("general", "#General ", required=True),
         SectionConfig("active_filter", "#ActiveFilter ", required=False),
         SectionConfig("presentations", "#Presentation ", required=False),
+        SectionConfig("icon", "#Icon ", required=False),
         SectionConfig("extras", "#Extra Text:", required=False),
         SectionConfig("notes", "#Note Text:", required=False),
     ]

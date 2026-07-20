@@ -12,11 +12,18 @@ from typing import TYPE_CHECKING, Any
 
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json  # type: ignore[import-untyped]
 
+from pyptp.elements.color_utils import CL_BLACK, DelphiColor
 from pyptp.elements.element_utils import (
     FloatCoords,
     decode_float_coords,
     encode_float_coords,
     string_field,
+)
+from pyptp.elements.serialization_helpers import (
+    serialize_properties,
+    write_delphi_color,
+    write_integer,
+    write_quote_string,
 )
 
 if TYPE_CHECKING:
@@ -178,6 +185,42 @@ class Geography(DataClassJsonMixin):
         )
 
 
+@dataclass_json
+@dataclass
+class Icon(DataClassJsonMixin):
+    """Optional icon displayed near a network element in diagrams.
+
+    A short text in a shaped background (configurable color, shape, size).
+    """
+
+    text: str = string_field()
+    text_color: DelphiColor = CL_BLACK
+    background_color: DelphiColor = CL_BLACK
+    shape: int = 0
+    size: int = 0
+
+    def serialize(self) -> str:
+        """Serialize icon properties to GNF/VNF format."""
+        return serialize_properties(
+            write_quote_string("Text", self.text),
+            write_delphi_color("TextColor", self.text_color),
+            write_delphi_color("BackgroundColor", self.background_color),
+            write_integer("Shape", self.shape),
+            write_integer("Size", self.size),
+        )
+
+    @classmethod
+    def deserialize(cls, data: dict) -> Icon:
+        """Parse icon properties from GNF/VNF section data."""
+        return cls(
+            text=data.get("Text", ""),
+            text_color=DelphiColor(data.get("TextColor", str(CL_BLACK))),
+            background_color=DelphiColor(data.get("BackgroundColor", str(CL_BLACK))),
+            shape=data.get("Shape", 0),
+            size=data.get("Size", 0),
+        )
+
+
 # Type aliases for convenient imports
 E = Extra
 N = Note
@@ -230,6 +273,17 @@ class ExtrasNotesMixin:
         if self.notes is None:
             return []
         return self.notes
+
+
+@dataclass(kw_only=True)
+class IconMixin:
+    """Mixin providing an optional Icon annotation.
+
+    Enables network elements to carry a diagram icon that is
+    persisted as a `#Icon` section in GNF/VNF formats.
+    """
+
+    icon: Icon | None = None
 
 
 class HasPresentationsMixin:

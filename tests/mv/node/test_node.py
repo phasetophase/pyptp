@@ -6,7 +6,7 @@ from uuid import UUID
 from pyptp.elements.color_utils import CL_BLACK, CL_SILVER, DelphiColor
 from pyptp.elements.element_utils import Guid
 from pyptp.elements.enums import NodePresentationSymbol
-from pyptp.elements.mixins import Extra, Note
+from pyptp.elements.mixins import Extra, Icon, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import NodePresentation
 from pyptp.elements.mv.sheet import SheetMV
@@ -159,7 +159,7 @@ class TestNodeRegistration(unittest.TestCase):
             light_arc_protection=True,
         )
 
-        icon = NodeMV.Icon(
+        icon = Icon(
             text="TestIcon",
             text_color=CL_BLACK,
             background_color=CL_SILVER,

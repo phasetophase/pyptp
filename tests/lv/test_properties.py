@@ -332,7 +332,7 @@ class TestTPropertiesLS(unittest.TestCase):
         result = invisible.serialize()
 
         # Should be empty string for empty list
-        self.assertEqual(result, " ")
+        self.assertEqual(result, "")
 
     def test_invisible_serialize_with_properties(self) -> None:
         """Test Invisible class serialization with properties."""
@@ -372,7 +372,7 @@ class TestTPropertiesLS(unittest.TestCase):
         result = history.serialize()
 
         # Default False values are skipped, resulting in empty string
-        self.assertEqual(result, " ")
+        self.assertEqual(result, "")
 
     def test_history_serialize_with_values(self) -> None:
         """Test History class serialization with values."""
@@ -404,7 +404,7 @@ class TestTPropertiesLS(unittest.TestCase):
         result = history_items.serialize()
 
         # Should be empty string for empty list
-        self.assertEqual(result, " ")
+        self.assertEqual(result, "")
 
     def test_history_items_serialize_with_texts(self) -> None:
         """Test HistoryItems class serialization with texts."""
@@ -431,7 +431,7 @@ class TestTPropertiesLS(unittest.TestCase):
         result = users.serialize()
 
         # Should be empty string for empty list
-        self.assertEqual(result, " ")
+        self.assertEqual(result, "")
 
     def test_users_serialize_with_users(self) -> None:
         """Test Users class serialization with users."""

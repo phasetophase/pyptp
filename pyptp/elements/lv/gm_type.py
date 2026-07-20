@@ -41,6 +41,7 @@ class GMTypeLV:
             number: Unique profile identifier.
             type: Profile type name (e.g., 'PV', 'EV').
             indicator: Category indicator (e.g., 'Load', 'HP').
+            default_p: Default active power.
             cos_phi: Power factor.
             correlation: Correlation coefficient.
 
@@ -49,6 +50,7 @@ class GMTypeLV:
         number: int = 0
         type: str = string_field()
         indicator: str = string_field()
+        default_p: float = 0.0
         cos_phi: float = 0.98
         correlation: float = 0.0
 
@@ -58,6 +60,7 @@ class GMTypeLV:
                 write_integer("Number", self.number),
                 write_quote_string("GMtype", self.type),
                 write_quote_string("Indicator", self.indicator),
+                write_double("DefaultP", self.default_p, skip=0.0),
                 write_double_no_skip("CosPhi", self.cos_phi),
                 write_double("Correlation", self.correlation, skip=0.0),
             )
@@ -73,10 +76,14 @@ class GMTypeLV:
                 float(str(correlation_raw).replace(",", ".")) if isinstance(correlation_raw, str) else correlation_raw
             )
 
+            default_p_raw = data.get("DefaultP", 0.0)
+            default_p = float(str(default_p_raw).replace(",", ".")) if isinstance(default_p_raw, str) else default_p_raw
+
             return cls(
                 number=data.get("Number", 0),
                 type=data.get("GMtype", ""),
                 indicator=data.get("Indicator", ""),
+                default_p=default_p,
                 cos_phi=cos_phi,
                 correlation=correlation,
             )

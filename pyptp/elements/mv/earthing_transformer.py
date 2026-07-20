@@ -21,7 +21,7 @@ from pyptp.elements.element_utils import (
     encode_guid_optional,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class EarthingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
+class EarthingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Medium-voltage earthing transformer with grounding configuration.
 
     Supports neutral grounding system analysis with configurable earthing
@@ -193,6 +193,9 @@ class EarthingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
 
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 

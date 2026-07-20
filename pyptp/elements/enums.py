@@ -89,13 +89,15 @@ class GnfVersion(StrEnum):
     """GNF (Gaia/LV) file format versions supported for saving.
 
     Values correspond to version strings written to the first line of GNF files.
-    Only versions with save modules in the migrator DLL are included.
-    G8.9 is the latest format (G8.10 doesn't exist, G8.11 saves as G8.9).
+    G8.12 is the latest format and the one pyptp models natively; saving to any
+    older version writes a native G8.12 file and lets the migrator down-convert.
     """
 
     G8_7 = "G8.7"
     G8_8 = "G8.8"
     G8_9 = "G8.9"
+    G8_11 = "G8.11"
+    G8_12 = "G8.12"
 
 
 class VnfVersion(StrEnum):
@@ -110,6 +112,7 @@ class VnfVersion(StrEnum):
     V9_9 = "V9.9"
     V9_10 = "V9.10"
     V9_11 = "V9.11"
+    V9_12 = "V9.12"
 
 
 class InsulationCondition(StrEnum):
@@ -169,14 +172,56 @@ class HouseType(StrEnum):
     APARTMENT = "Apartment"
 
 
-class VoltageControlSort(IntEnum):
-    """Voltage control type for tap-changing transformers.
+class VoltageControlStatus(IntEnum):
+    """Operating status of the voltage control."""
 
-    Determines how the automatic voltage control operates.
-    """
+    OFF = 0
+    """Voltage control is off."""
+
+    OWN = 1
+    """Voltage control operates on its own measurement."""
+
+    MASTER = 2
+    """Voltage control acts as master."""
+
+    MASTER_OWN = 3
+    """Voltage control acts as master with own standby"""
+
+
+class VoltageControlSort(IntEnum):
+    """Voltage control type for tap-changing transformers."""
+
+    COMPOUNDING = 0
+    """Compounding control - adjusts setpoint based on current flow."""
+
+    LOAD1 = 1
+    """Load-based control - adjusts voltage based on load conditions 1."""
+
+    LOAD2 = 2
+    """Load-based control - adjusts voltage based on load conditions 2."""
+
+    LOAD3 = 3
+    """Load-based control - adjusts voltage based on load conditions 3."""
+
+    LOAD4 = 4
+    """Load-based control - adjusts voltage based on load conditions 4."""
+
+
+class SpecialVoltageControlSort(IntEnum):
+    """Voltage control type for special transformers."""
 
     COMPOUNDING = 0
     """Compounding control - adjusts setpoint based on current flow."""
 
     LOAD = 1
     """Load-based control - adjusts voltage based on load conditions."""
+
+
+class SpecialVoltageControlStatus(IntEnum):
+    """Operating status of the special transformer voltage control."""
+
+    OFF = 0
+    """Voltage control is off."""
+
+    ON = 1
+    """Voltage control is on."""

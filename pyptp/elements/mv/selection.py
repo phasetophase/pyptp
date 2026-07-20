@@ -13,7 +13,11 @@ from uuid import uuid4
 from dataclasses_json import DataClassJsonMixin, dataclass_json
 
 from pyptp.elements.element_utils import Guid, config, decode_guid, encode_guid, string_field
-from pyptp.elements.serialization_helpers import serialize_properties, write_guid_no_skip, write_quote_string
+from pyptp.elements.serialization_helpers import (
+    serialize_properties,
+    write_guid_no_skip,
+    write_quote_string,
+)
 
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
@@ -36,18 +40,25 @@ class SelectionMV(DataClassJsonMixin):
         Contains the selection name for user identification.
         """
 
+        guid: Guid = field(
+            default_factory=lambda: Guid(uuid4()),
+            metadata=config(encoder=encode_guid, decoder=decode_guid),
+        )
         name: str = string_field()
 
         def serialize(self) -> str:
             """Serialize General properties."""
             return serialize_properties(
+                write_guid_no_skip("GUID", self.guid),
                 write_quote_string("Name", self.name),
             )
 
         @classmethod
         def deserialize(cls, data: dict) -> SelectionMV.General:
             """Deserialize General properties."""
+            guid = data.get("GUID")
             return cls(
+                guid=decode_guid(guid) if guid else Guid(uuid4()),
                 name=data.get("Name", ""),
             )
 

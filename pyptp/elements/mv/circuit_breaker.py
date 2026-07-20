@@ -95,11 +95,18 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         current_protection2_color: DelphiColor = field(default=CL_BLACK)
         current_protection2_type: str = string_field()
 
+        current_protection3_present: bool = False
+        current_protection3_active: bool = False
+        current_protection3_info: str = string_field()
+        current_protection3_color: DelphiColor = field(default=CL_BLACK)
+        current_protection3_type: str = string_field()
+
         earth_fault_protection1_present: bool = False
         earth_fault_protection1_active: bool = False
         earth_fault_protection1_info: str = string_field()
         earth_fault_protection1_direction: int = 0
         earth_fault_protection1_rca: float = 0.0
+        earth_fault_protection1_color: DelphiColor = field(default=CL_BLACK)
         earth_fault_protection1_type: str = string_field()
 
         earth_fault_protection2_present: bool = False
@@ -107,7 +114,14 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         earth_fault_protection2_info: str = string_field()
         earth_fault_protection2_direction: int = 0
         earth_fault_protection2_rca: float = 0.0
+        earth_fault_protection2_color: DelphiColor = field(default=CL_BLACK)
         earth_fault_protection2_type: str = string_field()
+
+        earth_fault_protection3_present: bool = False
+        earth_fault_protection3_active: bool = False
+        earth_fault_protection3_info: str = string_field()
+        earth_fault_protection3_color: DelphiColor = field(default=CL_BLACK)
+        earth_fault_protection3_type: str = string_field()
 
         voltage_protection_present: bool = False
         voltage_protection_active: bool = False
@@ -182,75 +196,49 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_boolean("CurrentProtection1Present", value=self.current_protection1_present),
                 write_boolean("CurrentProtection1Active", value=self.current_protection1_active),
                 write_quote_string("CurrentProtection1Info", self.current_protection1_info),
-                write_integer(
-                    "CurrentProtection1Direction",
-                    self.current_protection1_direction,
-                    skip=0,
-                ),
+                write_integer("CurrentProtection1Direction", self.current_protection1_direction),
                 write_double("CurrentProtection1RCA", self.current_protection1_rca),
                 write_delphi_color("CurrentProtection1Color", self.current_protection1_color),
                 write_quote_string("CurrentProtection1Type", self.current_protection1_type),
                 write_boolean("CurrentProtection2Present", value=self.current_protection2_present),
                 write_boolean("CurrentProtection2Active", value=self.current_protection2_active),
                 write_quote_string("CurrentProtection2Info", self.current_protection2_info),
-                write_integer(
-                    "CurrentProtection2Direction",
-                    self.current_protection2_direction,
-                    skip=0,
-                ),
+                write_integer("CurrentProtection2Direction", self.current_protection2_direction),
                 write_double("CurrentProtection2RCA", self.current_protection2_rca),
                 write_delphi_color("CurrentProtection2Color", self.current_protection2_color),
                 write_quote_string("CurrentProtection2Type", self.current_protection2_type),
-                write_boolean(
-                    "EarthFaultProtection1Present",
-                    value=self.earth_fault_protection1_present,
-                ),
-                write_boolean(
-                    "EarthFaultProtection1Active",
-                    value=self.earth_fault_protection1_active,
-                ),
+                write_boolean("CurrentProtection3Present", self.current_protection3_present),
+                write_boolean("CurrentProtection3Active", self.current_protection3_active),
+                write_quote_string("CurrentProtection3Info", self.current_protection3_info),
+                write_delphi_color("CurrentProtection3Color", self.current_protection3_color),
+                write_quote_string("CurrentProtection3Type", self.current_protection3_type),
+                write_boolean("EarthFaultProtection1Present", self.earth_fault_protection1_present),
+                write_boolean("EarthFaultProtection1Active", self.earth_fault_protection1_active),
                 write_quote_string("EarthFaultProtection1Info", self.earth_fault_protection1_info),
-                write_integer(
-                    "EarthFaultProtection1Direction",
-                    self.earth_fault_protection1_direction,
-                    skip=0,
-                ),
+                write_integer("EarthFaultProtection1Direction", self.earth_fault_protection1_direction),
                 write_double("EarthFaultProtection1RCA", self.earth_fault_protection1_rca),
+                write_delphi_color("EarthFaultProtection1Color", self.earth_fault_protection1_color),
                 write_quote_string("EarthFaultProtection1Type", self.earth_fault_protection1_type),
-                write_boolean(
-                    "EarthFaultProtection2Present",
-                    value=self.earth_fault_protection2_present,
-                ),
-                write_boolean(
-                    "EarthFaultProtection2Active",
-                    value=self.earth_fault_protection2_active,
-                ),
+                write_boolean("EarthFaultProtection2Present", self.earth_fault_protection2_present),
+                write_boolean("EarthFaultProtection2Active", self.earth_fault_protection2_active),
                 write_quote_string("EarthFaultProtection2Info", self.earth_fault_protection2_info),
-                write_integer(
-                    "EarthFaultProtection2Direction",
-                    self.earth_fault_protection2_direction,
-                    skip=0,
-                ),
+                write_integer("EarthFaultProtection2Direction", self.earth_fault_protection2_direction),
                 write_double("EarthFaultProtection2RCA", self.earth_fault_protection2_rca),
+                write_delphi_color("EarthFaultProtection2Color", self.earth_fault_protection2_color),
                 write_quote_string("EarthFaultProtection2Type", self.earth_fault_protection2_type),
+                write_boolean("EarthFaultProtection3Present", self.earth_fault_protection3_present),
+                write_boolean("EarthFaultProtection3Active", self.earth_fault_protection3_active),
+                write_quote_string("EarthFaultProtection3Info", self.earth_fault_protection3_info),
+                write_delphi_color("EarthFaultProtection3Color", self.earth_fault_protection3_color),
+                write_quote_string("EarthFaultProtection3Type", self.earth_fault_protection3_type),
                 write_boolean("VoltageProtectionPresent", value=self.voltage_protection_present),
                 write_boolean("VoltageProtectionActive", value=self.voltage_protection_active),
                 write_quote_string("VoltageProtectionInfo", self.voltage_protection_info),
-                write_integer(
-                    "VoltageProtectionDirection",
-                    self.voltage_protection_direction,
-                    skip=0,
-                ),
+                write_integer("VoltageProtectionDirection", self.voltage_protection_direction),
                 write_double("VoltageProtectionRCA", self.voltage_protection_rca),
                 write_quote_string("VoltageProtectionType", self.voltage_protection_type),
-                write_boolean(
-                    "DifferentialProtectionPresent",
-                    value=self.differential_protection_present,
-                ),
-                write_boolean(
-                    "DifferentialProtectionActive",
-                    value=self.differential_protection_active,
-                ),
+                write_boolean("DifferentialProtectionPresent", self.differential_protection_present),
+                write_boolean("DifferentialProtectionActive", self.differential_protection_active),
                 write_quote_string("DifferentialProtectionInfo", self.differential_protection_info),
                 write_boolean("DistanceProtectionPresent", value=self.distance_protection_present),
                 write_boolean("DistanceProtectionActive", value=self.distance_protection_active),
@@ -259,26 +247,13 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_boolean("VoltageProtection2Present", value=self.voltage_protection2_present),
                 write_boolean("VoltageProtection2Active", value=self.voltage_protection2_active),
                 write_quote_string("VoltageProtection2Info", self.voltage_protection2_info),
-                write_integer(
-                    "VoltageProtection2Direction",
-                    self.voltage_protection2_direction,
-                    skip=0,
-                ),
+                write_integer("VoltageProtection2Direction", self.voltage_protection2_direction),
                 write_double("VoltageProtection2RCA", self.voltage_protection2_rca),
                 write_quote_string("VoltageProtection2Type", self.voltage_protection2_type),
-                write_boolean(
-                    "DifferentialProtection2Present",
-                    value=self.differential_protection2_present,
-                ),
-                write_boolean(
-                    "DifferentialProtection2Active",
-                    value=self.differential_protection2_active,
-                ),
+                write_boolean("DifferentialProtection2Present", self.differential_protection2_present),
+                write_boolean("DifferentialProtection2Active", self.differential_protection2_active),
                 write_quote_string("DifferentialProtection2Info", self.differential_protection2_info),
-                write_boolean(
-                    "UnbalanceProtectionPresent",
-                    value=self.unbalance_protection_present,
-                ),
+                write_boolean("UnbalanceProtectionPresent", self.unbalance_protection_present),
                 write_boolean("UnbalanceProtectionActive", value=self.unbalance_protection_active),
                 write_quote_string("UnbalanceProtectionInfo", self.unbalance_protection_info),
                 write_quote_string("UnbalanceProtectionType", self.unbalance_protection_type),
@@ -286,36 +261,24 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_boolean("ThermalProtectionActive", value=self.thermal_protection_active),
                 write_quote_string("ThermalProtectionInfo", self.thermal_protection_info),
                 write_boolean(
-                    "EarthFaultDifferentialProtectionPresent",
-                    value=self.earth_fault_differential_protection_present,
+                    "EarthFaultDifferentialProtectionPresent", self.earth_fault_differential_protection_present
                 ),
                 write_boolean(
-                    "EarthFaultDifferentialProtectionActive",
-                    value=self.earth_fault_differential_protection_active,
+                    "EarthFaultDifferentialProtectionActive", self.earth_fault_differential_protection_active
                 ),
                 write_quote_string(
-                    "EarthFaultDifferentialProtectionInfo",
-                    self.earth_fault_differential_protection_info,
+                    "EarthFaultDifferentialProtectionInfo", self.earth_fault_differential_protection_info
                 ),
-                write_boolean(
-                    "VectorJumpProtectionPresent",
-                    value=self.vector_shift_protection_present,
-                ),
-                write_boolean(
-                    "VectorJumpProtectionActive",
-                    value=self.vector_shift_protection_active,
-                ),
+                write_boolean("VectorJumpProtectionPresent", self.vector_shift_protection_present),
+                write_boolean("VectorJumpProtectionActive", self.vector_shift_protection_active),
                 write_quote_string("VectorJumpProtectionInfo", self.vector_shift_protection_info),
-                write_boolean(
-                    "FrequencyProtectionPresent",
-                    value=self.frequency_protection_present,
-                ),
-                write_boolean("FrequencyProtectionActive", value=self.frequency_protection_active),
+                write_boolean("FrequencyProtectionPresent", self.frequency_protection_present),
+                write_boolean("FrequencyProtectionActive", self.frequency_protection_active),
                 write_quote_string("FrequencyProtectionInfo", self.frequency_protection_info),
-                write_boolean("TransferTripAbility", value=self.transfer_trip_ability),
+                write_boolean("TransferTripAbility", self.transfer_trip_ability),
                 write_double("TransferTripRuntime", self.transfer_trip_runtime),
-                write_boolean("BlockAbility", value=self.block_ability),
-                write_boolean("ReserveAbility", value=self.reserve_ability),
+                write_boolean("BlockAbility", self.block_ability),
+                write_boolean("ReserveAbility", self.reserve_ability),
                 write_double("ReserveExtraTime", self.reserve_extra_time),
             )
 
@@ -357,18 +320,30 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 current_protection2_rca=data.get("CurrentProtection2RCA", 45.0),
                 current_protection2_color=DelphiColor(data.get("CurrentProtection2Color", str(CL_BLACK))),
                 current_protection2_type=data.get("CurrentProtection2Type", ""),
+                current_protection3_present=data.get("CurrentProtection3Present", False),
+                current_protection3_active=data.get("CurrentProtection3Active", False),
+                current_protection3_info=data.get("CurrentProtection3Info", ""),
+                current_protection3_color=DelphiColor(data.get("CurrentProtection3Color", str(CL_BLACK))),
+                current_protection3_type=data.get("CurrentProtection3Type", ""),
                 earth_fault_protection1_present=data.get("EarthFaultProtection1Present", False),
                 earth_fault_protection1_active=data.get("EarthFaultProtection1Active", False),
                 earth_fault_protection1_info=data.get("EarthFaultProtection1Info", ""),
                 earth_fault_protection1_direction=data.get("EarthFaultProtection1Direction", 0),
                 earth_fault_protection1_rca=data.get("EarthFaultProtection1RCA", 0.0),
+                earth_fault_protection1_color=DelphiColor(data.get("EarthFaultProtection1Color", str(CL_BLACK))),
                 earth_fault_protection1_type=data.get("EarthFaultProtection1Type", ""),
                 earth_fault_protection2_present=data.get("EarthFaultProtection2Present", False),
                 earth_fault_protection2_active=data.get("EarthFaultProtection2Active", False),
                 earth_fault_protection2_info=data.get("EarthFaultProtection2Info", ""),
                 earth_fault_protection2_direction=data.get("EarthFaultProtection2Direction", 0),
                 earth_fault_protection2_rca=data.get("EarthFaultProtection2RCA", 0.0),
+                earth_fault_protection2_color=DelphiColor(data.get("EarthFaultProtection2Color", str(CL_BLACK))),
                 earth_fault_protection2_type=data.get("EarthFaultProtection2Type", ""),
+                earth_fault_protection3_present=data.get("EarthFaultProtection3Present", False),
+                earth_fault_protection3_active=data.get("EarthFaultProtection3Active", False),
+                earth_fault_protection3_info=data.get("EarthFaultProtection3Info", ""),
+                earth_fault_protection3_color=DelphiColor(data.get("EarthFaultProtection3Color", str(CL_BLACK))),
+                earth_fault_protection3_type=data.get("EarthFaultProtection3Type", ""),
                 voltage_protection_present=data.get("VoltageProtectionPresent", False),
                 voltage_protection_active=data.get("VoltageProtectionActive", False),
                 voltage_protection_info=data.get("VoltageProtectionInfo", ""),
@@ -1550,8 +1525,10 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
     # Protection type instances
     current_protection1_type: ProtectionType | None = None
     current_protection2_type: ProtectionType | None = None
+    current_protection3_type: ProtectionType | None = None
     earth_fault_protection1_type: ProtectionType | None = None
     earth_fault_protection2_type: ProtectionType | None = None
+    earth_fault_protection3_type: ProtectionType | None = None
     unbalance_protection_type: ProtectionType | None = None
 
     differential_measure_points: list[Guid] = field(default_factory=list)
@@ -1587,10 +1564,14 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#CurrentProtection1Type {self.current_protection1_type.serialize()}")
         if self.general.current_protection2_present and self.current_protection2_type:
             lines.append(f"#CurrentProtection2Type {self.current_protection2_type.serialize()}")
+        if self.general.current_protection3_present and self.current_protection3_type:
+            lines.append(f"#CurrentProtection3Type {self.current_protection3_type.serialize()}")
         if self.general.earth_fault_protection1_present and self.earth_fault_protection1_type:
             lines.append(f"#EarthFaultProtection1Type {self.earth_fault_protection1_type.serialize()}")
         if self.general.earth_fault_protection2_present and self.earth_fault_protection2_type:
             lines.append(f"#EarthFaultProtection2Type {self.earth_fault_protection2_type.serialize()}")
+        if self.general.earth_fault_protection3_present and self.earth_fault_protection3_type:
+            lines.append(f"#EarthFaultProtection3Type {self.earth_fault_protection3_type.serialize()}")
         if self.general.unbalance_protection_present and self.unbalance_protection_type:
             lines.append(f"#UnbalanceProtectionType {self.unbalance_protection_type.serialize()}")
         if self.general.thermal_protection_present and self.thermal_protection:
@@ -1603,7 +1584,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#DifferentialProtectionType {self.differential_protection_type.serialize()}")
         # Multiple differential measure points
         lines.extend(
-            f"#DifferentialProtectionMeasurePoint Object:'{{{str(guid).upper()}}}'"
+            f"#DifferentialProtectionMeasurePoint Object:'{{{str(guid).upper()}}}' "
             for guid in self.differential_measure_points
         )
 
@@ -1649,7 +1630,7 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         return "\n".join(lines)
 
     @classmethod
-    def deserialize(cls, data: dict) -> CircuitBreakerMV:
+    def deserialize(cls, data: dict) -> CircuitBreakerMV:  # noqa: PLR0912
         """Deserialization of the circuit breaker from VNF format.
 
         Args:
@@ -1695,6 +1676,10 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         if data.get("currentProtection2Type"):
             current_protection2_type = cls.ProtectionType.deserialize(data["currentProtection2Type"][0])
 
+        current_protection3_type = None
+        if data.get("currentProtection3Type"):
+            current_protection3_type = cls.ProtectionType.deserialize(data["currentProtection3Type"][0])
+
         earth_fault_protection1_type = None
         if data.get("earthFaultProtection1Type"):
             earth_fault_protection1_type = cls.ProtectionType.deserialize(data["earthFaultProtection1Type"][0])
@@ -1702,6 +1687,10 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
         earth_fault_protection2_type = None
         if data.get("earthFaultProtection2Type"):
             earth_fault_protection2_type = cls.ProtectionType.deserialize(data["earthFaultProtection2Type"][0])
+
+        earth_fault_protection3_type = None
+        if data.get("earthFaultProtection3Type"):
+            earth_fault_protection3_type = cls.ProtectionType.deserialize(data["earthFaultProtection3Type"][0])
 
         unbalance_protection_type = None
         if data.get("unbalanceProtectionType"):
@@ -1765,8 +1754,10 @@ class CircuitBreakerMV(ExtrasNotesMixin, HasPresentationsMixin):
             presentations=presentations,
             current_protection1_type=current_protection1_type,
             current_protection2_type=current_protection2_type,
+            current_protection3_type=current_protection3_type,
             earth_fault_protection1_type=earth_fault_protection1_type,
             earth_fault_protection2_type=earth_fault_protection2_type,
+            earth_fault_protection3_type=earth_fault_protection3_type,
             unbalance_protection_type=unbalance_protection_type,
             differential_measure_points=data.get("differentialMeasurePoints", []),
             block_protections=data.get("blockProtections", []),

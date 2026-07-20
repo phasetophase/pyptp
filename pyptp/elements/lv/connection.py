@@ -376,6 +376,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         sort: str = HeatpumpSort.GROUND
         house_type: str = HouseType.UNKNOWN
         house_area: float = 125.0
+        house_year: int = 0
         cosnom: float = 0.9
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
 
@@ -386,6 +387,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_quote_string("Sort", self.sort),
                 write_quote_string("HouseType", self.house_type),
                 write_double("HouseArea", self.house_area),
+                write_integer("HouseYear", self.house_year, skip=0),
                 write_double("Cosnom", self.cosnom),
                 write_guid("Profile", self.profile),
             )
@@ -398,6 +400,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 sort=data.get("Sort", HeatpumpSort.GROUND),
                 house_type=data.get("HouseType", HouseType.UNKNOWN),
                 house_area=data.get("HouseArea", 125.0),
+                house_year=data.get("HouseYear", 0),
                 cosnom=data.get("Cosnom", 0.9),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
             )
@@ -697,7 +700,6 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         pref: float = 0.0
         state_of_charge: float = 50
         capacity: float = 0
-        crate: float = 0.5
         sort: int = 0
         inverter_snom: float = 0
         charge_efficiency_type: str = field(default="", metadata=config(encoder=encode_string))
@@ -707,12 +709,13 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         def serialize(self) -> str:
             """Serialize Battery properties to a string."""
+            crate = self.inverter_snom / self.capacity if self.capacity else 0.0
             return serialize_properties(
                 write_double("Pref", self.pref),
                 write_double_no_skip("StateOfCharge", self.state_of_charge),
                 write_guid("Profile", self.profile),
                 write_double("Capacity", self.capacity),
-                write_double_no_skip("Crate", self.crate),
+                write_double_no_skip("Crate", crate),
                 write_integer("Sort", self.sort, skip=0),
                 write_double("InverterSnom", self.inverter_snom),
                 write_quote_string_no_skip("ChargeEfficiencyType", self.charge_efficiency_type),
@@ -727,7 +730,6 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
                 pref=data.get("Pref", 0.0),
                 state_of_charge=data.get("StateOfCharge", 50),
                 capacity=data.get("Capacity", 0),
-                crate=data.get("Crate", 0.5),
                 sort=data.get("Sort", 0),
                 inverter_snom=data.get("InverterSnom", 0),
                 charge_efficiency_type=data.get("ChargeEfficiencyType", ""),

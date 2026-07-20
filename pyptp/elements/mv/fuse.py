@@ -244,9 +244,10 @@ class FuseMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.append(f"#FuseType {self.type.serialize()}")
 
+        lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
+
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
-        lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(serialize_notes(self.notes))
 
         return "\n".join(lines)

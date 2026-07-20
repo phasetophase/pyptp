@@ -368,9 +368,12 @@ def serialize_properties(*props: str) -> str:
 
     Returns:
         Space-separated property string with empty strings filtered out.
+        Empty when all properties are skipped, so section lines keep the
+        single trailing space of their `#Tag ` prefix (matching Vision).
 
     """
-    return " ".join(prop for prop in props if prop) + " "
+    joined = " ".join(prop for prop in props if prop)
+    return f"{joined} " if joined else ""
 
 
 NOTE_LINE_SEPARATOR = "\x14"  # Delphi #20 (decimal 20, DC4); encodes a note's line breaks on disk

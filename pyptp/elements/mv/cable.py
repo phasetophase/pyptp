@@ -205,10 +205,10 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
             return serialize_properties(
                 write_double("Length", self.length),
                 write_integer_no_skip("ParallelCableCount", self.parallel_cable_count),
-                write_quote_string_no_skip("CableType", self.cable_type),
-                write_quote_string("Year", self.year) if self.year else "",
+                write_quote_string("CableType", self.cable_type),
                 write_integer_no_skip("GroundResistivityIndex", self.ground_resistivity_index),
                 write_integer_no_skip("AmpacityFactor", self.ampacity_factor),
+                write_quote_string("Year", self.year),
             )
 
         @classmethod
@@ -216,11 +216,11 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Deserialize CablePart properties."""
             return cls(
                 length=data.get("Length", 1.0),
-                cable_type=data.get("CableType", ""),
-                year=data.get("Year", ""),
                 parallel_cable_count=data.get("ParallelCableCount", 1),
+                cable_type=data.get("CableType", ""),
                 ground_resistivity_index=data.get("GroundResistivityIndex", 1),
                 ampacity_factor=data.get("AmpacityFactor", 1),
+                year=data.get("Year", ""),
             )
 
         def __post_init__(self) -> None:

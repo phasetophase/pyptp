@@ -110,9 +110,7 @@ class TextMV(ExtrasNotesMixin):
                 Space-separated property string for VNF file section.
 
             """
-            return serialize_properties(
-                write_string_no_skip("Text", self.text),
-            )
+            return write_string_no_skip("Text", self.text)
 
         @classmethod
         def deserialize(cls, data: dict) -> TextMV.Line:
@@ -162,7 +160,7 @@ class TextMV(ExtrasNotesMixin):
                 write_integer("Y", self.y, skip=0),
                 write_delphi_color("TextColor", self.text_color, skip=CL_BLACK),
                 write_integer("TextSize", self.text_size, skip=10),
-                write_quote_string("Font", self.font, skip="Arial"),
+                write_quote_string("Font", self.font),
                 write_integer("TextStyle", self.text_style, skip=0),
                 write_boolean("UpsideDownText", value=self.upside_down_text),
             )

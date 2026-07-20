@@ -22,7 +22,7 @@ from pyptp.elements.element_utils import (
     encode_guid_optional,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
+class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Medium-voltage synchronous generator with control mode modeling.
 
     Supports distributed generation analysis with configurable P-f droop,
@@ -523,6 +523,9 @@ class SynchronousGeneratorMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.extend(f"#Restriction {restriction.serialize()}" for restriction in self.restrictions)
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)

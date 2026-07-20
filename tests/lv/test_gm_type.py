@@ -329,7 +329,7 @@ class TestTGMTypeLS(unittest.TestCase):
         result = gm_dist.serialize()
 
         # Should be empty string for default values
-        self.assertEqual(result, " ")
+        self.assertEqual(result, "")
 
     def test_gm_distribution_serialize_with_values(self) -> None:
         """Test GMDistribution serialization with values."""

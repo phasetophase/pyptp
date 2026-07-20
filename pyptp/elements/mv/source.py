@@ -22,7 +22,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -46,7 +46,7 @@ LOW_VOLTAGE_THRESHOLD_KV = 35
 
 @dataclass_json
 @dataclass
-class SourceMV(ExtrasNotesMixin, HasPresentationsMixin):
+class SourceMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Medium-voltage source representing external network supply.
 
     Models feeder points with configurable voltage magnitude and angle,
@@ -102,6 +102,7 @@ class SourceMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Ratio between source impedance R and X (dimensionless)."""
         z0_z1: float = 1.0
         """Ratio between source impedance zero and normal sequence (dimensionless)."""
+        u2: float | int = 0.0
         smin: float = 0
         """Minimal to be tested power in MVA."""
         smax: float = 0
@@ -139,6 +140,7 @@ class SourceMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Sk2max", self.sk2max),
                 write_double_no_skip("R/X", self.r_x),
                 write_double_no_skip("Z0/Z1", self.z0_z1),
+                write_double("U2", self.u2),
                 write_double("Smin", self.smin),
                 write_double("Smax", self.smax),
                 write_double("Pmin", self.pmin),
@@ -172,6 +174,7 @@ class SourceMV(ExtrasNotesMixin, HasPresentationsMixin):
                 sk2max=data.get("Sk2max", 0),
                 r_x=data.get("R/X", 0.0),
                 z0_z1=data.get("Z0/Z1", 3),
+                u2=data.get("U2", 0.0),
                 smin=data.get("Smin", 0),
                 smax=data.get("Smax", 0),
                 pmin=data.get("Pmin", 0),
@@ -233,10 +236,13 @@ class SourceMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines = []
         lines.append(f"#General {self.general.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

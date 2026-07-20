@@ -82,8 +82,10 @@ class CircuitBreakerHandler(DeclarativeHandler[NetworkMV]):
         SectionConfig("type", "#CircuitBreakerType "),
         SectionConfig("current_protection1_type", "#CurrentProtection1Type "),
         SectionConfig("current_protection2_type", "#CurrentProtection2Type "),
+        SectionConfig("current_protection3_type", "#CurrentProtection3Type "),
         SectionConfig("earth_fault_protection1_type", "#EarthFaultProtection1Type "),
         SectionConfig("earth_fault_protection2_type", "#EarthFaultProtection2Type "),
+        SectionConfig("earth_fault_protection3_type", "#EarthFaultProtection3Type "),
         SectionConfig("unbalance_protection_type", "#UnbalanceProtectionType "),
         SectionConfig("thermal_protection", "#ThermalProtection "),
         SectionConfig("voltage_protection", "#VoltageProtectionType "),
@@ -120,8 +122,10 @@ class CircuitBreakerHandler(DeclarativeHandler[NetworkMV]):
         if kwarg_name in [
             "current_protection1_type",
             "current_protection2_type",
+            "current_protection3_type",
             "earth_fault_protection1_type",
             "earth_fault_protection2_type",
+            "earth_fault_protection3_type",
             "unbalance_protection_type",
         ]:
             return CircuitBreakerMV.ProtectionType

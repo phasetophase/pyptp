@@ -18,7 +18,9 @@ class TransformerLoadHandler(DeclarativeHandler[TNetworkMSType]):
         SectionConfig("general", "#General ", required=True),
         SectionConfig("type", "#TransformerType ", required=True),
         SectionConfig("thermal", "#Thermal "),
+        SectionConfig("customers", "#Customer "),
         SectionConfig("presentations", "#Presentation "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]
@@ -37,4 +39,8 @@ class TransformerLoadHandler(DeclarativeHandler[TNetworkMSType]):
             from pyptp.elements.mv.transformer_load import TransformerLoadMV
 
             return TransformerLoadMV.Thermal
+        if kwarg_name == "customers":
+            from pyptp.elements.mv.transformer_load import TransformerLoadMV
+
+            return TransformerLoadMV.Customer
         return None
