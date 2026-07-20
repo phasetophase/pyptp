@@ -225,7 +225,7 @@ class NetworkMV:
     def save(
         self,
         path: str | Path,
-        version: VnfVersion = VnfVersion.V9_11,
+        version: VnfVersion = VnfVersion.V9_12,
         *,
         validate_on_migration_failure: bool = True,
     ) -> None:
@@ -233,7 +233,7 @@ class NetworkMV:
 
         Args:
             path: Target file path for VNF output.
-            version: Target VNF version (default: V9.11).
+            version: Target VNF version (default: V9.12).
             validate_on_migration_failure: Run validators and include diagnostics
                 in the error message when version migration fails (default: True).
 
@@ -242,7 +242,7 @@ class NetworkMV:
             RuntimeError: If version migration fails.
 
         Example:
-            >>> network.save("output.vnf")  # Saves as V9.11
+            >>> network.save("output.vnf")  # Saves as V9.12
             >>> network.save("output.vnf", VnfVersion.V9_8)  # Saves as V9.8
 
         """

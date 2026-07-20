@@ -27,6 +27,7 @@ class GeneratorHandler(DeclarativeHandler[NetworkMV]):
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation "),
         SectionConfig("restrictions", "#Restriction "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]

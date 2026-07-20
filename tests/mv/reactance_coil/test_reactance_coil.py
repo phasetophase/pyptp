@@ -173,7 +173,7 @@ class TestReactanceCoilRegistration(unittest.TestCase):
         self.assertIn("MaintenanceFrequency:0.1", serialized)
         self.assertIn("MaintenanceDuration:4.0", serialized)
         self.assertIn("MaintenanceCancelDuration:1.0", serialized)
-        self.assertIn("AsynchronousGeneratorType:'GenType'", serialized)
+        self.assertIn("ReactanceCoilType:'GenType'", serialized)
 
         # Verify node references
         self.assertIn(f"Node1:'{{{str(self.node1_guid).upper()}}}'", serialized)

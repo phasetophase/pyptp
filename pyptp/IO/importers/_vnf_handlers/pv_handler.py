@@ -25,6 +25,7 @@ class PvHandler(DeclarativeHandler[TNetworkMSType]):
         SectionConfig("pf_control", "#P(f)Control "),
         SectionConfig("pi_control", "#P(I)Control "),
         SectionConfig("restrictions", "#Restriction "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]

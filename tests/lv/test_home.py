@@ -155,7 +155,6 @@ class TestTHomeLS(unittest.TestCase):
             pref=3000,
             state_of_charge=80,
             capacity=10000,
-            crate=0.5,
             sort=1,
             inverter_snom=3000,
             charge_efficiency_type="Standard",
@@ -480,7 +479,6 @@ class TestTHomeLS(unittest.TestCase):
         """Battery no-skip properties must appear even at zero/empty values."""
         battery = ConnectionLV.Battery(
             state_of_charge=0.0,
-            crate=0.0,
             inverter_cosref=0.0,
             charge_efficiency_type="",
             discharge_efficiency_type="",
@@ -492,6 +490,13 @@ class TestTHomeLS(unittest.TestCase):
         self.assertIn("InverterCosRef:0", result)
         self.assertIn("ChargeEfficiencyType:''", result)
         self.assertIn("DischargeEfficiencyType:''", result)
+
+    def test_battery_crate_is_derived_from_inverter_and_capacity(self) -> None:
+        """Crate is no longer stored; Gaia 8.12 derives it as InverterSnom/Capacity."""
+        battery = ConnectionLV.Battery(inverter_snom=3000, capacity=10000)
+        result = battery.serialize()
+
+        self.assertIn("Crate:0.3", result)
 
     def test_home_load_serialize_with_defaults(self) -> None:
         """Test Load class serialization with default values."""
@@ -557,9 +562,9 @@ class TestTHomeLS(unittest.TestCase):
 
         result = battery.serialize()
 
-        # no_skip: always serialized
+        # no_skip: always serialized (Crate is derived, 0 with default capacity)
         self.assertIn("StateOfCharge:50", result)
-        self.assertIn("Crate:0.5", result)
+        self.assertIn("Crate:0", result)
         self.assertIn("InverterCosRef:1", result)
         # skip: 0 values omitted
         self.assertNotIn("Pref:", result)

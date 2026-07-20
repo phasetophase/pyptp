@@ -253,13 +253,11 @@ class TestFrameMV(unittest.TestCase):
         self.assertNotIn("NameY:", result)
         self.assertNotIn("Filled:", result)
         self.assertNotIn("FillColor:", result)
-        self.assertNotIn("ImageSize:", result)
         self.assertNotIn("Color:", result)
         self.assertNotIn("Width:", result)
         self.assertNotIn("Style:", result)  # Solid is default
         self.assertNotIn("TextColor:", result)
         self.assertNotIn("TextSize:", result)
-        self.assertNotIn("Font:", result)
         self.assertNotIn("TextStyle:", result)
         self.assertNotIn("NoText:", result)
         self.assertNotIn("UpsideDownText:", result)

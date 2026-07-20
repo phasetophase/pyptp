@@ -45,7 +45,9 @@ class NodeHandler(DeclarativeHandler[TNetworkMSType]):
         if kwarg_name == "installation":
             return NodeMV.Installation
         if kwarg_name == "icon":
-            return NodeMV.Icon
+            from pyptp.elements.mixins import Icon
+
+            return Icon
         if kwarg_name == "differential_protection":
             return NodeMV.DifferentialProtection
         if kwarg_name == "differential_protection_switches":

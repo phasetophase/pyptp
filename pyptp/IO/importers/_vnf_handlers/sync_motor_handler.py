@@ -18,6 +18,7 @@ class SyncMotorHandler(DeclarativeHandler[TNetworkMSType]):
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation "),
         SectionConfig("type", "#SynchronousMotorType ", required=True),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]

@@ -451,7 +451,6 @@ class QControl(DataClassJsonMixin):
     sort: int = 0
     cos_ref: float = 0.0
     inductive: bool = False
-    direction: int = 0
     no_p_no_q: bool = True
     input1: float = 1.0
     output1: float = 0.0
@@ -470,7 +469,6 @@ class QControl(DataClassJsonMixin):
             write_integer("Sort", self.sort, skip=0),
             write_double_no_skip("CosRef", self.cos_ref),
             write_boolean("Inductive", value=self.inductive),
-            write_integer("Direction", self.direction),
             write_boolean_no_skip("NoPNoQ", value=self.no_p_no_q),
             write_double_no_skip("Input1", self.input1),
             write_double_no_skip("Output1", self.output1),
@@ -491,7 +489,6 @@ class QControl(DataClassJsonMixin):
             sort=data.get("Sort", 0),
             cos_ref=data.get("CosRef", 0.0),
             inductive=data.get("Inductive", False),
-            direction=data.get("Direction", 0),
             no_p_no_q=data.get("NoPNoQ", True),
             input1=data.get("Input1", 1.0),
             output1=data.get("Output1", 0.0),
@@ -503,103 +500,4 @@ class QControl(DataClassJsonMixin):
             output4=data.get("Output4", 0.0),
             input5=data.get("Input5", 0.0),
             output5=data.get("Output5", 0.0),
-        )
-
-
-@dataclass_json
-@dataclass
-class PControl(DataClassJsonMixin):
-    """Active power control for batteries and generators.
-
-    Supports three control modes:
-    - P(U): Voltage-dependent active power control for voltage regulation
-    - P(t): Time-based active power control with start/end times for scheduled operation
-    - P(I): Current-dependent active power control based on measured field current
-
-    The P(U) and P(I) controls override the generally specified P and profile values.
-    The P(t) control overrides these values only when the time is known.
-    """
-
-    sort: int = 0
-
-    start_time1: float = 0.0
-    end_time1: float = 0.0
-    input1: float = 0.0
-    output1: float = 0.0
-
-    start_time2: float = 0.0
-    end_time2: float = 0.0
-    input2: float = 0.0
-    output2: float = 0.0
-
-    start_time3: float = 0.0
-    end_time3: float = 0.0
-    input3: float = 0.0
-    output3: float = 0.0
-
-    start_time4: float = 0.0
-    end_time4: float = 0.0
-    input4: float = 0.0
-    output4: float = 0.0
-
-    start_time5: float = 0.0
-    end_time5: float = 0.0
-    input5: float = 0.0
-    output5: float = 0.0
-
-    measure_field: str = string_field()
-
-    def serialize(self) -> str:
-        """Serialize PControl properties."""
-        return serialize_properties(
-            write_integer_no_skip("Sort", self.sort),
-            write_double_no_skip("StartTime1", self.start_time1),
-            write_double_no_skip("EndTime1", self.end_time1),
-            write_double_no_skip("Input1", self.input1),
-            write_double_no_skip("Output1", self.output1),
-            write_double_no_skip("StartTime2", self.start_time2),
-            write_double_no_skip("EndTime2", self.end_time2),
-            write_double_no_skip("Input2", self.input2),
-            write_double_no_skip("Output2", self.output2),
-            write_double_no_skip("StartTime3", self.start_time3),
-            write_double_no_skip("EndTime3", self.end_time3),
-            write_double_no_skip("Input3", self.input3),
-            write_double_no_skip("Output3", self.output3),
-            write_double_no_skip("StartTime4", self.start_time4),
-            write_double_no_skip("EndTime4", self.end_time4),
-            write_double_no_skip("Input4", self.input4),
-            write_double_no_skip("Output4", self.output4),
-            write_double_no_skip("StartTime5", self.start_time5),
-            write_double_no_skip("EndTime5", self.end_time5),
-            write_double_no_skip("Input5", self.input5),
-            write_double_no_skip("Output5", self.output5),
-            write_quote_string_no_skip("MeasureField", self.measure_field),
-        )
-
-    @classmethod
-    def deserialize(cls, data: dict) -> PControl:
-        """Deserialize PControl properties."""
-        return cls(
-            sort=data.get("Sort", 0),
-            start_time1=data.get("StartTime1", 0.0),
-            end_time1=data.get("EndTime1", 0.0),
-            input1=data.get("Input1", 0.0),
-            output1=data.get("Output1", 0.0),
-            start_time2=data.get("StartTime2", 0.0),
-            end_time2=data.get("EndTime2", 0.0),
-            input2=data.get("Input2", 0.0),
-            output2=data.get("Output2", 0.0),
-            start_time3=data.get("StartTime3", 0.0),
-            end_time3=data.get("EndTime3", 0.0),
-            input3=data.get("Input3", 0.0),
-            output3=data.get("Output3", 0.0),
-            start_time4=data.get("StartTime4", 0.0),
-            end_time4=data.get("EndTime4", 0.0),
-            input4=data.get("Input4", 0.0),
-            output4=data.get("Output4", 0.0),
-            start_time5=data.get("StartTime5", 0.0),
-            end_time5=data.get("EndTime5", 0.0),
-            input5=data.get("Input5", 0.0),
-            output5=data.get("Output5", 0.0),
-            measure_field=data.get("MeasureField", ""),
         )

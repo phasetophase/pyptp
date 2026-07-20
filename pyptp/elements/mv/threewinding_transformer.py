@@ -21,7 +21,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.enums import VoltageControlSort
+from pyptp.elements.enums import VoltageControlSort, VoltageControlStatus
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -217,6 +217,12 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         uk12: float = 0
         uk13: float = 0
         uk23: float = 0
+        uk12min: float = 0
+        uk13min: float = 0
+        uk23min: float = 0
+        uk12max: float = 0
+        uk13max: float = 0
+        uk23max: float = 0
         pk12: float = 0
         pk13: float = 0
         pk23: float = 0
@@ -267,9 +273,15 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Unom1", self.unom1),
                 write_double("Unom2", self.unom2),
                 write_double("Unom3", self.unom3),
+                write_double("Uk12min", self.uk12min),
                 write_double("Uk12", self.uk12),
+                write_double("Uk12max", self.uk12max),
+                write_double("Uk13min", self.uk13min),
                 write_double("Uk13", self.uk13),
+                write_double("Uk13max", self.uk13max),
+                write_double("Uk23min", self.uk23min),
                 write_double("Uk23", self.uk23),
+                write_double("Uk23max", self.uk23max),
                 write_double("Pk12", self.pk12),
                 write_double("Pk13", self.pk13),
                 write_double("Pk23", self.pk23),
@@ -320,9 +332,15 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 unom1=data.get("Unom1", 0),
                 unom2=data.get("Unom2", 0),
                 unom3=data.get("Unom3", 0),
+                uk12min=data.get("Uk12min", 0),
                 uk12=data.get("Uk12", 0),
+                uk12max=data.get("Uk12max", 0),
+                uk13min=data.get("Uk13min", 0),
                 uk13=data.get("Uk13", 0),
+                uk13max=data.get("Uk13max", 0),
+                uk23min=data.get("Uk23min", 0),
                 uk23=data.get("Uk23", 0),
+                uk23max=data.get("Uk23max", 0),
                 pk12=data.get("Pk12", 0),
                 pk13=data.get("Pk13", 0),
                 pk23=data.get("Pk23", 0),
@@ -365,80 +383,99 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
+    class LoadDependent(DataClassJsonMixin):
+        """Load-dependent voltage control settings sets."""
+
+        p_smaller: int = -100
+        u_smaller: float = 0
+        p_small: int = 100
+        u_small: float = 0
+        p_great: int = 0
+        u_great: float = 0
+        p_greater: int = 0
+        u_greater: float = 0
+
+    @dataclass_json
+    @dataclass
     class VoltageControl(DataClassJsonMixin):
         """Voltage Control."""
 
-        present: bool = False
-        status: bool = False
-        measure_side: int = 1
+        own_present: bool = False
+        status: VoltageControlStatus = VoltageControlStatus.OFF
+        measure_side: int = 0
         setpoint: float = 0.0
         deadband: float = 0.0
         control_sort: VoltageControlSort = VoltageControlSort.COMPOUNDING
         rc: float = 0.0
         xc: float = 0.0
-        compounding_at_generation: bool = False
-        pmin1: int = 0
-        umin1: float = 0.0
-        pmax1: int = 0
-        umax1: float = 0.0
-        pmin2: int = 0
-        umin2: float = 0.0
-        pmax2: int = 0
-        umax2: float = 0.0
-        master_threewinding_transformer: Guid = field(
+        compounding_at_generation: bool = True
+
+        load_dependencies: list[ThreewindingTransformerMV.LoadDependent] = field(
+            default_factory=lambda: [ThreewindingTransformerMV.LoadDependent() for _ in range(4)],
+        )
+
+        master_transformer: Guid = field(
             default=NIL_GUID,
             metadata=config(encoder=encode_guid, decoder=decode_guid),
         )
 
         def serialize(self) -> str:
             """Serialize VoltageControl properties."""
-            return serialize_properties(
-                write_boolean_no_skip("Present", value=self.present),
-                write_integer_no_skip("Status", int(self.status)),
-                write_integer_no_skip("MeasuringSide", self.measure_side),
+            props = [
+                write_boolean("OwnPresent", value=self.own_present),
+                write_integer("Status", self.status),
+                write_integer("MeasureSide", self.measure_side),
                 write_double_no_skip("Setpoint", self.setpoint),
                 write_double_no_skip("Deadband", self.deadband),
                 write_integer("ControlSort", self.control_sort),
                 write_double("Rc", self.rc),
                 write_double("Xc", self.xc),
                 write_boolean_no_skip("CompoundingAtGeneration", value=self.compounding_at_generation),
-                write_integer("Pmin1", self.pmin1),
-                write_double("Umin1", self.umin1),
-                write_integer("Pmax1", self.pmax1),
-                write_double("Umax1", self.umax1),
-                write_integer("Pmin2", self.pmin2),
-                write_double("Umin2", self.umin2),
-                write_integer("Pmax2", self.pmax2),
-                write_double("Umax2", self.umax2),
-                (
-                    write_guid("MasterThreewindingsTransformer", self.master_threewinding_transformer)
-                    if self.master_threewinding_transformer != NIL_GUID
-                    else ""
-                ),
-            )
+            ]
+            for j, dep in enumerate(self.load_dependencies[:4], start=1):
+                props.extend(
+                    (
+                        write_integer(f"{j}.Pmin1", dep.p_smaller),
+                        write_double(f"{j}.Umin1", dep.u_smaller),
+                        write_integer(f"{j}.Pmax1", dep.p_small),
+                        write_double(f"{j}.Umax1", dep.u_small),
+                        write_integer(f"{j}.Pmin2", dep.p_great),
+                        write_double(f"{j}.Umin2", dep.u_great),
+                        write_integer(f"{j}.Pmax2", dep.p_greater),
+                        write_double(f"{j}.Umax2", dep.u_greater),
+                    )
+                )
+            props.append(write_guid("MasterTransformer", self.master_transformer))
+            return serialize_properties(*props)
 
         @classmethod
         def deserialize(cls, data: dict) -> ThreewindingTransformerMV.VoltageControl:
             """Deserialize VoltageControl properties."""
+            load_dependencies = [
+                ThreewindingTransformerMV.LoadDependent(
+                    p_smaller=data.get(f"{j}.Pmin1", -100),
+                    u_smaller=data.get(f"{j}.Umin1", 0.0),
+                    p_small=data.get(f"{j}.Pmax1", 100),
+                    u_small=data.get(f"{j}.Umax1", 0.0),
+                    p_great=data.get(f"{j}.Pmin2", 0),
+                    u_great=data.get(f"{j}.Umin2", 0.0),
+                    p_greater=data.get(f"{j}.Pmax2", 0),
+                    u_greater=data.get(f"{j}.Umax2", 0.0),
+                )
+                for j in range(1, 5)
+            ]
             return cls(
-                present=data.get("Present", False),
-                status=bool(data.get("Status", 0)),
-                measure_side=data.get("MeasuringSide", 1),
+                own_present=data.get("OwnPresent", False),
+                status=VoltageControlStatus(data.get("Status", VoltageControlStatus.OFF)),
+                measure_side=data.get("MeasureSide", 0),
                 setpoint=data.get("Setpoint", 0.0),
                 deadband=data.get("Deadband", 0.0),
                 control_sort=VoltageControlSort(data.get("ControlSort", VoltageControlSort.COMPOUNDING)),
                 rc=data.get("Rc", 0.0),
                 xc=data.get("Xc", 0.0),
-                compounding_at_generation=data.get("CompoundingAtGeneration", False),
-                pmin1=data.get("Pmin1", 0),
-                umin1=data.get("Umin1", 0.0),
-                pmax1=data.get("Pmax1", 0),
-                umax1=data.get("Umax1", 0.0),
-                pmin2=data.get("Pmin2", 0),
-                umin2=data.get("Umin2", 0.0),
-                pmax2=data.get("Pmax2", 0),
-                umax2=data.get("Umax2", 0.0),
-                master_threewinding_transformer=decode_guid(data.get("MasterThreewindingsTransformer", str(NIL_GUID))),
+                compounding_at_generation=data.get("CompoundingAtGeneration", True),
+                load_dependencies=load_dependencies,
+                master_transformer=decode_guid(data.get("MasterTransformer", str(NIL_GUID))),
             )
 
     general: General

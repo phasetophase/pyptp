@@ -26,11 +26,13 @@ class LoadHandler(DeclarativeHandler[NetworkMV]):
     COMPONENT_CONFIG: ClassVar[list[SectionConfig]] = [
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation "),
-        SectionConfig("p_control", "#P(U)Control "),
+        SectionConfig("pu_control", "#P(U)Control "),
         SectionConfig("q_control", "#QControl "),
         SectionConfig("pi_control", "#P(I)Control "),
         SectionConfig("ceres", "#CERES "),
+        SectionConfig("customers", "#Customer "),
         SectionConfig("restrictions", "#Restriction "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]
@@ -49,16 +51,16 @@ class LoadHandler(DeclarativeHandler[NetworkMV]):
             from pyptp.elements.mv.presentations import ElementPresentation
 
             return ElementPresentation
-        if kwarg_name == "p_control":
-            from pyptp.elements.mv.shared import PControl
-
-            return PControl
+        if kwarg_name == "pu_control":
+            return LoadMV.PUControl
         if kwarg_name == "q_control":
             from pyptp.elements.mv.shared import QControl
 
             return QControl
         if kwarg_name == "pi_control":
             return LoadMV.PIControl
+        if kwarg_name == "customers":
+            return LoadMV.Customer
         if kwarg_name == "restrictions":
             return LoadMV.Capacity
         # Note: ceres is handled as a dict in the element class

@@ -9,7 +9,6 @@ from uuid import uuid4
 
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
-from pyptp.elements.color_utils import CL_BLACK
 from pyptp.elements.element_utils import (
     NIL_GUID,
     Guid,
@@ -18,12 +17,11 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, Geography, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, Geography, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
     write_boolean,
-    write_delphi_color,
     write_double,
     write_double_no_skip,
     write_guid_no_skip,
@@ -33,7 +31,6 @@ from pyptp.elements.serialization_helpers import (
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
-    from pyptp.elements.color_utils import DelphiColor
     from pyptp.network_mv import NetworkMV
 
     from .presentations import NodePresentation
@@ -41,7 +38,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
+class NodeMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Network node representing a rail or busbar.
 
     Nodes define electrical connection points with nominal voltage and simultaneity
@@ -402,41 +399,6 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class Icon(DataClassJsonMixin):
-        """Optional icon displayed near the node in diagrams.
-
-        A short text in a shaped background (configurable color, shape, size).
-        """
-
-        text: str = string_field()
-        text_color: DelphiColor = CL_BLACK
-        background_color: DelphiColor = CL_BLACK
-        shape: int = 0
-        size: int = 0
-
-        def serialize(self) -> str:
-            """Serialize icon properties to VNF format."""
-            return serialize_properties(
-                write_quote_string("Text", self.text, skip=""),
-                write_delphi_color("TextColor", self.text_color, skip=CL_BLACK),
-                write_delphi_color("BackgroundColor", self.background_color, skip=CL_BLACK),
-                write_integer("Shape", self.shape, skip=0),
-                write_integer("Size", self.size, skip=0),
-            )
-
-        @classmethod
-        def deserialize(cls, data: dict) -> NodeMV.Icon:
-            """Parse icon properties from VNF data."""
-            return cls(
-                text=data.get("Text", ""),
-                text_color=data.get("TextColor", CL_BLACK),
-                background_color=data.get("BackgroundColor", CL_BLACK),
-                shape=data.get("Shape", 0),
-                size=data.get("Size", 0),
-            )
-
-    @dataclass_json
-    @dataclass
     class DifferentialProtection(DataClassJsonMixin):
         """Rail differential protection settings.
 
@@ -446,6 +408,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         """
 
         present: bool = False
+        active: bool = False
         type_name: str = string_field()
         t_input: float = 0.0
         t_output: float = 0.0
@@ -462,6 +425,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize differential protection properties to VNF format."""
             return serialize_properties(
+                write_boolean("Active", self.active),
                 write_quote_string("TypeName", self.type_name, skip=""),
                 write_double("Tinput", self.t_input, skip=0.0),
                 write_double("Toutput", self.t_output, skip=0.0),
@@ -481,6 +445,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Parse differential protection properties from VNF data."""
             return cls(
                 present=True,
+                active=data.get("Active", False),
                 type_name=data.get("TypeName", ""),
                 t_input=data.get("Tinput", 0.0),
                 t_output=data.get("Toutput", 0.0),
@@ -548,7 +513,6 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
     fields: list[Field] = field(default_factory=list)
     customer: Customer | None = None
     installation: Installation = field(default_factory=Installation)
-    icon: Icon | None = None
     differential_protection: DifferentialProtection | None = None
     differential_protection_switches: list[DifferentialProtectionSwitch] = field(default_factory=list)
     differential_protection_transfer_trip_switch: DifferentialProtectionTransferTripSwitch | None = None
@@ -591,9 +555,6 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         installation_content = self.installation.serialize().strip() if self.installation is not None else ""
         lines.append(f"#Installation {installation_content} " if installation_content else "#Installation ")
 
-        if self.icon is not None:
-            lines.append(f"#Icon {self.icon.serialize()}")
-
         if self.differential_protection is not None and self.differential_protection.present:
             lines.append(f"#DifferentialProtection {self.differential_protection.serialize()}")
 
@@ -612,6 +573,9 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
 
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 

@@ -185,7 +185,7 @@ class TestScenarioRegistration(unittest.TestCase):
             date=20231201,
             vision_object=vision_object_guid,
             attribute=1,
-            value=100.5,
+            value="100.5",
             comment="Test comment",
         )
 
@@ -196,7 +196,7 @@ class TestScenarioRegistration(unittest.TestCase):
             f"VisionObject:'{{{str(vision_object_guid).upper()}}}'", serialized
         )
         self.assertIn("Attribute:1", serialized)
-        self.assertIn("Value:100.5", serialized)
+        self.assertIn("Value:'100.5'", serialized)
         self.assertIn("Comment:'Test comment'", serialized)
 
     def test_scenario_item_serialization_with_no_vision_object_works(self) -> None:
@@ -205,7 +205,7 @@ class TestScenarioRegistration(unittest.TestCase):
             date=20231201,
             vision_object=None,
             attribute=1,
-            value=100.5,
+            value="100.5",
             comment="Test comment",
         )
 
@@ -214,7 +214,7 @@ class TestScenarioRegistration(unittest.TestCase):
         self.assertIn("Date:20231201", serialized)
         self.assertNotIn("VisionObject:", serialized)
         self.assertIn("Attribute:1", serialized)
-        self.assertIn("Value:100.5", serialized)
+        self.assertIn("Value:'100.5'", serialized)
         self.assertIn("Comment:'Test comment'", serialized)
 
     def test_scenario_item_deserialization_works(self) -> None:

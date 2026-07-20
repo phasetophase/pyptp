@@ -22,11 +22,13 @@ class WindTurbineHandler(DeclarativeHandler[TNetworkMSType]):
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation "),
         SectionConfig("type", "#WindTurbineType "),
+        SectionConfig("inverter", "#Inverter "),
         SectionConfig("q_control", "#QControl "),
         SectionConfig("pu_control", "#P(U)Control "),
         SectionConfig("pf_control", "#P(f)Control "),
         SectionConfig("pi_control", "#P(I)Control "),
         SectionConfig("restriction", "#Restriction "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]
@@ -47,6 +49,8 @@ class WindTurbineHandler(DeclarativeHandler[TNetworkMSType]):
             return ElementPresentation
         if kwarg_name == "type":
             return WindTurbineMV.WindTurbineType
+        if kwarg_name == "inverter":
+            return WindTurbineMV.Inverter
         if kwarg_name == "q_control":
             return WindTurbineMV.QControl
         if kwarg_name == "pu_control":

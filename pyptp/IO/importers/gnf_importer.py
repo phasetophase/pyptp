@@ -27,7 +27,9 @@ from pyptp.IO.importers._gnf_handlers.link_handler import LinkHandler
 from pyptp.IO.importers._gnf_handlers.load_handler import LoadHandler
 from pyptp.IO.importers._gnf_handlers.load_switch_handler import LoadSwitchHandler
 from pyptp.IO.importers._gnf_handlers.measure_field_handler import MeasureFieldHandler
+from pyptp.IO.importers._gnf_handlers.measurement_file_handler import MeasurementFileHandler
 from pyptp.IO.importers._gnf_handlers.node_handler import NodeHandler
+from pyptp.IO.importers._gnf_handlers.profile_file_handler import ProfileFileHandler
 from pyptp.IO.importers._gnf_handlers.profile_handler import ProfileHandler
 from pyptp.IO.importers._gnf_handlers.properties_handler import PropertiesHandler
 from pyptp.IO.importers._gnf_handlers.pv_handler import PvHandler
@@ -81,6 +83,8 @@ class GnfImporter:
         "PROPERTIES": PropertiesHandler(),
         "SHEET": SheetHandler(),
         "SELECTION": SelectionHandler(),
+        "PROFILEFILES": ProfileFileHandler(),
+        "MEASUREMENTFILES": MeasurementFileHandler(),
         "PROFILE": ProfileHandler(),
         "GM TYPE": GMTypeHandler(),
         "NODE": NodeHandler(),
@@ -125,14 +129,14 @@ class GnfImporter:
         with Path.open(path, encoding="utf-8-sig", errors="ignore") as f:
             file_version = f.readline().strip()
 
-        supported_versions = {"G8.9", "G8.9a"}
+        supported_versions = {"G8.12"}
 
         if file_version not in supported_versions:
             logger.debug(
-                "Legacy GNF version '%s' detected. Attempting migration to G8.9...",
+                "Non-native GNF version '%s' detected. Migrating to G8.12...",
                 file_version,
             )
-            return migrate_and_read(path, version="G8.9", encoding="utf-8-sig")
+            return migrate_and_read(path, version="G8.12", encoding="utf-8-sig")
 
         return path.read_text(encoding="utf-8-sig", errors="ignore")
 

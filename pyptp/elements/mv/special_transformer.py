@@ -9,7 +9,7 @@ from uuid import uuid4
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
 from pyptp.elements.element_utils import NIL_GUID, Guid, decode_guid, encode_guid, string_field
-from pyptp.elements.enums import SpecialTransformerSort, VoltageControlSort
+from pyptp.elements.enums import SpecialTransformerSort, SpecialVoltageControlSort, SpecialVoltageControlStatus
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -194,15 +194,15 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         present: bool = False
         """Presence of voltage control."""
-        status: bool = False
-        """Indicates whether the voltage control is active."""
+        status: SpecialVoltageControlStatus = SpecialVoltageControlStatus.OFF
+        """Operating status of the voltage control."""
         measure_side: int = 3
         """Measuring side of voltage control (1=winding1, 2=winding2)."""
         setpoint: float = 0.4
         """Setpoint of the voltage control in kV."""
         deadband: float = 0
         """Deadband of the voltage control in kV."""
-        control_sort: VoltageControlSort = VoltageControlSort.COMPOUNDING
+        control_sort: SpecialVoltageControlSort = SpecialVoltageControlSort.COMPOUNDING
         """Control type/sort identifier."""
         rc: float = 0
         """Real part of the voltage control compounding impedance in Ohm."""
@@ -230,8 +230,8 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         def serialize(self) -> str:
             """Serialize VoltageControl properties."""
             return serialize_properties(
-                write_boolean_no_skip("Present", value=self.present),
-                write_boolean_no_skip("Status", value=self.status),
+                write_boolean_no_skip("OwnPresent", value=self.present),
+                write_integer("Status", self.status),
                 write_integer_no_skip("MeasureSide", self.measure_side),
                 write_double_no_skip("Setpoint", self.setpoint),
                 write_double_no_skip("Deadband", self.deadband),
@@ -253,12 +253,12 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         def deserialize(cls, data: dict) -> SpecialTransformerMV.VoltageControl:
             """Deserialize VoltageControl properties."""
             return cls(
-                present=data.get("Present", False),
-                status=data.get("Status", False),
+                present=data.get("OwnPresent", False),
+                status=SpecialVoltageControlStatus(data.get("Status", SpecialVoltageControlStatus.OFF)),
                 measure_side=data.get("MeasureSide", 3),
                 setpoint=data.get("Setpoint", 0.4),
                 deadband=data.get("Deadband", 0),
-                control_sort=VoltageControlSort(data.get("ControlSort", VoltageControlSort.COMPOUNDING)),
+                control_sort=SpecialVoltageControlSort(data.get("ControlSort", SpecialVoltageControlSort.COMPOUNDING)),
                 rc=data.get("Rc", 0),
                 xc=data.get("Xc", 0),
                 compounding_at_generation=data.get("CompoundingAtGeneration", True),
@@ -354,6 +354,9 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         io: float = 0
         r0: float | int = 0
         z0: float | int = 0
+        uk0_12: float | int = 0
+        uk0_13: float | int = 0
+        uk0_23: float | int = 0
         ik2s: float | int = 0
         tap_side: int = 0
         tap_size: float = 0
@@ -388,6 +391,9 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Io", self.io),
                 write_double_no_skip("R0", self.r0),
                 write_double_no_skip("Z0", self.z0),
+                write_double("Uk0_12", self.uk0_12),
+                write_double("Uk0_13", self.uk0_13),
+                write_double("Uk0_23", self.uk0_23),
                 write_double_no_skip("Ik2s", self.ik2s),
                 write_integer_no_skip("TapSide", self.tap_side),
                 write_double_no_skip("TapSize", self.tap_size),
@@ -417,6 +423,9 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 io=data.get("Io", 0),
                 r0=data.get("R0", 0),
                 z0=data.get("Z0", 0),
+                uk0_12=data.get("Uk0_12", 0),
+                uk0_13=data.get("Uk0_13", 0),
+                uk0_23=data.get("Uk0_23", 0),
                 ik2s=data.get("Ik2s", 0),
                 tap_side=data.get("TapSide", 0),
                 tap_size=data.get("TapSize", 0),

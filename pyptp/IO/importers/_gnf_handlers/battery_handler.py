@@ -18,9 +18,10 @@ class BatteryHandler(DeclarativeHandler[NetworkLV]):
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation ", required=True),
         SectionConfig("inverter", "#Inverter "),
+        SectionConfig("pu_control", "#P(U)Control "),
+        SectionConfig("pi_control", "#P(I)Control "),
         SectionConfig("charge_efficiency", "#ChargeEfficiencyType "),
         SectionConfig("discharge_efficiency", "#DischargeEfficiencyType "),
-        SectionConfig("power_control", "#PControl "),
         SectionConfig("harmonics", "#HarmonicsType "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
@@ -34,18 +35,14 @@ class BatteryHandler(DeclarativeHandler[NetworkLV]):
             return ElementPresentation
         if kwarg_name == "inverter":
             return BatteryLV.Inverter
-        if kwarg_name == "charge_efficiency":
+        if kwarg_name == "pu_control":
+            return BatteryLV.PUControl
+        if kwarg_name == "pi_control":
+            return BatteryLV.PIControl
+        if kwarg_name in ("charge_efficiency", "discharge_efficiency"):
             from pyptp.elements.lv.shared import EfficiencyType
 
             return EfficiencyType
-        if kwarg_name == "discharge_efficiency":
-            from pyptp.elements.lv.shared import EfficiencyType
-
-            return EfficiencyType
-        if kwarg_name == "power_control":
-            from pyptp.elements.lv.shared import PControl
-
-            return PControl
         if kwarg_name == "harmonics":
             from pyptp.elements.lv.shared import HarmonicsType
 

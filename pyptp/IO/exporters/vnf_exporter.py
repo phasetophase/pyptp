@@ -217,8 +217,8 @@ class VnfExporter:
 
     @staticmethod
     def _write_vnf(network: NetworkMV, fh: TextIO) -> None:
-        """Write network content in V9.11 format to file handle."""
-        fh.write("V9.11\nNETWORK\n\n")
+        """Write network content in V9.12 format to file handle."""
+        fh.write("V9.12\nNETWORK\n\n")
 
         def _write_section(header: str, elements: Iterable) -> None:
             elems = list(elements)
@@ -286,7 +286,7 @@ class VnfExporter:
     def export(
         network: NetworkMV,
         output_path: str,
-        version: VnfVersion = VnfVersion.V9_11,
+        version: VnfVersion = VnfVersion.V9_12,
         *,
         validate_on_migration_failure: bool = True,
     ) -> None:
@@ -295,7 +295,7 @@ class VnfExporter:
         Args:
             network: MV network to export.
             output_path: Target file path for VNF output.
-            version: Target VNF version (default: V9.11).
+            version: Target VNF version (default: V9.12).
             validate_on_migration_failure: Run validators and include diagnostics
                 in the error message when version migration fails (default: True).
 
@@ -306,7 +306,7 @@ class VnfExporter:
         """
         out_path = Path(output_path)
 
-        if version == VnfVersion.V9_11:
+        if version == VnfVersion.V9_12:
             with out_path.open("w", encoding="utf-8") as fh:
                 VnfExporter._write_vnf(network, fh)
         else:

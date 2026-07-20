@@ -56,7 +56,6 @@ from pyptp.elements.mv.shared import (
     Fields,
     FuseType,
     GeoCablePart,
-    PControl,
     QControl,
     Text,
 )
@@ -110,7 +109,6 @@ __all__ = [
     "MutualMV",
     "NodeMV",
     "NodePresentation",
-    "PControl",
     "ProfileMV",
     "PropertiesMV",
     "QControl",

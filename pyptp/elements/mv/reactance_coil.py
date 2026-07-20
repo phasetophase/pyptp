@@ -105,7 +105,7 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("MaintenanceFrequency", self.maintenance_frequency),
                 write_double("MaintenanceDuration", self.maintenance_duration),
                 write_double("MaintenanceCancelDuration", self.maintenance_cancel_duration),
-                write_quote_string("AsynchronousGeneratorType", self.type, skip=""),
+                write_quote_string("ReactanceCoilType", self.type, skip=""),
             )
 
         @classmethod
@@ -132,7 +132,7 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
                 maintenance_frequency=data.get("MaintenanceFrequency", 0.0),
                 maintenance_duration=data.get("MaintenanceDuration", 0.0),
                 maintenance_cancel_duration=data.get("MaintenanceCancelDuration", 0.0),
-                type=data.get("AsynchronousGeneratorType", ""),
+                type=data.get("ReactanceCoilType", ""),
             )
 
     @dataclass_json
@@ -204,9 +204,9 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.append(f"#ReactanceCoilType {self.type.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         lines.extend(serialize_notes(self.notes))
 

@@ -22,7 +22,7 @@ from pyptp.elements.element_utils import (
     encode_guid_optional,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
+class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Represents a windturbine or wind park (MV)."""
 
     @dataclass_json
@@ -143,7 +143,6 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         pnom: float = 0.0
         unom: float = 0.0
-        inom: float = 0.0
         ik_inom: float = 1.0
         R_X: float = 0.1
         wind_speed_cut_in: float = 3.0
@@ -156,8 +155,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
             return serialize_properties(
                 write_double("Pnom", self.pnom),
                 write_double("Unom", self.unom),
-                write_double("Inom", self.inom),
-                write_double("Ik/Inom", self.ik_inom, skip=1.0),
+                write_double("Ik/Inom", self.ik_inom),
                 write_double_no_skip("R/X", self.R_X),
                 write_double("WindSpeedCutIn", self.wind_speed_cut_in),
                 write_double("WindSpeedNom", self.wind_speed_nom),
@@ -171,7 +169,6 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
             return cls(
                 pnom=data.get("Pnom", 0.0),
                 unom=data.get("Unom", 0.0),
-                inom=data.get("Inom", 0.0),
                 ik_inom=data.get("Ik/Inom", 1.0),
                 R_X=data.get("R/X", 0.1),
                 wind_speed_cut_in=data.get("WindSpeedCutIn", 3.0),
@@ -204,7 +201,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Serialize QControl properties."""
             return serialize_properties(
                 write_integer("Sort", self.sort),
-                write_double_no_skip("CosRef", self.cos_ref),
+                write_double("CosRef", self.cos_ref),
                 write_boolean("Inductive", value=self.inductive),
                 write_boolean_no_skip("NoPNoQ", value=self.no_p_no_q),
                 write_double_no_skip("Input1", self.input1),
@@ -404,6 +401,26 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
+    class Inverter(DataClassJsonMixin):
+        """Windturbine inverter properties."""
+
+        k: float = 0.0
+
+        def serialize(self) -> str:
+            """Serialize Inverter properties."""
+            return serialize_properties(
+                write_double("k", self.k),
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> WindTurbineMV.Inverter:
+            """Deserialize Inverter properties."""
+            return cls(
+                k=data.get("k", 0.0),
+            )
+
+    @dataclass_json
+    @dataclass
     class Restriction(DataClassJsonMixin):
         """Restriction."""
 
@@ -440,6 +457,7 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
     general: General
     presentations: list[ElementPresentation]
     type: WindTurbineType
+    inverter: Inverter = field(default_factory=lambda: WindTurbineMV.Inverter())
     q_control: QControl | None = None
     pu_control: PUControl | None = None
     pf_control: PfControl | None = None
@@ -462,10 +480,10 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines = []
         lines.append(f"#General {self.general.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         if self.type:
             lines.append(f"#WindTurbineType {self.type.serialize()}")
+
+        lines.append(f"#Inverter {self.inverter.serialize()}")
 
         if self.q_control:
             lines.append(f"#QControl {self.q_control.serialize()}")
@@ -485,6 +503,11 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(serialize_notes(self.notes))
 
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
+
         return "\n".join(lines)
 
     @classmethod
@@ -503,6 +526,9 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         wind_turbine_type_data = data.get("windTurbineType", [{}])[0] if data.get("windTurbineType") else {}
         wind_turbine_type = cls.WindTurbineType.deserialize(wind_turbine_type_data)
+
+        inverter_data = data.get("inverter", [{}])[0] if data.get("inverter") else {}
+        inverter = cls.Inverter.deserialize(inverter_data)
 
         qcontrol_data = data.get("qControl", [{}])[0] if data.get("qControl") else {}
         qcontrol = None
@@ -539,11 +565,12 @@ class WindTurbineMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         return cls(
             general=general,
-            presentations=presentations,
             type=wind_turbine_type,
+            inverter=inverter,
             q_control=qcontrol,
             pu_control=pucontrol,
             pf_control=pfcontrol,
             pi_control=picontrol,
             restriction=restriction,
+            presentations=presentations,
         )

@@ -19,6 +19,7 @@ class AsyncGeneratorHandler(DeclarativeHandler[NetworkMV]):
         SectionConfig("presentations", "#Presentation "),
         SectionConfig("type", "#AsynchronousGeneratorType ", required=True),
         SectionConfig("restriction", "#Restriction "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]

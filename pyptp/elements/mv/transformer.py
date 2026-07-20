@@ -20,7 +20,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.enums import EnclosureType, InsulationCondition, VoltageControlSort
+from pyptp.elements.enums import EnclosureType, InsulationCondition, VoltageControlSort, VoltageControlStatus
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -146,7 +146,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Re2", self.re2),
                 write_double("Xe2", self.xe2),
                 write_guid("EarthingNode2", self.earthing_node2) if self.earthing_node2 != NIL_GUID else "",
-                write_double("TapPosition", self.tap_position),
+                write_double_no_skip("TapPosition", self.tap_position),
             )
 
         @classmethod
@@ -318,6 +318,9 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         to: int = 210
         tw: int = 10
         hotspot_factor: float = 1.3
+        rated_winding_oil_gradient: float = 14.5
+        rated_top_oil_rise: float = 60.0
+        initial_top_oil_rise: float = 0.0
         thermally_upgraded_paper: bool = True
         paper_condition: InsulationCondition = InsulationCondition.AIR_FREE_MOIST_0_5
         enclosure_type: EnclosureType = EnclosureType.OUTSIDE
@@ -334,6 +337,9 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer("to", self.to),
                 write_integer("tw", self.tw),
                 write_double("Hotspotfactor", self.hotspot_factor),
+                write_double("RatedWindingOilGradient", self.rated_winding_oil_gradient),
+                write_double("RatedTopOilRise", self.rated_top_oil_rise),
+                write_double("InitialTopOilRise", self.initial_top_oil_rise),
                 write_boolean_no_skip("PaperThermallyUpgraded", self.thermally_upgraded_paper),
                 write_quote_string("PaperCondition", self.paper_condition),
                 write_quote_string("EnclosureType", self.enclosure_type),
@@ -352,6 +358,9 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 to=data.get("to", 210),
                 tw=data.get("tw", 10),
                 hotspot_factor=data.get("Hotspotfactor", 1.3),
+                rated_winding_oil_gradient=data.get("RatedWindingOilGradient", 14.5),
+                rated_top_oil_rise=data.get("RatedTopOilRise", 60.0),
+                initial_top_oil_rise=data.get("InitialTopOilRise", 0.0),
                 thermally_upgraded_paper=data.get("PaperThermallyUpgraded", True),
                 paper_condition=InsulationCondition(data.get("PaperCondition", InsulationCondition.AIR_FREE_MOIST_0_5)),
                 enclosure_type=EnclosureType(data.get("EnclosureType", EnclosureType.OUTSIDE)),
@@ -360,11 +369,25 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
+    class LoadDependent(DataClassJsonMixin):
+        """One of four load-dependent voltage control settings sets."""
+
+        p_smaller: int = -100
+        u_smaller: float = 0
+        p_small: int = 100
+        u_small: float = 0
+        p_great: int = 0
+        u_great: float = 0
+        p_greater: int = 0
+        u_greater: float = 0
+
+    @dataclass_json
+    @dataclass
     class VoltageControl(DataClassJsonMixin):
         """Automatic voltage control settings for tap-changing transformers."""
 
         present: bool = False
-        status: bool = True
+        status: VoltageControlStatus = VoltageControlStatus.OFF
         measure_side: int = 1
         control_node: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         setpoint: float = 0.0
@@ -373,21 +396,16 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         rc: float = 0.0
         xc: float = 0.0
         compounding_at_generation: bool = True
-        pmin1: int = -100
-        umin1: float = 0.0
-        pmax1: int = 100
-        umax1: float = 0.0
-        pmin2: int = 0
-        umin2: float = 0.0
-        pmax2: int = 0
-        umax2: float = 0.0
+        load_dependencies: list[TransformerMV.LoadDependent] = field(
+            default_factory=lambda: [TransformerMV.LoadDependent() for _ in range(4)],
+        )
         master_transformer: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
 
         def serialize(self) -> str:
             """Serialize voltage control properties to VNF format."""
-            return serialize_properties(
-                write_boolean_no_skip("OwnControl", value=self.present),
-                write_integer_no_skip("ControlStatus", int(self.status)),
+            props = [
+                write_boolean_no_skip("OwnPresent", value=self.present),
+                write_integer("Status", self.status),
                 write_integer_no_skip("MeasureSide", self.measure_side),
                 write_guid("ControlNode", self.control_node) if self.control_node != NIL_GUID else "",
                 write_double("SetPoint", self.setpoint),
@@ -396,23 +414,44 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Rc", self.rc),
                 write_double("Xc", self.xc),
                 write_boolean_no_skip("CompoundingAtGeneration", value=self.compounding_at_generation),
-                write_integer("Pmin1", self.pmin1),
-                write_double("Umin1", self.umin1),
-                write_integer("Pmax1", self.pmax1),
-                write_double("Umax1", self.umax1),
-                write_integer("Pmin2", self.pmin2),
-                write_double("Umin2", self.umin2),
-                write_integer("Pmax2", self.pmax2),
-                write_double("Umax2", self.umax2),
-                write_guid("MasterTransformer", self.master_transformer) if self.master_transformer != NIL_GUID else "",
+            ]
+            for j, dep in enumerate(self.load_dependencies[:4], start=1):
+                props.extend(
+                    (
+                        write_integer(f"{j}.Pmin1", dep.p_smaller),
+                        write_double(f"{j}.Umin1", dep.u_smaller),
+                        write_integer(f"{j}.Pmax1", dep.p_small),
+                        write_double(f"{j}.Umax1", dep.u_small),
+                        write_integer(f"{j}.Pmin2", dep.p_great),
+                        write_double(f"{j}.Umin2", dep.u_great),
+                        write_integer(f"{j}.Pmax2", dep.p_greater),
+                        write_double(f"{j}.Umax2", dep.u_greater),
+                    )
+                )
+            props.append(
+                write_guid("MasterTransformer", self.master_transformer) if self.master_transformer != NIL_GUID else ""
             )
+            return serialize_properties(*props)
 
         @classmethod
         def deserialize(cls, data: dict) -> TransformerMV.VoltageControl:
             """Parse voltage control properties from VNF data."""
+            load_dependencies = [
+                TransformerMV.LoadDependent(
+                    p_smaller=data.get(f"{j}.Pmin1", -100),
+                    u_smaller=data.get(f"{j}.Umin1", 0.0),
+                    p_small=data.get(f"{j}.Pmax1", 100),
+                    u_small=data.get(f"{j}.Umax1", 0.0),
+                    p_great=data.get(f"{j}.Pmin2", 0),
+                    u_great=data.get(f"{j}.Umin2", 0.0),
+                    p_greater=data.get(f"{j}.Pmax2", 0),
+                    u_greater=data.get(f"{j}.Umax2", 0.0),
+                )
+                for j in range(1, 5)
+            ]
             return cls(
-                present=data.get("OwnControl", False),
-                status=bool(data.get("ControlStatus", 1)),
+                present=data.get("OwnPresent", False),
+                status=VoltageControlStatus(data.get("Status", VoltageControlStatus.OFF)),
                 measure_side=data.get("MeasureSide", 1),
                 control_node=decode_guid(data.get("ControlNode", str(NIL_GUID))),
                 setpoint=data.get("SetPoint", 0.0),
@@ -421,14 +460,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 rc=data.get("Rc", 0.0),
                 xc=data.get("Xc", 0.0),
                 compounding_at_generation=data.get("CompoundingAtGeneration", True),
-                pmin1=data.get("Pmin1", -100),
-                umin1=data.get("Umin1", 0.0),
-                pmax1=data.get("Pmax1", 100),
-                umax1=data.get("Umax1", 0.0),
-                pmin2=data.get("Pmin2", 0),
-                umin2=data.get("Umin2", 0.0),
-                pmax2=data.get("Pmax2", 0),
-                umax2=data.get("Umax2", 0.0),
+                load_dependencies=load_dependencies,
                 master_transformer=decode_guid(data.get("MasterTransformer", str(NIL_GUID))),
             )
 

@@ -165,14 +165,14 @@ class VnfImporter:
         with Path.open(path, encoding="utf-8", errors="ignore") as f:
             file_version = f.readline().strip()
 
-        supported_versions = {"V9.11"}
+        supported_versions = {"V9.12"}
 
         if file_version not in supported_versions:
             logger.debug(
-                "Legacy VNF version '%s' detected. Attempting migration to V9.11...",
+                "Legacy VNF version '%s' detected. Attempting migration to V9.12...",
                 file_version,
             )
-            return migrate_and_read(path, version="V9.11", encoding="utf-8")
+            return migrate_and_read(path, version="V9.12", encoding="utf-8")
 
         return path.read_text(encoding="utf-8", errors="ignore")
 

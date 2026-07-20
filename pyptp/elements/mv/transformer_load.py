@@ -22,7 +22,7 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.lv.shared import HarmonicsType
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -35,7 +35,6 @@ from pyptp.elements.serialization_helpers import (
     write_integer,
     write_integer_no_skip,
     write_quote_string,
-    write_quote_string_no_skip,
 )
 from pyptp.ptp_log import logger
 
@@ -47,7 +46,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
+class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Medium-voltage transformer load with aggregated secondary modeling.
 
     Supports distribution transformer analysis with combined load demand,
@@ -95,6 +94,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         pv_pnom: float = 0
         pv_growth: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         pv_profile: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
+        pv_ik_inom: float | int = 1.0
         large_consumers: int = 0
         generous_consumers: int = 0
         small_consumers: int = 0
@@ -113,9 +113,9 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_integer("MutationDate", self.mutation_date) if self.mutation_date != 0 else "",
                 write_double("RevisionDate", self.revision_date) if self.revision_date != 0.0 else "",
                 write_boolean("Variant", value=self.variant),
-                write_quote_string_no_skip("Name", self.name),
+                write_quote_string("Name", self.name),
                 write_integer_no_skip("SwitchState", self.switch_state),
-                write_quote_string_no_skip("FieldName", self.field_name),
+                write_quote_string("FieldName", self.field_name),
                 write_double("FailureFrequency", self.failure_frequency),
                 write_double("RepairDuration", self.repair_duration),
                 write_double("MaintenanceFrequency", self.maintenance_frequency),
@@ -134,6 +134,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("PVPnom", self.pv_pnom),
                 write_guid("PVGrowth", self.pv_growth) if self.pv_growth != NIL_GUID else "",
                 write_guid("PVProfile", self.pv_profile) if self.pv_profile != NIL_GUID else "",
+                write_double("PVIk/Inom", self.pv_ik_inom),
                 write_integer("LargeConsumers", self.large_consumers),
                 write_integer("GenerousConsumers", self.generous_consumers),
                 write_integer("SmallConsumers", self.small_consumers),
@@ -175,6 +176,7 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 pv_pnom=data.get("PVPnom", 0),
                 pv_growth=decode_guid(data.get("PVGrowth", str(NIL_GUID))),
                 pv_profile=decode_guid(data.get("PVProfile", str(NIL_GUID))),
+                pv_ik_inom=data.get("PVIk/Inom", 1.0),
                 large_consumers=data.get("LargeConsumers", 0),
                 generous_consumers=data.get("GenerousConsumers", 0),
                 small_consumers=data.get("SmallConsumers", 0),
@@ -272,12 +274,39 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
                 tap_max=data.get("TapMax", 0),
             )
 
+    @dataclass_json
+    @dataclass
+    class Customer(DataClassJsonMixin):
+        """Customer for transformer load."""
+
+        ean: str = string_field()
+        contracted_capacity: str = string_field()
+        contracted_feed_in_capacity: str = string_field()
+
+        def serialize(self) -> str:
+            """Serialize Customer properties to VNF format."""
+            return serialize_properties(
+                write_quote_string("EAN", self.ean),
+                write_quote_string("ContractedCapacity", self.contracted_capacity),
+                write_quote_string("ContractedFeedInCapacity", self.contracted_feed_in_capacity),
+            )
+
+        @classmethod
+        def deserialize(cls, data: dict) -> TransformerLoadMV.Customer:
+            """Parse Customer properties from VNF data."""
+            return cls(
+                ean=data.get("EAN", ""),
+                contracted_capacity=data.get("ContractedCapacity", ""),
+                contracted_feed_in_capacity=data.get("ContractedFeedInCapacity", ""),
+            )
+
     general: General
     type: TransformerLoadType
     presentations: list[ElementPresentation]
     thermal: Thermal = field(default_factory=lambda: TransformerLoadMV.Thermal())
     harmonics_type: HarmonicsType | None = None
     ceres: dict | None = None
+    customers: list[Customer] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Post-initialization to ensure mixins are properly set up."""
@@ -314,8 +343,13 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
             if ceres_props:
                 lines.append(f"#CERES {' '.join(ceres_props)}")
 
+        lines.extend(f"#Customer {customer.serialize()}" for customer in self.customers)
+
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
 
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
@@ -351,6 +385,8 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
         if ceres_data:
             ceres = ceres_data
 
+        customers = [cls.Customer.deserialize(customer_data) for customer_data in data.get("customers", [])]
+
         presentations_data = data.get("presentations", [])
         presentations = []
         for pres_data in presentations_data:
@@ -366,4 +402,5 @@ class TransformerLoadMV(ExtrasNotesMixin, HasPresentationsMixin):
             presentations=presentations,
             harmonics_type=harmonics_type,
             ceres=ceres,
+            customers=customers,
         )

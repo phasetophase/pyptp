@@ -1,4 +1,4 @@
-"""Tests for TBatteryLS behavior using the new registration system."""
+"""Tests for BatteryLV behavior using the new registration system."""
 
 import unittest
 from uuid import UUID
@@ -8,10 +8,19 @@ from pyptp.elements.element_utils import Guid, encode_guid
 from pyptp.elements.lv.battery import BatteryLV
 from pyptp.elements.lv.node import NodeLV
 from pyptp.elements.lv.presentations import ElementPresentation, NodePresentation
-from pyptp.elements.lv.shared import EfficiencyType, HarmonicsType, PControl
+from pyptp.elements.lv.shared import EfficiencyType, HarmonicsType
 from pyptp.elements.lv.sheet import SheetLV
 from pyptp.elements.mixins import Extra, Note
+from pyptp.IO.importers._gnf_handlers.battery_handler import BatteryHandler
 from pyptp.network_lv import NetworkLV
+
+
+def _line_with_prefix(serialized: str, prefix: str) -> str:
+    """Return the single serialized line starting with the given tag prefix."""
+    for line in serialized.splitlines():
+        if line.startswith(prefix):
+            return line
+    return ""
 
 
 class TestBatteryRegistration(unittest.TestCase):
@@ -42,6 +51,7 @@ class TestBatteryRegistration(unittest.TestCase):
         self.node_guid = node.general.guid
 
         self.battery_guid = Guid(UUID("6301d096-5f64-46f3-b50c-b6717a4ea14c"))
+        self.measure_field_guid = Guid(UUID("aabbccdd-1122-3344-5566-778899aabbcc"))
 
     def test_battery_registration_works(self) -> None:
         """Test that batteries can register themselves with the network."""
@@ -66,35 +76,16 @@ class TestBatteryRegistration(unittest.TestCase):
         battery = self._create_full_battery()
         battery.register(self.network)
 
-        # Test serialization
         serialized = battery.serialize()
 
-        # Verify all sections are present
         self._verify_sections_present(serialized)
-
-        # Verify key general properties are serialized
         self._verify_general_properties(serialized)
-
-        # Verify inverter properties
         self._verify_inverter_properties(serialized)
-
-        # Verify efficiency properties
         self._verify_efficiency_properties(serialized)
-
-        # Verify power control properties
-        self._verify_power_control_properties(serialized)
-
-        # Verify harmonics properties
+        self._verify_control_properties(serialized)
         self._verify_harmonics_properties(serialized)
-
-        # Verify presentation properties
         self._verify_presentation_properties(serialized)
-
-        # Verify extras and notes
         self._verify_extras_and_notes(serialized)
-
-        # Verify efficiency data is present
-        self._verify_efficiency_data(serialized)
 
     def _create_full_battery(self) -> BatteryLV:
         """Create a battery with all properties set."""
@@ -112,7 +103,6 @@ class TestBatteryRegistration(unittest.TestCase):
             pref=50.0,
             state_of_charge=75.0,
             capacity=200.0,
-            c_rate=1.0,
             harmonics_type="Type1",
         )
 
@@ -145,15 +135,19 @@ class TestBatteryRegistration(unittest.TestCase):
             output3=27.3,
         )
 
-        power_control = PControl(
-            sort=1,
-            input1=10.0,
-            output1=8.0,
-            input2=20.0,
-            output2=16.0,
-            input3=30.0,
-            output3=24.0,
-            measure_field="PowerControl",
+        pu_control = BatteryLV.PUControl(
+            input1=0.9,
+            output1=1.0,
+            input2=1.05,
+            output2=0.5,
+        )
+
+        pi_control = BatteryLV.PIControl(
+            input1=0.1,
+            output1=0.8,
+            input2=1.2,
+            output2=0.2,
+            measure_field1=self.measure_field_guid,
         )
 
         presentation = ElementPresentation(
@@ -176,9 +170,10 @@ class TestBatteryRegistration(unittest.TestCase):
             [presentation],
             charge_efficiency,
             discharge_efficiency,
-            power_control,
-            inverter,
-            harmonics,
+            pu_control=pu_control,
+            pi_control=pi_control,
+            inverter=inverter,
+            harmonics=harmonics,
         )
         battery.extras.append(Extra(text="foo=bar"))
         battery.notes.append(Note(text="Test note"))
@@ -188,7 +183,10 @@ class TestBatteryRegistration(unittest.TestCase):
         """Verify all required sections are present in serialized output."""
         self.assertEqual(serialized.count("#General"), 1)
         self.assertIn("#Inverter", serialized)
-        self.assertIn("#PControl", serialized)
+        self.assertIn("#P(U)Control", serialized)
+        self.assertIn("#P(I)Control", serialized)
+        self.assertNotIn("#PControl", serialized)
+        self.assertNotIn("Crate", serialized)
         self.assertIn("#ChargeEfficiencyType", serialized)
         self.assertIn("#DischargeEfficiencyType", serialized)
         self.assertIn("#HarmonicsType", serialized)
@@ -209,7 +207,6 @@ class TestBatteryRegistration(unittest.TestCase):
         self.assertIn("Pref:50.0", serialized)
         self.assertIn("StateOfCharge:75.0", serialized)
         self.assertIn("Capacity:200.0", serialized)
-        self.assertIn("Crate:1.0", serialized)
         self.assertIn("HarmonicsType:'Type1'", serialized)
 
     def _verify_inverter_properties(self, serialized: str) -> None:
@@ -221,35 +218,30 @@ class TestBatteryRegistration(unittest.TestCase):
 
     def _verify_efficiency_properties(self, serialized: str) -> None:
         """Verify efficiency properties are serialized correctly."""
-        self.assertIn("Input1:10.0", serialized)
-        self.assertIn("Output1:9.0", serialized)
-        self.assertIn("Input2:20.0", serialized)
-        self.assertIn("Output2:17.0", serialized)
-        self.assertIn("Input3:30.0", serialized)
-        self.assertIn("Output3:24.0", serialized)
-        self.assertIn("Input1:15.0", serialized)
-        self.assertIn("Output1:13.2", serialized)
-        self.assertIn("Input2:25.0", serialized)
-        self.assertIn("Output2:20.75", serialized)
-        self.assertIn("Input3:35.0", serialized)
-        self.assertIn("Output3:27.3", serialized)
+        charge_line = _line_with_prefix(serialized, "#ChargeEfficiencyType")
+        self.assertIn("Input1:10.0", charge_line)
+        self.assertIn("Output1:9.0", charge_line)
+        self.assertIn("Input3:30.0", charge_line)
 
-    def _verify_power_control_properties(self, serialized: str) -> None:
-        """Verify power control properties are serialized correctly."""
-        self.assertIn("Sort:1", serialized)
-        self.assertIn("StartTime1:0.0", serialized)
-        self.assertIn("EndTime1:0.0", serialized)
-        self.assertIn("Input1:10.0", serialized)
-        self.assertIn("Output1:8.0", serialized)
-        self.assertIn("StartTime2:0.0", serialized)
-        self.assertIn("EndTime2:0.0", serialized)
-        self.assertIn("Input2:20.0", serialized)
-        self.assertIn("Output2:16.0", serialized)
-        self.assertIn("StartTime3:0.0", serialized)
-        self.assertIn("EndTime3:0.0", serialized)
-        self.assertIn("Input3:30.0", serialized)
-        self.assertIn("Output3:24.0", serialized)
-        self.assertIn("MeasureField:'PowerControl'", serialized)
+        discharge_line = _line_with_prefix(serialized, "#DischargeEfficiencyType")
+        self.assertIn("Input1:15.0", discharge_line)
+        self.assertIn("Output2:20.75", discharge_line)
+        self.assertIn("Output3:27.3", discharge_line)
+
+    def _verify_control_properties(self, serialized: str) -> None:
+        """Verify P(U) and P(I) control properties are serialized correctly."""
+        pu_line = _line_with_prefix(serialized, "#P(U)Control")
+        self.assertIn("Input1:0.9", pu_line)
+        self.assertIn("Output1:1.0", pu_line)
+        self.assertIn("Input2:1.05", pu_line)
+        self.assertNotIn("MeasureField", pu_line)
+
+        pi_line = _line_with_prefix(serialized, "#P(I)Control")
+        self.assertIn("Input1:0.1", pi_line)
+        self.assertIn("Output1:0.8", pi_line)
+        self.assertIn(
+            f"MeasureField1:'{{{str(self.measure_field_guid).upper()}}}'", pi_line
+        )
 
     def _verify_harmonics_properties(self, serialized: str) -> None:
         """Verify harmonics properties are serialized correctly."""
@@ -272,14 +264,33 @@ class TestBatteryRegistration(unittest.TestCase):
         self.assertIn("#Extra Text:foo=bar", serialized)
         self.assertIn("#Note Text:Test note", serialized)
 
-    def _verify_efficiency_data(self, serialized: str) -> None:
-        """Verify efficiency data is present in serialized output."""
-        self.assertIn("Input1:10.0", serialized)
-        self.assertIn("Output1:9.0", serialized)
-        self.assertIn("Input2:20.0", serialized)
-        self.assertIn("Output2:17.0", serialized)
-        self.assertIn("Input3:30.0", serialized)
-        self.assertIn("Output3:24.0", serialized)
+    def test_full_battery_round_trip_through_handler(self) -> None:
+        """Test that a fully-populated battery round-trips through the GNF handler."""
+        battery = self._create_full_battery()
+        section = battery.serialize()
+
+        reloaded_network = NetworkLV()
+        BatteryHandler().handle(reloaded_network, section.rstrip() + "\n#END")
+
+        self.assertEqual(len(reloaded_network.batteries), 1)
+        reloaded = reloaded_network.batteries[self.battery_guid]
+
+        # Controls and their measure field survive the round trip.
+        assert reloaded.pu_control is not None
+        assert reloaded.pi_control is not None
+        self.assertEqual(reloaded.pu_control.input1, 0.9)
+        self.assertEqual(reloaded.pi_control.output1, 0.8)
+        self.assertEqual(
+            str(reloaded.pi_control.measure_field1).upper(),
+            str(self.measure_field_guid).upper(),
+        )
+
+        # Extras and notes are handled by the generic declarative path.
+        self.assertEqual([e.text for e in reloaded.extras], ["foo=bar"])
+        self.assertEqual([n.text for n in reloaded.notes], ["Test note"])
+
+        # Serializing the reloaded battery reproduces the original section.
+        self.assertEqual(reloaded.serialize(), section)
 
     def test_duplicate_registration_overwrites(self) -> None:
         """Test that registering a battery with the same GUID overwrites the existing one."""
@@ -364,18 +375,53 @@ class TestBatteryRegistration(unittest.TestCase):
         self.assertIn("s_L2:True", serialized)
         self.assertIn("s_L3:True", serialized)
         self.assertIn("s_N:True", serialized)
-        self.assertIn("OnePhase:False", serialized)  # Default value
-        self.assertIn("Pref:0.0", serialized)  # Default value
-        self.assertIn("StateOfCharge:0.0", serialized)  # Default value
-        self.assertIn("Capacity:100", serialized)  # Default value
-        self.assertIn("Crate:0.5", serialized)  # Default value
+        self.assertIn("StateOfCharge:50.0", serialized)  # Default value, always written
+
+        # Defaults that Gaia skips when zero/false must not appear
+        self.assertNotIn("OnePhase:", serialized)
+        self.assertNotIn("Pref:", serialized)
+        self.assertNotIn("Capacity:", serialized)
+
+        # Crate is no longer part of the model (derived in Gaia 8.12)
+        self.assertNotIn("Crate", serialized)
 
         # Should not have optional sections
         self.assertNotIn("#Inverter", serialized)
+        self.assertNotIn("#P(U)Control", serialized)
+        self.assertNotIn("#P(I)Control", serialized)
         self.assertNotIn("#PControl", serialized)
         self.assertNotIn("#HarmonicsType", serialized)
         self.assertNotIn("#Extra", serialized)
         self.assertNotIn("#Note", serialized)
+
+    def test_defaults_match_gaia_new_battery(self) -> None:
+        """Test that creation defaults mirror Gaia's new-battery defaults."""
+        general = BatteryLV.General()
+        self.assertEqual(general.state_of_charge, 50.0)
+        self.assertEqual(general.capacity, 0.0)
+
+        inverter = BatteryLV.Inverter()
+        self.assertEqual(inverter.s_nom, 0.0)
+        self.assertEqual(inverter.cos_ref, 1.0)
+        self.assertEqual(inverter.charge_efficiency_type, "0,1..1 pu: 95 %")
+        self.assertEqual(inverter.discharge_efficiency_type, "0,1..1 pu: 95 %")
+
+        self.assertEqual(BatteryLV.PUControl().input1, 1.0)
+        self.assertEqual(BatteryLV.PIControl().input1, 1.0)
+
+        battery = BatteryLV(
+            BatteryLV.General(guid=self.battery_guid, node=self.node_guid),
+            [ElementPresentation(sheet=self.sheet_guid)],
+        )
+        for efficiency in (battery.charge_efficiency, battery.discharge_efficiency):
+            self.assertEqual(efficiency.input1, 0.0)
+            self.assertEqual(efficiency.output1, 10.0)
+            self.assertEqual(efficiency.input2, 0.1)
+            self.assertEqual(efficiency.output2, 95.0)
+            self.assertEqual(efficiency.input3, 1.0)
+            self.assertEqual(efficiency.output3, 95.0)
+        # Distinct instances so mutating one curve does not affect the other
+        self.assertIsNot(battery.charge_efficiency, battery.discharge_efficiency)
 
     def test_multiple_presentations_serialize_correctly(self) -> None:
         """Test that batteries with multiple presentations serialize correctly."""
@@ -457,29 +503,17 @@ class TestBatteryRegistration(unittest.TestCase):
         self.assertIn("#ChargeEfficiencyType", serialized)
         self.assertIn("#DischargeEfficiencyType", serialized)
 
-        # Verify efficiency data is serialized (check for some key values)
-        self.assertIn("Input1:5.0", serialized)
-        self.assertIn("Output1:4.5", serialized)
-        self.assertIn("Input2:10.0", serialized)
-        self.assertIn("Output2:9.0", serialized)
-        self.assertIn("Input3:15.0", serialized)
-        self.assertIn("Output3:13.5", serialized)
-        self.assertIn("Input4:20.0", serialized)
-        self.assertIn("Output4:18.0", serialized)
-        self.assertIn("Input5:25.0", serialized)
-        self.assertIn("Output5:22.5", serialized)
+        charge_line = _line_with_prefix(serialized, "#ChargeEfficiencyType")
+        self.assertIn("Input1:5.0", charge_line)
+        self.assertIn("Output1:4.5", charge_line)
+        self.assertIn("Input5:25.0", charge_line)
+        self.assertIn("Output5:22.5", charge_line)
 
-        # Verify discharge efficiency data is present
-        self.assertIn("Input1:6.0", serialized)
-        self.assertIn("Output1:5.4", serialized)
-        self.assertIn("Input2:12.0", serialized)
-        self.assertIn("Output2:10.8", serialized)
-        self.assertIn("Input3:18.0", serialized)
-        self.assertIn("Output3:16.2", serialized)
-        self.assertIn("Input4:24.0", serialized)
-        self.assertIn("Output4:21.6", serialized)
-        self.assertIn("Input5:30.0", serialized)
-        self.assertIn("Output5:27.0", serialized)
+        discharge_line = _line_with_prefix(serialized, "#DischargeEfficiencyType")
+        self.assertIn("Input1:6.0", discharge_line)
+        self.assertIn("Output1:5.4", discharge_line)
+        self.assertIn("Input5:30.0", discharge_line)
+        self.assertIn("Output5:27.0", discharge_line)
 
 
 if __name__ == "__main__":

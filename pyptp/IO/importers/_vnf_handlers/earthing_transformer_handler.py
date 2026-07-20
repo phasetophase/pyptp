@@ -18,6 +18,7 @@ class EarthingTransformerHandler(DeclarativeHandler[NetworkMV]):
         SectionConfig("general", "#General ", required=True),
         SectionConfig("presentations", "#Presentation "),
         SectionConfig("type", "#EarthingTransformerType "),
+        SectionConfig("icon", "#Icon "),
         SectionConfig("extras", "#Extra Text:"),
         SectionConfig("notes", "#Note Text:"),
     ]

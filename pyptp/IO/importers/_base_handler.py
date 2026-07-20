@@ -113,7 +113,8 @@ class DeclarativeHandler(Generic[NetworkModel]):
         parsed_dict = {}
 
         # Support electrical protection property names with special characters
-        key_value_pattern = re.compile(r"([\w><,/]+):(?:'([^']*)'|([^\s]+))")
+        # and indexed keys such as "1.Pmin1" (threewinding load-dependent sets).
+        key_value_pattern = re.compile(r"([\w><,/.]+):(?:'([^']*)'|([^\s]+))")
 
         for match in key_value_pattern.finditer(payload):
             key = match.group(1)
@@ -449,6 +450,11 @@ class DeclarativeHandler(Generic[NetworkModel]):
 
         """
         component_cls = self.COMPONENT_CLS
+
+        if kwarg_name == "icon":
+            from pyptp.elements.mixins import Icon
+
+            return Icon
 
         # Common field name to nested class mappings
         fallback_mappings = {

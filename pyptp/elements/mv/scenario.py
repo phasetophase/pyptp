@@ -20,7 +20,6 @@ from pyptp.elements.element_utils import (
 )
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
-    write_double_no_skip,
     write_guid,
     write_integer,
     write_integer_no_skip,
@@ -78,7 +77,7 @@ class ScenarioMV:
             metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
         )
         attribute: int = 0
-        value: float = 0.0
+        value: str = string_field()
         comment: str = string_field()
 
         def serialize(self) -> str:
@@ -87,7 +86,7 @@ class ScenarioMV:
                 write_integer("Date", self.date, skip=0),
                 write_guid("VisionObject", self.vision_object) if self.vision_object is not None else "",
                 write_integer_no_skip("Attribute", self.attribute),
-                write_double_no_skip("Value", self.value),
+                write_quote_string_no_skip("Value", self.value),
                 write_quote_string("Comment", self.comment, skip=""),
             )
 
@@ -100,7 +99,7 @@ class ScenarioMV:
                 date=data.get("Date", 0),
                 vision_object=decode_guid(vision_object) if vision_object else None,
                 attribute=data.get("Attribute", 0),
-                value=data.get("Value", 0.0),
+                value=data.get("Value", ""),
                 comment=data.get("Comment", ""),
             )
 

@@ -21,7 +21,7 @@ from pyptp.elements.element_utils import (
     encode_guid_optional,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -45,7 +45,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
+class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Medium-voltage synchronous motor with reactive power capability.
 
     Supports synchronous motor analysis with configurable power factor
@@ -337,11 +337,14 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.append(f"#General {self.general.serialize()}")
         lines.append(f"#SynchronousMotorType {self.type.serialize()}")
 
-        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
-
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
+
+        lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 
         return "\n".join(lines)
 

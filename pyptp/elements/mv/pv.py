@@ -22,7 +22,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
+class PVMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Represents a PV (MV)."""
 
     @dataclass_json
@@ -174,7 +174,8 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         snom: float = 0.0
         unom: float = 0.0
         ik_inom: float = field(default=1.0, metadata=config(field_name="Ik/Inom"))
-        cosk: float = 0.0
+        k: float = 0.0
+        cosk: float = 0.01
         capacitivek: bool = False
         efficiency_type: str = string_field()
         u_off: float = 0.0
@@ -185,6 +186,7 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double("Snom", self.snom),
                 write_double("Unom", self.unom),
                 write_double_no_skip("Ik/Inom", self.ik_inom),
+                write_double("k", self.k),
                 write_double("Cosk", self.cosk),
                 write_boolean("Capacitivek", value=self.capacitivek),
                 write_quote_string("EfficiencyType", self.efficiency_type),
@@ -198,7 +200,8 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
                 snom=data.get("Snom", 0.0),
                 unom=data.get("Unom", 0.0),
                 ik_inom=data.get("Ik/Inom", 1.0),
-                cosk=data.get("Cosk", 0),
+                k=data.get("k", 0.0),
+                cosk=data.get("Cosk", 0.01),
                 capacitivek=data.get("Capacitivek", False),
                 efficiency_type=data.get("EfficiencyType", ""),
                 u_off=data.get("Uoff", 0.0),
@@ -313,9 +316,18 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         output4: float = 0.0
         input5: float = 0.0
         output5: float = 0.0
-        measure_field1: str = string_field()
-        measure_field2: str = string_field()
-        measure_field3: str = string_field()
+        measure_field1: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
+        measure_field2: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
+        measure_field3: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
 
         def serialize(self) -> str:
             """Serialize PIControl properties."""
@@ -330,14 +342,18 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_double_no_skip("Output4", self.output4),
                 write_double_no_skip("Input5", self.input5),
                 write_double_no_skip("Output5", self.output5),
-                write_quote_string("MeasureField1", self.measure_field1, skip=""),
-                write_quote_string("MeasureField2", self.measure_field2, skip=""),
-                write_quote_string("MeasureField3", self.measure_field3, skip=""),
+                write_guid("MeasureField1", self.measure_field1) if self.measure_field1 else "",
+                write_guid("MeasureField2", self.measure_field2) if self.measure_field2 else "",
+                write_guid("MeasureField3", self.measure_field3) if self.measure_field3 else "",
             )
 
         @classmethod
         def deserialize(cls, data: dict) -> PVMV.PIControl:
             """Deserialize PIControl properties."""
+            measure_field1 = data.get("MeasureField1")
+            measure_field2 = data.get("MeasureField2")
+            measure_field3 = data.get("MeasureField3")
+
             return cls(
                 input1=data.get("Input1", 1.0),
                 output1=data.get("Output1", 0.0),
@@ -349,9 +365,9 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
                 output4=data.get("Output4", 0.0),
                 input5=data.get("Input5", 0.0),
                 output5=data.get("Output5", 0.0),
-                measure_field1=data.get("MeasureField1", ""),
-                measure_field2=data.get("MeasureField2", ""),
-                measure_field3=data.get("MeasureField3", ""),
+                measure_field1=decode_guid(measure_field1) if measure_field1 else None,
+                measure_field2=decode_guid(measure_field2) if measure_field2 else None,
+                measure_field3=decode_guid(measure_field3) if measure_field3 else None,
             )
 
     @dataclass_json
@@ -443,6 +459,9 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin):
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
 
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
 
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 

@@ -21,7 +21,7 @@ from pyptp.elements.element_utils import (
     encode_guid,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 
 @dataclass_json
 @dataclass
-class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
+class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     """Medium-voltage asynchronous motor with starting characteristics.
 
     Supports induction motor analysis including DOL, soft starter, and
@@ -437,6 +437,9 @@ class AsynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin):
 
         lines.extend(f"#Extra Text:{extra.text}" for extra in self.extras)
         lines.extend(serialize_notes(self.notes))
+
+        if self.icon is not None:
+            lines.append(f"#Icon {self.icon.serialize()}")
 
         lines.extend(f"#Presentation {presentation.serialize()}" for presentation in self.presentations)
 

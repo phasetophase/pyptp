@@ -78,7 +78,6 @@ class TestBatteryRegistration(unittest.TestCase):
             pref=50.0,
             state_of_charge=0.8,
             capacity=100.0,
-            c_rate=0.5,
             harmonics_type="TestHarmonics",
         )
 
@@ -141,7 +140,6 @@ class TestBatteryRegistration(unittest.TestCase):
         self.assertIn("Pref:50", serialized)
         self.assertIn("StateOfCharge:0.8", serialized)
         self.assertIn("Capacity:100", serialized)
-        self.assertIn("Crate:0.5", serialized)
         self.assertIn("HarmonicsType:'TestHarmonics'", serialized)
 
         # Verify node reference
@@ -226,11 +224,11 @@ class TestBatteryRegistration(unittest.TestCase):
         self.assertIn("Name:'MinimalBattery'", serialized)
         self.assertIn("SwitchState:1", serialized)
         self.assertIn("StateOfCharge:50", serialized)  # New default is 50.0
-        self.assertIn("Crate:0.5", serialized)  # New default is 0.5
         self.assertIn("Ik/Inom:1", serialized)  # New default is 1.0 and always appears
 
         # Should not have optional sections
-        self.assertNotIn("#PControl", serialized)
+        self.assertNotIn("#P(U)Control", serialized)
+        self.assertNotIn("#P(I)Control", serialized)
         self.assertNotIn("#QControl", serialized)
         self.assertNotIn("#ChargeEfficiencyType", serialized)
         self.assertNotIn("#DischargeEfficiencyType", serialized)
@@ -242,7 +240,6 @@ class TestBatteryRegistration(unittest.TestCase):
             name="CapacityBattery",
             node=self.node_guid,
             capacity=100.0,
-            c_rate=0.5,
             state_of_charge=0.8,
         )
         inverter = BatteryMV.Inverter(snom=100.0)
@@ -253,7 +250,6 @@ class TestBatteryRegistration(unittest.TestCase):
 
         serialized = battery.serialize()
         self.assertIn("Capacity:100", serialized)
-        self.assertIn("Crate:0.5", serialized)
         self.assertIn("StateOfCharge:0.8", serialized)
 
     def test_battery_with_default_capacity_properties_serializes_correctly(
@@ -264,7 +260,7 @@ class TestBatteryRegistration(unittest.TestCase):
             guid=self.battery_guid,
             name="DefaultCapacityBattery",
             node=self.node_guid,
-            # Using default values: StateOfCharge=50.0, Crate=0.5, Capacity=0.0
+            # Using default values: StateOfCharge=50.0, Capacity=0.0
         )
         inverter = BatteryMV.Inverter(snom=100.0)
         presentation = ElementPresentation(sheet=self.sheet_guid)
@@ -275,7 +271,6 @@ class TestBatteryRegistration(unittest.TestCase):
         serialized = battery.serialize()
         # Default values should appear or be skipped based on Delphi behavior
         self.assertIn("StateOfCharge:50", serialized)  # New default appears
-        self.assertIn("Crate:0.5", serialized)  # New default appears
 
     def test_battery_with_power_reference_serializes_correctly(self) -> None:
         """Test that batteries with power reference serialize correctly."""

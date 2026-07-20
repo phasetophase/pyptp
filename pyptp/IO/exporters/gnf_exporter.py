@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 class GnfExporter:
-    """Exporter for LV networks supporting presentation optimization and GNF v8.9 format.
+    """Exporter for LV networks supporting presentation optimization and GNF v8.12 format.
 
     Provides comprehensive export functionality for TNetworkLS instances with
     optional presentation solving to ensure proper visual layout and scaling
@@ -196,8 +196,8 @@ class GnfExporter:
 
     @staticmethod
     def _write_gnf(network: NetworkLV, fh: TextIO) -> None:
-        """Write network content in G8.9 format to file handle."""
-        fh.write("G8.9\nNETWORK\n\n")
+        """Write network content in G8.12 format to file handle."""
+        fh.write("G8.12\nNETWORK\n\n")
 
         fh.write("[PROPERTIES]\n")
         fh.write(network.properties.serialize() + "\n")
@@ -208,6 +208,8 @@ class GnfExporter:
         fh.write("[]\n\n")
 
         sections: list[tuple[str, Iterable]] = [
+            ("PROFILEFILES", network.profile_files),
+            ("MEASUREMENTFILES", network.measurement_files),
             ("PROFILE", network.profiles.values()),
             ("GM TYPE", network.gmtypes.values()),
             ("SHEET", network.sheets.values()),
@@ -246,16 +248,20 @@ class GnfExporter:
     def export(
         network: NetworkLV,
         output_path: str,
-        version: GnfVersion = GnfVersion.G8_9,
+        version: GnfVersion = GnfVersion.G8_12,
         *,
         validate_on_migration_failure: bool = True,
     ) -> None:
         """Export LV network to GNF format with version migration.
 
+        The network is always serialized as native G8.12. When an older target
+        version is requested, the G8.12 output is written to a temporary file and
+        down-converted by the migrator.
+
         Args:
             network: LV network to export.
             output_path: Target file path for GNF output.
-            version: Target GNF version (default: G8.9).
+            version: Target GNF version (default: G8.12).
             validate_on_migration_failure: Run validators and include diagnostics
                 in the error message when version migration fails (default: True).
 
@@ -266,7 +272,7 @@ class GnfExporter:
         """
         out_path: Path = Path(output_path)
 
-        if version == GnfVersion.G8_9:
+        if version == GnfVersion.G8_12:
             with out_path.open("w", encoding="utf-8") as fh:
                 GnfExporter._write_gnf(network, fh)
         else:

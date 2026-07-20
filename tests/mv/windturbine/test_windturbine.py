@@ -52,9 +52,7 @@ class TestWindTurbineRegistration(unittest.TestCase):
         presentation = ElementPresentation(sheet=self.sheet_guid)
 
         windturbine_type = WindTurbineMV.WindTurbineType()
-        windturbine = WindTurbineMV(
-            general, [presentation], windturbine_type, None, None, None, None, None
-        )
+        windturbine = WindTurbineMV(general, [presentation], windturbine_type)
         windturbine.register(self.network)
 
         # Verify windturbine is in network
@@ -113,11 +111,6 @@ class TestWindTurbineRegistration(unittest.TestCase):
             general,
             [presentation],
             WindTurbineMV.WindTurbineType(),
-            None,
-            None,
-            None,
-            None,
-            None,
         )
         windturbine.extras.append(Extra(text="foo=bar"))
         windturbine.notes.append(Note(text="Test note"))
@@ -171,11 +164,6 @@ class TestWindTurbineRegistration(unittest.TestCase):
             general1,
             [ElementPresentation(sheet=self.sheet_guid)],
             WindTurbineMV.WindTurbineType(),
-            None,
-            None,
-            None,
-            None,
-            None,
         )
         windturbine1.register(self.network)
 
@@ -188,11 +176,6 @@ class TestWindTurbineRegistration(unittest.TestCase):
             general2,
             [ElementPresentation(sheet=self.sheet_guid)],
             WindTurbineMV.WindTurbineType(),
-            None,
-            None,
-            None,
-            None,
-            None,
         )
         windturbine2.register(self.network)
 
@@ -214,9 +197,7 @@ class TestWindTurbineRegistration(unittest.TestCase):
         presentation = ElementPresentation(sheet=self.sheet_guid)
 
         windturbine_type = WindTurbineMV.WindTurbineType()
-        windturbine = WindTurbineMV(
-            general, [presentation], windturbine_type, None, None, None, None, None
-        )
+        windturbine = WindTurbineMV(general, [presentation], windturbine_type)
         windturbine.register(self.network)
 
         serialized = windturbine.serialize()
@@ -251,9 +232,7 @@ class TestWindTurbineRegistration(unittest.TestCase):
         presentation = ElementPresentation(sheet=self.sheet_guid)
 
         windturbine_type = WindTurbineMV.WindTurbineType()
-        windturbine = WindTurbineMV(
-            general, [presentation], windturbine_type, None, None, None, None, None
-        )
+        windturbine = WindTurbineMV(general, [presentation], windturbine_type)
         windturbine.register(self.network)
 
         serialized = windturbine.serialize()
@@ -272,9 +251,7 @@ class TestWindTurbineRegistration(unittest.TestCase):
         presentation = ElementPresentation(sheet=self.sheet_guid)
 
         windturbine_type = WindTurbineMV.WindTurbineType()
-        windturbine = WindTurbineMV(
-            general, [presentation], windturbine_type, None, None, None, None, None
-        )
+        windturbine = WindTurbineMV(general, [presentation], windturbine_type)
         windturbine.register(self.network)
 
         serialized = windturbine.serialize()
@@ -295,9 +272,7 @@ class TestWindTurbineRegistration(unittest.TestCase):
         presentation = ElementPresentation(sheet=self.sheet_guid)
 
         windturbine_type = WindTurbineMV.WindTurbineType()
-        windturbine = WindTurbineMV(
-            general, [presentation], windturbine_type, None, None, None, None, None
-        )
+        windturbine = WindTurbineMV(general, [presentation], windturbine_type)
         windturbine.register(self.network)
 
         serialized = windturbine.serialize()
@@ -318,9 +293,7 @@ class TestWindTurbineRegistration(unittest.TestCase):
         presentation = ElementPresentation(sheet=self.sheet_guid)
 
         windturbine_type = WindTurbineMV.WindTurbineType()
-        windturbine = WindTurbineMV(
-            general, [presentation], windturbine_type, None, None, None, None, None
-        )
+        windturbine = WindTurbineMV(general, [presentation], windturbine_type)
         windturbine.register(self.network)
 
         serialized = windturbine.serialize()
@@ -337,9 +310,7 @@ class TestWindTurbineRegistration(unittest.TestCase):
         presentation = ElementPresentation(sheet=self.sheet_guid)
 
         windturbine_type = WindTurbineMV.WindTurbineType()
-        windturbine = WindTurbineMV(
-            general, [presentation], windturbine_type, None, None, None, None, None
-        )
+        windturbine = WindTurbineMV(general, [presentation], windturbine_type)
         windturbine.register(self.network)
 
         serialized = windturbine.serialize()
