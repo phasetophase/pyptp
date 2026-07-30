@@ -82,7 +82,7 @@ class TestGeneratorMV(unittest.TestCase):
         generator = self._make_generator(
             creation_time=123.45,
             variant=True,
-            switch_state=0,
+            switch_state=False,
             field_name="TestField",
             failure_frequency=0.01,
             repair_duration=2.5,

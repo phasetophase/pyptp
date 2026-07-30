@@ -27,12 +27,12 @@ from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
     write_boolean,
+    write_boolean_as_byte_no_skip,
     write_double,
     write_double_no_skip,
     write_guid,
     write_guid_no_skip,
     write_integer,
-    write_integer_no_skip,
     write_quote_string,
 )
 from pyptp.ptp_log import logger
@@ -73,7 +73,7 @@ class SourceMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         revision_date: int = optional_field(0)
         variant: bool = False
         name: str = string_field()
-        switch_state: int = 1
+        switch_state: bool = True
         field_name: str = string_field()
         """Name of the connection field."""
         failure_frequency: float = 0.0
@@ -125,7 +125,7 @@ class SourceMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 write_integer("RevisionDate", self.revision_date, skip=0),
                 write_boolean("Variant", value=self.variant),
                 write_quote_string("Name", self.name),
-                write_integer_no_skip("SwitchState", self.switch_state),
+                write_boolean_as_byte_no_skip("SwitchState", value=self.switch_state),
                 write_quote_string("FieldName", self.field_name),
                 write_double("FailureFrequency", self.failure_frequency),
                 write_double("RepairDuration", self.repair_duration),
@@ -159,7 +159,7 @@ class SourceMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 revision_date=data.get("RevisionDate", 0.0),
                 variant=data.get("Variant", False),
                 name=data.get("Name", ""),
-                switch_state=data.get("SwitchState", 1),
+                switch_state=bool(data.get("SwitchState", True)),
                 field_name=data.get("FieldName", ""),
                 failure_frequency=data.get("FailureFrequency", 0.0),
                 repair_duration=data.get("RepairDuration", 0.0),

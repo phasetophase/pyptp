@@ -81,8 +81,8 @@ class TestLinkRegistration(unittest.TestCase):
             node1=self.node1_guid,
             node2=self.node2_guid,
             name="FullLink",
-            switch_state1=1,
-            switch_state2=1,
+            switch_state1=True,
+            switch_state2=True,
             field_name1="Field1",
             field_name2="Field2",
             subnet_border=True,
@@ -272,8 +272,8 @@ class TestLinkRegistration(unittest.TestCase):
             name="SwitchStatesLink",
             node1=self.node1_guid,
             node2=self.node2_guid,
-            switch_state1=1,
-            switch_state2=1,
+            switch_state1=True,
+            switch_state2=True,
         )
         presentation = BranchPresentation(sheet=self.sheet_guid)
 

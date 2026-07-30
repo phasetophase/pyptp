@@ -25,6 +25,7 @@ from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
     write_boolean,
+    write_boolean_as_byte_no_skip,
     write_double,
     write_double_no_skip,
     write_guid,
@@ -66,8 +67,8 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         name: str = string_field()
-        switch_state1: int = 1
-        switch_state2: int = 1
+        switch_state1: bool = True
+        switch_state2: bool = True
         field_name1: str = string_field()
         field_name2: str = string_field()
         subnet_border: bool = False
@@ -105,8 +106,8 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_guid("Node1", self.node1, skip=NIL_GUID),
                 write_guid("Node2", self.node2, skip=NIL_GUID),
                 write_quote_string("Name", self.name),
-                write_integer_no_skip("SwitchState1", self.switch_state1),
-                write_integer_no_skip("SwitchState2", self.switch_state2),
+                write_boolean_as_byte_no_skip("SwitchState1", value=self.switch_state1),
+                write_boolean_as_byte_no_skip("SwitchState2", value=self.switch_state2),
                 write_quote_string("FieldName1", self.field_name1),
                 write_quote_string("FieldName2", self.field_name2),
                 write_boolean("SubnetBorder", value=self.subnet_border),
@@ -145,8 +146,8 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
                 node1=decode_guid(data.get("Node1", str(NIL_GUID))),
                 node2=decode_guid(data.get("Node2", str(NIL_GUID))),
                 name=data.get("Name", ""),
-                switch_state1=data.get("SwitchState1", 1),
-                switch_state2=data.get("SwitchState2", 1),
+                switch_state1=bool(data.get("SwitchState1", True)),
+                switch_state2=bool(data.get("SwitchState2", True)),
                 field_name1=data.get("FieldName1", ""),
                 field_name2=data.get("FieldName2", ""),
                 subnet_border=data.get("SubnetBorder", False),

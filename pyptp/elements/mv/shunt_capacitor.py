@@ -27,12 +27,12 @@ from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
     write_boolean,
+    write_boolean_as_byte_no_skip,
     write_boolean_no_skip,
     write_double_no_skip,
     write_guid,
     write_guid_no_skip,
     write_integer,
-    write_integer_no_skip,
     write_quote_string_no_skip,
 )
 from pyptp.ptp_log import logger
@@ -86,8 +86,8 @@ class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         name: str = string_field()
         """Name of the shunt capacitor."""
 
-        switch_state: int = 1
-        """Switch state: 1=closed (capacitor energized), 0=open (capacitor de-energized)."""
+        switch_state: bool = True
+        """Switch state: True=closed (capacitor energized), False=open (capacitor de-energized)."""
 
         field_name: str = string_field()
         """Name of the connection field."""
@@ -162,7 +162,7 @@ class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 write_integer("RevisionDate", self.revision_date, skip=0),
                 write_boolean("Variant", value=self.variant),
                 write_quote_string_no_skip("Name", self.name),
-                write_integer_no_skip("SwitchState", self.switch_state),
+                write_boolean_as_byte_no_skip("SwitchState", value=self.switch_state),
                 write_quote_string_no_skip("FieldName", self.field_name),
                 write_double_no_skip("FailureFrequency", self.failure_frequency),
                 write_double_no_skip("RepairDuration", self.repair_duration),
@@ -198,7 +198,7 @@ class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 revision_date=data.get("RevisionDate", 0),
                 variant=data.get("Variant", False),
                 name=data.get("Name", ""),
-                switch_state=data.get("SwitchState", 1),
+                switch_state=bool(data.get("SwitchState", True)),
                 field_name=data.get("FieldName", ""),
                 failure_frequency=data.get("FailureFrequency", 0.0),
                 repair_duration=data.get("RepairDuration", 0.0),

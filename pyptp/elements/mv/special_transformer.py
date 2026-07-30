@@ -15,6 +15,7 @@ from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
     write_boolean,
+    write_boolean_as_byte_no_skip,
     write_boolean_no_skip,
     write_double,
     write_double_no_skip,
@@ -55,10 +56,10 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         name: str = string_field()
         """Name of transformer."""
-        switch_state1: int = 1
-        """Switch state on side 1 (closed=1, open=0)."""
-        switch_state2: int = 1
-        """Switch state on side 2 (closed=1, open=0)."""
+        switch_state1: bool = True
+        """Switch state on side 1 (closed=True, open=False)."""
+        switch_state2: bool = True
+        """Switch state on side 2 (closed=True, open=False)."""
         field_name1: str = string_field()
         """Name of the connection field on side 1."""
         field_name2: str = string_field()
@@ -119,8 +120,8 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_guid("Node1", self.node1) if self.node1 != NIL_GUID else "",
                 write_guid("Node2", self.node2) if self.node2 != NIL_GUID else "",
                 write_quote_string_no_skip("Name", self.name),
-                write_integer_no_skip("SwitchState1", value=self.switch_state1),
-                write_integer_no_skip("SwitchState2", value=self.switch_state2),
+                write_boolean_as_byte_no_skip("SwitchState1", value=self.switch_state1),
+                write_boolean_as_byte_no_skip("SwitchState2", value=self.switch_state2),
                 write_quote_string_no_skip("FieldName1", self.field_name1),
                 write_quote_string_no_skip("FieldName2", self.field_name2),
                 write_boolean("SubnetBorder", value=self.subnet_border),
@@ -159,8 +160,8 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 node1=decode_guid(data.get("Node1", str(NIL_GUID))),
                 node2=decode_guid(data.get("Node2", str(NIL_GUID))),
                 name=data.get("Name", ""),
-                switch_state1=data.get("SwitchState1", 1),
-                switch_state2=data.get("SwitchState2", 1),
+                switch_state1=bool(data.get("SwitchState1", True)),
+                switch_state2=bool(data.get("SwitchState2", True)),
                 field_name1=data.get("FieldName1", ""),
                 field_name2=data.get("FieldName2", ""),
                 subnet_border=data.get("SubnetBorder", False),

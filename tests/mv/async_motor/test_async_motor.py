@@ -67,7 +67,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
             revision_date=20,
             variant=True,
             name="FullMotor",
-            switch_state=1,
+            switch_state=True,
             field_name="TestField",
             failure_frequency=0.01,
             repair_duration=2.5,
@@ -420,7 +420,7 @@ class TestAsynchronousMotorRegistration(unittest.TestCase):
             guid=self.motor_guid,
             name="SwitchStateMotor",
             node=self.node_guid,
-            switch_state=1,
+            switch_state=True,
         )
         motor_type = AsynchronousMotorMV.AsynchronousMotorType()
         presentation = ElementPresentation(sheet=self.sheet_guid)
