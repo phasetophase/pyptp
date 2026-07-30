@@ -42,6 +42,26 @@ class TestLVCableLoader(unittest.TestCase):
             self.assertIsNotNone(cable_by_alias)
             self.assertIsNone(cable_by_short)
 
+    def test_lv_cable_workbook_without_unit_row_keeps_first_row(self) -> None:
+        # Regression: with no unit row and multiple data rows, the first cable
+        # was silently dropped and only resolved later rows.
+        with TemporaryDirectory() as td:
+            path = Path(td) / "wb.xlsx"
+            cable = pd.DataFrame(
+                {
+                    "Name": ["Cable One", "Cable Two"],
+                    "Shortname": ["C1", "C2"],
+                    "R": [0.1, 0.2],
+                    "X": [0.2, 0.3],
+                }
+            )
+            with pd.ExcelWriter(path) as writer:
+                cable.to_excel(writer, sheet_name="Cable", index=False)
+
+            types = Types(str(path))
+            self.assertIsNotNone(types.get_lv_cable("Cable One"))
+            self.assertIsNotNone(types.get_lv_cable("Cable Two"))
+
 
 if __name__ == "__main__":
     unittest.main()

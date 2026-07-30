@@ -1,0 +1,43 @@
+V9.12
+NETWORK
+
+[PROPERTIES]
+#System Currency:'EUR' 
+#Network 
+#General 
+#Invisible 
+#History 
+#HistoryItems 
+#Users 
+[]
+
+[SHEET]
+#General GUID:'{B3316018-3E08-4F84-9EE9-455AEDC88344}' Name:'Main' Color:$808080 
+[]
+
+[NODE]
+#General GUID:'{E1633E11-644F-48CA-8485-F55584A0C09D}' CreationTime:0 Name:'Source' Unom:10.0 
+#Railtype 
+#Installation 
+#Presentation Sheet:'{B3316018-3E08-4F84-9EE9-455AEDC88344}' X:150 Y:250 Symbol:11 Font:'Arial' 
+#General GUID:'{CB8B50DE-4664-4FB4-8683-74CEAAF75B1B}' CreationTime:0 Name:'Load' Unom:10.0 
+#Railtype 
+#Installation 
+#Presentation Sheet:'{B3316018-3E08-4F84-9EE9-455AEDC88344}' X:450 Y:250 Symbol:11 Font:'Arial' 
+[]
+
+[LINK]
+#General GUID:'{FC6D729A-3135-4ED5-9AEA-D28107354FE0}' CreationTime:0 Node1:'{E1633E11-644F-48CA-8485-F55584A0C09D}' Node2:'{CB8B50DE-4664-4FB4-8683-74CEAAF75B1B}' SwitchState1:1 SwitchState2:1 RailConnectivity:1 
+#Presentation Sheet:'{B3316018-3E08-4F84-9EE9-455AEDC88344}' TextSize:7 Font:'Arial' FirstCorners:'{(150 250) (300 250) }' SecondCorners:'{(450 250) }' 
+[]
+
+[SOURCE]
+#General Node:'{E1633E11-644F-48CA-8485-F55584A0C09D}' GUID:'{816C448B-6462-4D27-81C5-012C2BF0FB01}' CreationTime:0 SwitchState:1 Uref:1 Sk2nom:900.0 Sk2min:900.0 Sk2max:1000.0 R/X:0.1 Z0/Z1:1.0 Profile:'{A4D813DF-1EE1-4153-806C-DC228D251A79}' 
+#Presentation Sheet:'{B3316018-3E08-4F84-9EE9-455AEDC88344}' X:150 Y:100 Font:'Arial' 
+[]
+
+[LOAD]
+#General Node:'{CB8B50DE-4664-4FB4-8683-74CEAAF75B1B}' GUID:'{EEDD7C15-FC34-44F7-B7A4-DF0A31448436}' CreationTime:0 SwitchState:1 P:100.0 Q:50.0 Fp1:0.0 Fq1:0.0 Fp2:0.0 Fq2:0.0 Fp3:0.0 Fq3:0.0 Earthing:0 HarmonicImpedance:True 
+#Presentation Sheet:'{B3316018-3E08-4F84-9EE9-455AEDC88344}' X:450 Y:350 Font:'Arial' 
+[]
+

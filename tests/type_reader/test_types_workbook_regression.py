@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import cast
 
 import pandas as pd
+from openpyxl import load_workbook
 
 import pyptp.type_reader as tr
 from pyptp.elements.lv.cable import CableLV
@@ -13,7 +14,8 @@ from pyptp.elements.lv.fuse import FuseLV
 from pyptp.elements.lv.shared import CableType as LVCableType
 from pyptp.elements.lv.shared import FuseType as LVFuseType
 from pyptp.type_reader import Types
-from pyptp.type_reader._excel import clean_row_dict, read_frame_with_fallback
+from pyptp.type_reader._excel import clean_row_dict, read_type_sheet
+from pyptp.type_reader._lv import DEFAULT_CABLE_RENAME as LV_CABLE_RENAME
 
 
 def _workbook_path() -> Path:
@@ -88,10 +90,10 @@ class TestTypesWorkbookRegression(unittest.TestCase):
 
     def test_lv_cable_exact_values_match_excel_row(self) -> None:
         path = _workbook_path()
-        rows = read_frame_with_fallback(
+        rows = read_type_sheet(
             str(path),
             sheet_name="Cable",
-            rename={"Shortname": "ShortName", "Tan_delta": "TanDelta"},
+            rename=LV_CABLE_RENAME,
         )
         self.assertTrue(rows, "Cable sheet is empty in workbook")
 
@@ -122,9 +124,7 @@ class TestTypesWorkbookRegression(unittest.TestCase):
 
     def test_lv_fuse_exact_values_match_excel_row(self) -> None:
         path = _workbook_path()
-        rows = read_frame_with_fallback(
-            str(path), sheet_name="Fuse", rename={"Shortname": "ShortName"}
-        )
+        rows = read_type_sheet(str(path), sheet_name="Fuse")
         self.assertTrue(rows, "Fuse sheet is empty in workbook")
 
         row = rows[0]
@@ -154,10 +154,10 @@ class TestTypesWorkbookRegression(unittest.TestCase):
     def test_lv_cable_all_names_match_excel_rows(self) -> None:
         # Verify ALL Name rows match exactly between workbook and Types (for rows that deserialize)
         path = _workbook_path()
-        rows = read_frame_with_fallback(
+        rows = read_type_sheet(
             str(path),
             sheet_name="Cable",
-            rename={"Shortname": "ShortName", "Tan_delta": "TanDelta"},
+            rename=LV_CABLE_RENAME,
         )
         self.assertTrue(rows, "Cable sheet is empty in workbook")
 
@@ -196,9 +196,7 @@ class TestTypesWorkbookRegression(unittest.TestCase):
     def test_lv_fuse_all_names_match_excel_rows(self) -> None:
         # Verify ALL Name rows match exactly between workbook and Types (for rows that deserialize)
         path = _workbook_path()
-        rows = read_frame_with_fallback(
-            str(path), sheet_name="Fuse", rename={"Shortname": "ShortName"}
-        )
+        rows = read_type_sheet(str(path), sheet_name="Fuse")
         self.assertTrue(rows, "Fuse sheet is empty in workbook")
 
         types = Types()
@@ -264,6 +262,28 @@ class TestTypesWorkbookRegression(unittest.TestCase):
             all(isinstance(x, (int, float)) for x in ft.T),
             msg=f"Non-numeric in T: {ft.T!r}",
         )
+
+    def test_no_sheet_has_ambiguous_headers(self) -> None:
+        # Header lookup ignores case. That is only safe while no sheet carries
+        # two headers differing in nothing else, so guard the bundled workbook
+        # against picking one up.
+        workbook = load_workbook(_workbook_path(), read_only=True)
+        try:
+            for sheet in workbook.sheetnames:
+                headers = next(workbook[sheet].iter_rows(values_only=True), ())
+                seen: dict[str, str] = {}
+                for header in headers:
+                    if header is None:
+                        continue
+                    key = str(header).casefold()
+                    self.assertNotIn(
+                        key,
+                        seen,
+                        msg=f"Sheet {sheet!r}: {header!r} is ambiguous with {seen.get(key)!r}",
+                    )
+                    seen[key] = str(header)
+        finally:
+            workbook.close()
 
 
 if __name__ == "__main__":
