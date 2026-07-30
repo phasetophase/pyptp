@@ -77,8 +77,8 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
         loadrate_max_winter: float = 0.0
         loadrate_max_emergency: float = 0.0
         loadrate_max_emergency_winter: float = 0.0
-        switch_state1: int = 1
-        switch_state2: int = 1
+        switch_state1: bool = True
+        switch_state2: bool = True
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         resistance_symbol: bool = False
@@ -98,8 +98,8 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_guid("Node1", self.node1) if self.node1 != NIL_GUID else "",
                 write_guid("Node2", self.node2) if self.node2 != NIL_GUID else "",
                 write_quote_string("Name", self.name),
-                write_boolean_as_byte_no_skip("SwitchState1", value=bool(self.switch_state1)),
-                write_boolean_as_byte_no_skip("SwitchState2", value=bool(self.switch_state2)),
+                write_boolean_as_byte_no_skip("SwitchState1", value=self.switch_state1),
+                write_boolean_as_byte_no_skip("SwitchState2", value=self.switch_state2),
                 write_quote_string("FieldName1", self.field_name1, skip=""),
                 write_quote_string("FieldName2", self.field_name2, skip=""),
                 write_boolean("SubnetBorder", value=self.subnet_border),
@@ -141,8 +141,8 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
                 loadrate_max_winter=data.get("LoadrateMaxWinter", 0.0),
                 loadrate_max_emergency=data.get("LoadrateMaxmax", 0.0),
                 loadrate_max_emergency_winter=data.get("LoadrateMaxmaxWinter", 0.0),
-                switch_state1=data.get("SwitchState1", 1),
-                switch_state2=data.get("SwitchState2", 1),
+                switch_state1=bool(data.get("SwitchState1", True)),
+                switch_state2=bool(data.get("SwitchState2", True)),
                 node1=decode_guid(data.get("Node1", str(NIL_GUID))),
                 node2=decode_guid(data.get("Node2", str(NIL_GUID))),
                 resistance_symbol=data.get("ResistanceSymbol", False),

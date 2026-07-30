@@ -27,6 +27,7 @@ from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
     write_boolean,
+    write_boolean_as_byte_no_skip,
     write_boolean_no_skip,
     write_double,
     write_double_no_skip,
@@ -75,9 +76,9 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node3: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         name: str = string_field()
-        switch_state1: int = 1
-        switch_state2: int = 1
-        switch_state3: int = 1
+        switch_state1: bool = True
+        switch_state2: bool = True
+        switch_state3: bool = True
         field_name1: str = string_field()
         field_name2: str = string_field()
         field_name3: str = string_field()
@@ -122,9 +123,9 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 write_guid("Node2", self.node2) if self.node2 != NIL_GUID else "",
                 write_guid("Node3", self.node3) if self.node3 != NIL_GUID else "",
                 write_quote_string_no_skip("Name", self.name),
-                write_integer_no_skip("SwitchState1", self.switch_state1),
-                write_integer_no_skip("SwitchState2", self.switch_state2),
-                write_integer_no_skip("SwitchState3", self.switch_state3),
+                write_boolean_as_byte_no_skip("SwitchState1", value=self.switch_state1),
+                write_boolean_as_byte_no_skip("SwitchState2", value=self.switch_state2),
+                write_boolean_as_byte_no_skip("SwitchState3", value=self.switch_state3),
                 write_quote_string_no_skip("FieldName1", self.field_name1),
                 write_quote_string_no_skip("FieldName2", self.field_name2),
                 write_quote_string_no_skip("FieldName3", self.field_name3),
@@ -169,9 +170,9 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 node2=decode_guid(data.get("Node2", str(NIL_GUID))),
                 node3=decode_guid(data.get("Node3", str(NIL_GUID))),
                 name=data.get("Name", ""),
-                switch_state1=data.get("SwitchState1", 1),
-                switch_state2=data.get("SwitchState2", 1),
-                switch_state3=data.get("SwitchState3", 1),
+                switch_state1=bool(data.get("SwitchState1", True)),
+                switch_state2=bool(data.get("SwitchState2", True)),
+                switch_state3=bool(data.get("SwitchState3", True)),
                 field_name1=data.get("FieldName1", ""),
                 field_name2=data.get("FieldName2", ""),
                 field_name3=data.get("FieldName3", ""),

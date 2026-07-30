@@ -71,9 +71,9 @@ class NetworkxConverter:
         if type(branch) is ThreewindingTransformerMV:
             transformer: ThreewindingTransformerMV = branch
             if (
-                transformer.general.switch_state1 == 0
-                or transformer.general.switch_state2 == 0
-                or transformer.general.switch_state3 == 0
+                not transformer.general.switch_state1
+                or not transformer.general.switch_state2
+                or not transformer.general.switch_state3
             ):
                 return
             graph.add_node(str(branch.general.guid), type=type(branch).__name__)
@@ -81,7 +81,7 @@ class NetworkxConverter:
             graph.add_edge(str(transformer.general.node2), str(transformer.general.guid))
             graph.add_edge(str(transformer.general.node3), str(transformer.general.guid))
         else:
-            if branch.general.switch_state1 == 0 or branch.general.switch_state2 == 0:
+            if not branch.general.switch_state1 or not branch.general.switch_state2:
                 return
             graph.add_node(str(branch.general.guid), type=type(branch).__name__)
             graph.add_edge(str(branch.general.node1), str(branch.general.guid))

@@ -49,8 +49,8 @@ link = LinkMV(
     LinkMV.General(node1=source_node.general.guid, node2=load_node.general.guid),
     presentations=[BranchPresentation(sheet=sheet_guid, first_corners=[(150, 250), (300, 250)], second_corners=[(450, 250)])],
 )
-link.general.switch_state1 = 1
-link.general.switch_state2 = 1
+link.general.switch_state1 = True
+link.general.switch_state2 = True
 link.register(network)
 
 load = LoadMV(
