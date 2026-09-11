@@ -371,16 +371,29 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
     @dataclass_json
     @dataclass
     class LoadDependent(DataClassJsonMixin):
-        """One of four load-dependent voltage control settings sets."""
+        """One of four load-dependent voltage control settings sets.
 
-        p_smaller: int = -100
+        Two breakpoints per direction, in % of Snom: p_smaller < p_small < 0 for
+        load and 0 < p_great < p_greater for generation. An outer breakpoint of 0
+        means the curve stops at the inner one.
+        """
+
+        p_smaller: int = 0
+        """Outer load-side breakpoint in %, 0 when not used."""
         u_smaller: float = 0
-        p_small: int = 100
+        """Control voltage at p_smaller in kV."""
+        p_small: int = -100
+        """Inner load-side breakpoint in %."""
         u_small: float = 0
-        p_great: int = 0
+        """Control voltage at p_small in kV."""
+        p_great: int = 100
+        """Inner generation-side breakpoint in %."""
         u_great: float = 0
+        """Control voltage at p_great in kV."""
         p_greater: int = 0
+        """Outer generation-side breakpoint in %, 0 when not used."""
         u_greater: float = 0
+        """Control voltage at p_greater in kV."""
 
     @dataclass_json
     @dataclass
@@ -419,12 +432,12 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
             for j, dep in enumerate(self.load_dependencies[:4], start=1):
                 props.extend(
                     (
-                        write_integer(f"{j}.Pmin1", dep.p_smaller),
-                        write_double(f"{j}.Umin1", dep.u_smaller),
-                        write_integer(f"{j}.Pmax1", dep.p_small),
-                        write_double(f"{j}.Umax1", dep.u_small),
-                        write_integer(f"{j}.Pmin2", dep.p_great),
-                        write_double(f"{j}.Umin2", dep.u_great),
+                        write_integer(f"{j}.Pmin1", dep.p_small),
+                        write_double(f"{j}.Umin1", dep.u_small),
+                        write_integer(f"{j}.Pmax1", dep.p_great),
+                        write_double(f"{j}.Umax1", dep.u_great),
+                        write_integer(f"{j}.Pmin2", dep.p_smaller),
+                        write_double(f"{j}.Umin2", dep.u_smaller),
                         write_integer(f"{j}.Pmax2", dep.p_greater),
                         write_double(f"{j}.Umax2", dep.u_greater),
                     )
@@ -439,12 +452,12 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
             """Parse voltage control properties from VNF data."""
             load_dependencies = [
                 TransformerMV.LoadDependent(
-                    p_smaller=data.get(f"{j}.Pmin1", -100),
-                    u_smaller=data.get(f"{j}.Umin1", 0.0),
-                    p_small=data.get(f"{j}.Pmax1", 100),
-                    u_small=data.get(f"{j}.Umax1", 0.0),
-                    p_great=data.get(f"{j}.Pmin2", 0),
-                    u_great=data.get(f"{j}.Umin2", 0.0),
+                    p_small=data.get(f"{j}.Pmin1", -100),
+                    u_small=data.get(f"{j}.Umin1", 0.0),
+                    p_great=data.get(f"{j}.Pmax1", 100),
+                    u_great=data.get(f"{j}.Umax1", 0.0),
+                    p_smaller=data.get(f"{j}.Pmin2", 0),
+                    u_smaller=data.get(f"{j}.Umin2", 0.0),
                     p_greater=data.get(f"{j}.Pmax2", 0),
                     u_greater=data.get(f"{j}.Umax2", 0.0),
                 )

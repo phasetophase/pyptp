@@ -199,50 +199,51 @@ class GnfExporter:
         """Write network content in G8.12 format to file handle."""
         fh.write("G8.12\nNETWORK\n\n")
 
-        fh.write("[PROPERTIES]\n")
-        fh.write(network.properties.serialize() + "\n")
-        fh.write("[]\n\n")
+        def _write_section(header: str, elements: Iterable, *, always: bool = False) -> None:
+            """Write one [HEADER] ... [] block, skipping it when there are no elements.
 
-        fh.write("[COMMENTS]\n")
-        fh.writelines(comment.serialize() + "\n" for comment in network.comments)
-        fh.write("[]\n\n")
+            Gaia omits empty sections. COMMENTS is written even when empty with
+            always=True to keep the output identical to earlier pyptp versions.
+            """
+            elems = list(elements)
+            if not elems and not always:
+                return
+            fh.write(f"[{header}]\n")
+            fh.writelines(elem.serialize() + "\n" for elem in elems)
+            fh.write("[]\n\n")
 
-        sections: list[tuple[str, Iterable]] = [
-            ("PROFILEFILES", network.profile_files),
-            ("MEASUREMENTFILES", network.measurement_files),
-            ("PROFILE", network.profiles.values()),
-            ("GM TYPE", network.gmtypes.values()),
-            ("SHEET", network.sheets.values()),
-            ("NODE", network.nodes.values()),
-            ("LINK", network.links.values()),
-            ("CABLE", network.cables.values()),
-            ("TRANSFORMER", network.transformers.values()),
-            ("SPECIAL TRANSFORMER", network.special_transformers.values()),
-            ("REACTANCECOIL", network.reactance_coils.values()),
-            ("SOURCE", network.sources.values()),
-            ("SYNCHRONOUS GENERATOR", network.syn_generators.values()),
-            ("ASYNCHRONOUS GENERATOR", network.async_generators.values()),
-            ("ASYNCHRONOUS MOTOR", network.async_motors.values()),
-            ("LOAD", network.loads.values()),
-            ("SHUNTCAPACITOR", network.shunt_capacitors.values()),
-            ("EARTHINGTRANSFORMER", network.earthing_transformers.values()),
-            ("HOME", network.homes.values()),
-            ("BATTERY", network.batteries.values()),
-            ("PV", network.pvs.values()),
-            ("MEASURE FIELD", network.measure_fields.values()),
-            ("FUSE", network.fuses.values()),
-            ("CIRCUIT BREAKER", network.circuit_breakers.values()),
-            ("LOAD SWITCH", network.load_switches.values()),
-            ("FRAME", network.frames.values()),
-            ("LEGEND", network.legends.values()),
-            ("SELECTION", network.selections),
-        ]
-
-        for header, elements in sections:
-            if elements:
-                fh.write(f"[{header}]\n")
-                fh.writelines(elem.serialize() + "\n" for elem in elements)
-                fh.write("[]\n\n")
+        _write_section("PROPERTIES", [network.properties])
+        _write_section("COMMENTS", network.comments, always=True)
+        _write_section("HYPERLINKS", network.hyperlinks)
+        _write_section("PROFILEFILES", network.profile_files)
+        _write_section("MEASUREMENTFILES", network.measurement_files)
+        _write_section("PROFILE", network.profiles.values())
+        _write_section("GM TYPE", network.gmtypes.values())
+        _write_section("SHEET", network.sheets.values())
+        _write_section("NODE", network.nodes.values())
+        _write_section("LINK", network.links.values())
+        _write_section("CABLE", network.cables.values())
+        _write_section("TRANSFORMER", network.transformers.values())
+        _write_section("SPECIAL TRANSFORMER", network.special_transformers.values())
+        _write_section("REACTANCECOIL", network.reactance_coils.values())
+        _write_section("SOURCE", network.sources.values())
+        _write_section("SYNCHRONOUS GENERATOR", network.syn_generators.values())
+        _write_section("ASYNCHRONOUS GENERATOR", network.async_generators.values())
+        _write_section("ASYNCHRONOUS MOTOR", network.async_motors.values())
+        _write_section("LOAD", network.loads.values())
+        _write_section("SHUNTCAPACITOR", network.shunt_capacitors.values())
+        _write_section("EARTHINGTRANSFORMER", network.earthing_transformers.values())
+        _write_section("HOME", network.homes.values())
+        _write_section("BATTERY", network.batteries.values())
+        _write_section("PV", network.pvs.values())
+        _write_section("MEASURE FIELD", network.measure_fields.values())
+        _write_section("FUSE", network.fuses.values())
+        _write_section("CIRCUIT BREAKER", network.circuit_breakers.values())
+        _write_section("LOAD SWITCH", network.load_switches.values())
+        _write_section("TEXT", network.texts.values())
+        _write_section("FRAME", network.frames.values())
+        _write_section("LEGEND", network.legends.values())
+        _write_section("SELECTION", network.selections)
 
     @staticmethod
     def export(

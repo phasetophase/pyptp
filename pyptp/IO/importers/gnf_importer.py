@@ -22,6 +22,7 @@ from pyptp.IO.importers._gnf_handlers.frame_handler import FrameHandler
 from pyptp.IO.importers._gnf_handlers.fuse_handler import FuseHandler
 from pyptp.IO.importers._gnf_handlers.gm_type_handler import GMTypeHandler
 from pyptp.IO.importers._gnf_handlers.home_handler import HomeHandler
+from pyptp.IO.importers._gnf_handlers.hyperlink_handler import HyperlinkHandler
 from pyptp.IO.importers._gnf_handlers.legend_handler import LegendHandler
 from pyptp.IO.importers._gnf_handlers.link_handler import LinkHandler
 from pyptp.IO.importers._gnf_handlers.load_handler import LoadHandler
@@ -40,6 +41,7 @@ from pyptp.IO.importers._gnf_handlers.shunt_capacitor_handler import ShuntCapaci
 from pyptp.IO.importers._gnf_handlers.source_handler import SourceHandler
 from pyptp.IO.importers._gnf_handlers.special_transformer_handler import SpecialTransformerHandler
 from pyptp.IO.importers._gnf_handlers.sync_generator_handler import SyncGeneratorHandler
+from pyptp.IO.importers._gnf_handlers.text_handler import TextHandler
 from pyptp.IO.importers._gnf_handlers.transformer_handler import TransformerHandler
 from pyptp.network_lv import NetworkLV
 from pyptp.ptp_log import logger
@@ -106,6 +108,8 @@ class GnfImporter:
         "BATTERY": BatteryHandler(),
         "PV": PvHandler(),
         "CIRCUIT BREAKER": CircuitBreakerHandler(),
+        "TEXT": TextHandler(),
+        "HYPERLINKS": HyperlinkHandler(),
         "FRAME": FrameHandler(),
         "LOAD SWITCH": LoadSwitchHandler(),
         "MEASURE FIELD": MeasureFieldHandler(),

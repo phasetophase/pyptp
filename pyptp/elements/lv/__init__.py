@@ -19,6 +19,7 @@ from pyptp.elements.lv.earthing_transformer import EarthingTransformerLV
 from pyptp.elements.lv.frame import FrameLV
 from pyptp.elements.lv.fuse import FuseLV
 from pyptp.elements.lv.gm_type import GMTypeLV
+from pyptp.elements.lv.hyperlink import HyperlinkLV
 from pyptp.elements.lv.legend import LegendLV
 from pyptp.elements.lv.link import LinkLV
 from pyptp.elements.lv.load import LoadLV
@@ -58,6 +59,7 @@ from pyptp.elements.lv.shunt_capacitor import ShuntCapacitorLV
 from pyptp.elements.lv.source import SourceLV
 from pyptp.elements.lv.special_transformer import SpecialTransformerLV
 from pyptp.elements.lv.syn_generator import SynchronousGeneratorLV
+from pyptp.elements.lv.text import TextLV
 from pyptp.elements.lv.transformer import TransformerLV
 
 __all__ = [
@@ -83,6 +85,7 @@ __all__ = [
     "GMTypeLV",
     "GeoCablePart",
     "HarmonicsType",
+    "HyperlinkLV",
     "LegendLV",
     "LinkLV",
     "LoadLV",
@@ -103,5 +106,6 @@ __all__ = [
     "SpecialTransformerLV",
     "SynchronousGeneratorLV",
     "Text",
+    "TextLV",
     "TransformerLV",
 ]

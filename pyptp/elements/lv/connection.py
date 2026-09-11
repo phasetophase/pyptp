@@ -812,6 +812,8 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#FuseType {self.fuse_type.serialize()}")
         if self.current_protection:
             lines.append(f"#CurrentType {self.current_protection.serialize()}")
+        if self.connection_geography:
+            lines.append(f"#ConnectionGeo {self.connection_geography.serialize()} ")
         if self.load:
             lines.append(f"#Load {self.load.serialize()}")
         lines.extend(f"#GM {gm.serialize()}" for gm in self.gms)
@@ -823,8 +825,6 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             lines.append(f"#Heatpump {self.heat_pump.serialize()}")
         if self.generation:
             lines.append(f"#Generation {self.generation.serialize()}")
-        if self.connection_geography:
-            lines.append(f"#ConnectionGeo {self.connection_geography.serialize()}")
         if self.pv:
             lines.append(f"#PV {self.pv.serialize()}")
         if self.pv_efficiency:

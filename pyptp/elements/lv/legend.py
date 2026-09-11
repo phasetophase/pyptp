@@ -123,7 +123,7 @@ class LegendPresentation(DataClassJsonMixin):
             write_quote_string("Style", self.style, skip="Solid"),
             write_delphi_color("TextColor", self.text_color),
             write_integer("TextSize", self.text_size, skip=20),
-            write_quote_string("Font", self.font, skip="Arial"),
+            write_quote_string("Font", self.font),
             write_integer("TextStyle", self.text_style, skip=0),
             write_boolean("NoText", value=self.no_text),
             write_boolean("UpsideDownText", value=self.upside_down_text),

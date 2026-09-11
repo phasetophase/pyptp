@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from pyptp.elements.lv.frame import FrameLV
     from pyptp.elements.lv.fuse import FuseLV
     from pyptp.elements.lv.gm_type import GMTypeLV
+    from pyptp.elements.lv.hyperlink import HyperlinkLV
     from pyptp.elements.lv.legend import LegendLV
     from pyptp.elements.lv.link import LinkLV
     from pyptp.elements.lv.load import LoadLV
@@ -43,6 +44,7 @@ if TYPE_CHECKING:
     from pyptp.elements.lv.source import SourceLV
     from pyptp.elements.lv.special_transformer import SpecialTransformerLV
     from pyptp.elements.lv.syn_generator import SynchronousGeneratorLV
+    from pyptp.elements.lv.text import TextLV
     from pyptp.elements.lv.transformer import TransformerLV
 
 
@@ -63,9 +65,11 @@ class NetworkLV:
         self.properties: PropertiesLV = PropertiesLV(system=PropertiesLV.System())
         self.comments: list[CommentLV] = []
         self.frames: dict[Guid, FrameLV] = {}
+        self.texts: dict[Guid, TextLV] = {}
         self.profiles: dict[Guid, ProfileLV] = {}
         self.gmtypes: dict[int, GMTypeLV] = {}
         self.sheets: dict[Guid, SheetLV] = {}
+        self.hyperlinks: list[HyperlinkLV] = []
         self.nodes: dict[Guid, NodeLV] = {}
         self.cables: dict[Guid, CableLV] = {}
         self.links: dict[Guid, LinkLV] = {}

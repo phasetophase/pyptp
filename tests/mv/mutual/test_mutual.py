@@ -3,7 +3,7 @@
 import unittest
 from uuid import UUID
 
-from pyptp.elements.element_utils import Guid
+from pyptp.elements.element_utils import NIL_GUID, Guid
 from pyptp.elements.mv.mutual import MutualMV
 from pyptp.network_mv import NetworkMV
 
@@ -20,15 +20,17 @@ class TestMutualRegistration(unittest.TestCase):
     def test_mutual_registration_works(self) -> None:
         """Verify basic mutual registration in network."""
         mutual = MutualMV(
-            line1=self.line1_guid,
-            line2=self.line2_guid,
-            R00=1.5,
-            X00=2.5,
+            MutualMV.General(
+                line1=self.line1_guid,
+                line2=self.line2_guid,
+                R00=1.5,
+                X00=2.5,
+            )
         )
         mutual.register(self.network)
 
         # Verify mutual is in network with correct key
-        key = f"{self.line1_guid}_{self.line2_guid}"
+        key = f"{str(self.line1_guid)}_{str(self.line2_guid)}"
         self.assertIn(key, self.network.mutuals)
         self.assertIs(self.network.mutuals[key], mutual)
 
@@ -39,10 +41,9 @@ class TestMutualRegistration(unittest.TestCase):
         detecting serialization issues early.
         """
         mutual = MutualMV(
-            line1=self.line1_guid,
-            line2=self.line2_guid,
-            R00=1.5,
-            X00=2.5,
+            MutualMV.General(
+                line1=self.line1_guid, line2=self.line2_guid, R00=1.5, X00=2.5
+            )
         )
         mutual.register(self.network)
 
@@ -64,10 +65,12 @@ class TestMutualRegistration(unittest.TestCase):
         no_skip variants are used.
         """
         mutual = MutualMV(
-            line1=self.line1_guid,
-            line2=self.line2_guid,
-            R00=0.0,
-            X00=0.0,
+            MutualMV.General(
+                line1=self.line1_guid,
+                line2=self.line2_guid,
+                R00=0.0,
+                X00=0.0,
+            )
         )
         mutual.register(self.network)
 
@@ -85,19 +88,23 @@ class TestMutualRegistration(unittest.TestCase):
     def test_duplicate_registration_overwrites(self) -> None:
         """Test GUID collision handling with proper logging verification."""
         mutual1 = MutualMV(
-            line1=self.line1_guid,
-            line2=self.line2_guid,
-            R00=1.0,
-            X00=1.0,
+            MutualMV.General(
+                line1=self.line1_guid,
+                line2=self.line2_guid,
+                R00=1.0,
+                X00=1.0,
+            )
         )
         mutual1.register(self.network)
 
         # Register another mutual with same line pair
         mutual2 = MutualMV(
-            line1=self.line1_guid,
-            line2=self.line2_guid,
-            R00=2.0,
-            X00=2.0,
+            MutualMV.General(
+                line1=self.line1_guid,
+                line2=self.line2_guid,
+                R00=2.0,
+                X00=2.0,
+            )
         )
         mutual2.register(self.network)
 
@@ -105,9 +112,9 @@ class TestMutualRegistration(unittest.TestCase):
         self.assertEqual(len(self.network.mutuals), 1)
 
         # Should be the second mutual
-        key = f"{self.line1_guid}_{self.line2_guid}"
-        self.assertEqual(self.network.mutuals[key].R00, 2.0)
-        self.assertEqual(self.network.mutuals[key].X00, 2.0)
+        key = f"{str(self.line1_guid)}_{str(self.line2_guid)}"
+        self.assertEqual(self.network.mutuals[key].general.R00, 2.0)
+        self.assertEqual(self.network.mutuals[key].general.X00, 2.0)
 
     def test_deserialize_with_valid_data(self) -> None:
         """Test deserialization from VNF format."""
@@ -124,13 +131,13 @@ class TestMutualRegistration(unittest.TestCase):
 
         mutual = MutualMV.deserialize(data)
 
-        self.assertEqual(mutual.line1, self.line1_guid)
-        self.assertEqual(mutual.line2, self.line2_guid)
-        self.assertEqual(mutual.R00, 1.5)
-        self.assertEqual(mutual.X00, 2.5)
+        self.assertEqual(mutual.general.line1, self.line1_guid)
+        self.assertEqual(mutual.general.line2, self.line2_guid)
+        self.assertEqual(mutual.general.R00, 1.5)
+        self.assertEqual(mutual.general.X00, 2.5)
 
-    def test_deserialize_with_missing_lines_raises_error(self) -> None:
-        """Test that deserialization fails when Line1 or Line2 are missing."""
+    def test_deserialize_with_missing_lines_uses_nil_guid(self) -> None:
+        """Test that missing Line1/Line2 fall back to the NIL GUID."""
         # Missing Line1
         data1 = {
             "general": [
@@ -142,9 +149,9 @@ class TestMutualRegistration(unittest.TestCase):
             ]
         }
 
-        with self.assertRaises(ValueError) as ctx:
-            MutualMV.deserialize(data1)
-        self.assertIn("requires both Line1 and Line2", str(ctx.exception))
+        mutual1 = MutualMV.deserialize(data1)
+        self.assertEqual(mutual1.general.line1, NIL_GUID)
+        self.assertEqual(mutual1.general.line2, self.line2_guid)
 
         # Missing Line2
         data2 = {
@@ -157,9 +164,9 @@ class TestMutualRegistration(unittest.TestCase):
             ]
         }
 
-        with self.assertRaises(ValueError) as ctx:
-            MutualMV.deserialize(data2)
-        self.assertIn("requires both Line1 and Line2", str(ctx.exception))
+        mutual2 = MutualMV.deserialize(data2)
+        self.assertEqual(mutual2.general.line1, self.line1_guid)
+        self.assertEqual(mutual2.general.line2, NIL_GUID)
 
     def test_deserialize_with_default_values(self) -> None:
         """Test deserialization with missing R00/X00 uses defaults."""
@@ -174,18 +181,20 @@ class TestMutualRegistration(unittest.TestCase):
 
         mutual = MutualMV.deserialize(data)
 
-        self.assertEqual(mutual.line1, self.line1_guid)
-        self.assertEqual(mutual.line2, self.line2_guid)
-        self.assertEqual(mutual.R00, 0.0)
-        self.assertEqual(mutual.X00, 0.0)
+        self.assertEqual(mutual.general.line1, self.line1_guid)
+        self.assertEqual(mutual.general.line2, self.line2_guid)
+        self.assertEqual(mutual.general.R00, 0.0)
+        self.assertEqual(mutual.general.X00, 0.0)
 
     def test_roundtrip_serialization(self) -> None:
         """Test that serialize->deserialize produces equivalent mutual."""
         original = MutualMV(
-            line1=self.line1_guid,
-            line2=self.line2_guid,
-            R00=3.14,
-            X00=2.71,
+            MutualMV.General(
+                line1=self.line1_guid,
+                line2=self.line2_guid,
+                R00=3.14,
+                X00=2.71,
+            )
         )
 
         # Serialize
@@ -224,10 +233,10 @@ class TestMutualRegistration(unittest.TestCase):
         deserialized = MutualMV.deserialize(data)
 
         # Verify equality
-        self.assertEqual(deserialized.line1, original.line1)
-        self.assertEqual(deserialized.line2, original.line2)
-        self.assertEqual(deserialized.R00, original.R00)
-        self.assertEqual(deserialized.X00, original.X00)
+        self.assertEqual(deserialized.general.line1, original.general.line1)
+        self.assertEqual(deserialized.general.line2, original.general.line2)
+        self.assertEqual(deserialized.general.R00, original.general.R00)
+        self.assertEqual(deserialized.general.X00, original.general.X00)
 
 
 if __name__ == "__main__":

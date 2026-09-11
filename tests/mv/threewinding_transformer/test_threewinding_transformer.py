@@ -4,6 +4,7 @@ import unittest
 from uuid import UUID
 
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import VoltageControlSort, VoltageControlStatus
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import DWPresentation, NodePresentation
@@ -222,6 +223,103 @@ class TestThreewindingTransformerRegistration(unittest.TestCase):
         # Verify extras and notes
         self.assertIn("#Extra Text:foo=bar", serialized)
         self.assertIn("#Note Text:Test note", serialized)
+
+    def test_threewinding_transformer_with_voltage_control_only(self) -> None:
+        """Test that threewinding transformers with only voltage control serialize correctly."""
+        general = ThreewindingTransformerMV.General(
+            guid=self.threewinding_transformer_guid,
+            name="VoltageControlThreewindingTransformer",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+            node3=self.node3_guid,
+        )
+        voltage_control = ThreewindingTransformerMV.VoltageControl(
+            own_present=True,
+            status=VoltageControlStatus.OWN,
+            measure_side=2,
+            setpoint=1.05,
+            deadband=0.02,
+        )
+        presentation = DWPresentation(sheet=self.sheet_guid)
+
+        threewinding_transformer = ThreewindingTransformerMV(
+            general,
+            ThreewindingTransformerMV.ThreewindingTransformerType(),
+            [presentation],
+            voltage_control,
+        )
+        threewinding_transformer.register(self.network)
+
+        serialized = threewinding_transformer.serialize()
+
+        self.assertIn("#VoltageControl", serialized)
+        self.assertIn("OwnPresent:True", serialized)
+        self.assertIn("Status:1", serialized)
+        self.assertIn("MeasureSide:2", serialized)
+        self.assertIn("Setpoint:1.05", serialized)
+        self.assertIn("Deadband:0.02", serialized)
+        # Should have defaults (four load-dependent sets, each -100/100)
+        self.assertIn("CompoundingAtGeneration:True", serialized)
+        for j in range(1, 5):
+            self.assertIn(f"{j}.Pmin1:-100", serialized)
+            self.assertIn(f"{j}.Pmax1:100", serialized)
+
+    def test_threewinding_transformer_with_load_dependent_voltage_control(self) -> None:
+        """Test that load-dependent voltage control settings serialize with set indices."""
+        general = ThreewindingTransformerMV.General(
+            guid=self.threewinding_transformer_guid,
+            name="LoadDependentThreewindingTransformer",
+            node1=self.node1_guid,
+            node2=self.node2_guid,
+            node3=self.node3_guid,
+        )
+        voltage_control = ThreewindingTransformerMV.VoltageControl(
+            own_present=True,
+            status=VoltageControlStatus.OWN,
+            measure_side=2,
+            setpoint=1.05,
+            deadband=0.02,
+            control_sort=VoltageControlSort.COMPOUNDING,
+            rc=0.5,
+            xc=1.5,
+            compounding_at_generation=False,
+            load_dependencies=[
+                ThreewindingTransformerMV.LoadDependent(
+                    p_smaller=-50,
+                    u_smaller=0.95,
+                    p_small=50,
+                    u_small=1.05,
+                    p_great=-25,
+                    u_great=0.98,
+                    p_greater=25,
+                    u_greater=1.02,
+                ),
+            ],
+        )
+        presentation = DWPresentation(sheet=self.sheet_guid)
+
+        threewinding_transformer = ThreewindingTransformerMV(
+            general,
+            ThreewindingTransformerMV.ThreewindingTransformerType(),
+            [presentation],
+            voltage_control,
+        )
+        threewinding_transformer.register(self.network)
+
+        serialized = threewinding_transformer.serialize()
+
+        # Verify voltage control properties
+        self.assertIn("Rc:0.5", serialized)
+        self.assertIn("Xc:1.5", serialized)
+        self.assertIn("CompoundingAtGeneration:False", serialized)
+        self.assertIn("1.Pmin2:-50", serialized)
+        self.assertIn("1.Umin2:0.95", serialized)
+        self.assertIn("1.Pmin1:50", serialized)
+        self.assertIn("1.Umin1:1.05", serialized)
+        self.assertIn("1.Pmax1:-25", serialized)
+        self.assertIn("1.Umax1:0.98", serialized)
+        self.assertIn("1.Pmax2:25", serialized)
+        self.assertIn("1.Umax2:1.02", serialized)
 
 
 if __name__ == "__main__":
