@@ -25,7 +25,6 @@ from pyptp.elements.serialization_helpers import (
     write_double,
     write_double_no_skip,
     write_integer,
-    write_integer_no_skip,
     write_quote_string,
 )
 
@@ -45,44 +44,44 @@ class CableType(DataClassJsonMixin):
     price: float = 0
     C: float = optional_field(0)
     C0: float = optional_field(0)
-    Inom0: int = optional_field(0)
+    Inom0: float = optional_field(0)
     G1: float = optional_field(0)
-    Inom1: int = optional_field(0)
+    Inom1: float = optional_field(0)
     G2: float = optional_field(0)
-    Inom2: int = optional_field(0)
+    Inom2: float = optional_field(0)
     G3: float = optional_field(0)
-    Inom3: int = optional_field(0)
+    Inom3: float = optional_field(0)
     Ik1s: float = optional_field(0)
     TR: int = optional_field(0)
-    TInom: int | float = optional_field(0)
-    TIk1s: int | float = optional_field(0)
-    frequency: int | float = optional_field(0)
-    R_c: int | float = optional_field(0)
-    X_c: int | float = optional_field(0)
-    R_cc_n: int | float = optional_field(0)
-    X_cc_n: int | float = optional_field(0)
-    R_cc_o: int | float = optional_field(0)
-    X_cc_o: int | float = optional_field(0)
-    R_e: int | float = optional_field(0)
-    X_e: int | float = optional_field(0)
-    R_ce: int | float = optional_field(0)
-    X_ce: int | float = optional_field(0)
-    R_h: int | float = optional_field(0)
-    X_h: int | float = optional_field(0)
-    R_ch_n: int | float = optional_field(0)
-    X_ch_n: int | float = optional_field(0)
-    R_ch_o: int | float = optional_field(0)
-    X_ch_o: int | float = optional_field(0)
-    R_hh_n: int | float = optional_field(0)
-    X_hh_n: int | float = optional_field(0)
-    R_hh_o: int | float = optional_field(0)
-    X_hh_o: int | float = optional_field(0)
-    R_he: int | float = optional_field(0)
-    X_he: int | float = optional_field(0)
-    Inom_e: int | float = optional_field(0)
-    Ik1s_e: int | float = optional_field(0)
-    Inom_h: int | float = optional_field(0)
-    Ik1s_h: int | float = optional_field(0)
+    TInom: float = optional_field(0)
+    TIk1s: float = optional_field(0)
+    frequency: float = optional_field(0)
+    R_c: float = optional_field(0)
+    X_c: float = optional_field(0)
+    R_cc_n: float = optional_field(0)
+    X_cc_n: float = optional_field(0)
+    R_cc_o: float = optional_field(0)
+    X_cc_o: float = optional_field(0)
+    R_e: float = optional_field(0)
+    X_e: float = optional_field(0)
+    R_ce: float = optional_field(0)
+    X_ce: float = optional_field(0)
+    R_h: float = optional_field(0)
+    X_h: float = optional_field(0)
+    R_ch_n: float = optional_field(0)
+    X_ch_n: float = optional_field(0)
+    R_ch_o: float = optional_field(0)
+    X_ch_o: float = optional_field(0)
+    R_hh_n: float = optional_field(0)
+    X_hh_n: float = optional_field(0)
+    R_hh_o: float = optional_field(0)
+    X_hh_o: float = optional_field(0)
+    R_he: float = optional_field(0)
+    X_he: float = optional_field(0)
+    Inom_e: float = optional_field(0)
+    Ik1s_e: float = optional_field(0)
+    Inom_h: float = optional_field(0)
+    Ik1s_h: float = optional_field(0)
     R_cR_n: float = field(default=1.0, metadata=config(field_name="R_c/R_n"))
 
     def serialize(self) -> str:
@@ -93,15 +92,15 @@ class CableType(DataClassJsonMixin):
             write_double_no_skip("Price", self.price),
             write_double("C", self.C, 0),
             write_double("C0", self.C0, 0),
-            write_integer("Inom0", self.Inom0, 0),
+            write_double("Inom0", self.Inom0, 0),
             write_double("G1", self.G1, 0),
-            write_integer("Inom1", self.Inom1, 0),
+            write_double("Inom1", self.Inom1, 0),
             write_double("G2", self.G2, 0),
-            write_integer("Inom2", self.Inom2, 0),
+            write_double("Inom2", self.Inom2, 0),
             write_double("G3", self.G3, 0),
-            write_integer("Inom3", self.Inom3, 0),
+            write_double("Inom3", self.Inom3, 0),
             write_double("Ik1s", self.Ik1s, 0),
-            write_integer_no_skip("TR", self.TR),
+            write_double_no_skip("TR", self.TR),
             write_double("TInom", self.TInom, 0),
             write_double("TIk1s", self.TIk1s, 0),
             write_double("Frequency", self.frequency, 0),
@@ -211,10 +210,8 @@ class FuseType(DataClassJsonMixin):
             write_double("Inom", self.inom),
         ]
         for i in range(16):
-            # Don't convert to int - preserve decimal values
             props.append(write_double(f"I{i + 1}", self.I[i]))
-            # Use no_skip for T values to preserve even 0.0 values
-            props.append(write_double_no_skip(f"T{i + 1}", self.T[i]))
+            props.append(write_double(f"T{i + 1}", self.T[i]))
         return " ".join(p for p in props if p) + " "
 
     @classmethod

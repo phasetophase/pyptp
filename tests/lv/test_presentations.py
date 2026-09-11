@@ -37,7 +37,6 @@ class TestNodePresentation(unittest.TestCase):
         self.assertNotIn("Size:", result)  # Default 1 should be skipped
         self.assertNotIn("Width:", result)  # Default 1 should be skipped
         self.assertNotIn("TextSize:", result)  # Default 10 should be skipped
-        self.assertNotIn("Font:", result)  # Default "Arial" should be skipped
         self.assertNotIn("TextStyle:", result)  # Default 0 should be skipped
         self.assertNotIn("NoText:", result)  # Default False should be skipped
         self.assertNotIn("UpsideDownText:", result)  # Default False should be skipped
@@ -242,7 +241,6 @@ class TestBranchPresentation(unittest.TestCase):
         self.assertNotIn("Size:", result)  # Default 1 should be skipped
         self.assertNotIn("Width:", result)  # Default 1 should be skipped
         self.assertNotIn("TextSize:", result)  # Default 7 should be skipped
-        self.assertNotIn("Font:", result)  # Default "Arial" should be skipped
         self.assertNotIn("TextStyle:", result)  # Default 0 should be skipped
         self.assertNotIn("NoText:", result)  # Default False should be skipped
         self.assertNotIn("UpsideDownText:", result)  # Default False should be skipped
@@ -407,7 +405,6 @@ class TestElementPresentation(unittest.TestCase):
         self.assertNotIn("Size:", result)  # Default 1 should be skipped
         self.assertNotIn("Width:", result)  # Default 1 should be skipped
         self.assertNotIn("TextSize:", result)  # Default 7 should be skipped
-        self.assertNotIn("Font:", result)  # Default "Arial" should be skipped
         self.assertNotIn("TextStyle:", result)  # Default 0 should be skipped
         self.assertNotIn("NoText:", result)  # Default False should be skipped
         self.assertNotIn("UpsideDownText:", result)  # Default False should be skipped

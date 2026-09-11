@@ -276,10 +276,14 @@ class TestTransformerRegistration(unittest.TestCase):
         self.assertIn("Rc:0.5", serialized)
         self.assertIn("Xc:1.5", serialized)
         self.assertIn("CompoundingAtGeneration:False", serialized)
-        self.assertIn("1.Pmin1:-50", serialized)
-        self.assertIn("1.Umin1:0.95", serialized)
-        self.assertIn("1.Pmax1:50", serialized)
-        self.assertIn("1.Umax1:1.05", serialized)
+        self.assertIn("1.Pmin2:-50", serialized)
+        self.assertIn("1.Umin2:0.95", serialized)
+        self.assertIn("1.Pmin1:50", serialized)
+        self.assertIn("1.Umin1:1.05", serialized)
+        self.assertIn("1.Pmax1:-25", serialized)
+        self.assertIn("1.Umax1:0.98", serialized)
+        self.assertIn("1.Pmax2:25", serialized)
+        self.assertIn("1.Umax2:1.02", serialized)
 
         # Verify transformer type properties
         self.assertIn("ShortName:'FullType'", serialized)

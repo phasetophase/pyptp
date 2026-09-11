@@ -212,7 +212,7 @@ class FrameLV:
                 write_quote_string("Style", self.style, skip=LineStyle.SOLID),
                 write_delphi_color("TextColor", self.text_color, skip=CL_BLACK),
                 write_integer("TextSize", self.text_size, skip=10),
-                write_quote_string("Font", self.font, skip="Arial"),
+                write_quote_string("Font", self.font),
                 write_integer("TextStyle", self.text_style),
                 write_boolean("NoText", value=self.no_text),
                 write_boolean("UpsideDownText", value=self.upside_down_text),

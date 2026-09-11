@@ -259,7 +259,6 @@ class TestTFrameLS(unittest.TestCase):
         self.assertNotIn("Style:", result)  # Solid is default
         self.assertNotIn("TextColor:", result)
         self.assertNotIn("TextSize:", result)
-        self.assertNotIn("Font:", result)
         self.assertNotIn("TextStyle:", result)
         self.assertNotIn("NoText:", result)
         self.assertNotIn("UpsideDownText:", result)
