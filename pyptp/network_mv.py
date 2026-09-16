@@ -193,11 +193,13 @@ class NetworkMV:
         raise NetworkModelError(msg)
 
     @classmethod
-    def from_file(cls, path: str | Path) -> NetworkMV:
+    def from_file(cls, path: str | Path, *, native_check: bool = True) -> NetworkMV:
         """Create MV network from VNF file.
 
         Args:
             path: Path to VNF file for import.
+            native_check: Check a current-version file with the native loader and
+                raise if it rejects the network (default: True).
 
         Returns:
             Populated NetworkMV instance with all components from file.
@@ -220,7 +222,7 @@ class NetworkMV:
             msg = f"Input file {path} is not a .vnf file.{hint}"
             raise ValueError(msg)
 
-        return VnfImporter().import_vnf(path)
+        return VnfImporter().import_vnf(path, native_check=native_check)
 
     def save(
         self,
@@ -228,6 +230,7 @@ class NetworkMV:
         version: VnfVersion = VnfVersion.V9_12,
         *,
         validate_on_migration_failure: bool = True,
+        native_check: bool = True,
     ) -> None:
         """Save network to VNF file.
 
@@ -235,11 +238,15 @@ class NetworkMV:
             path: Target file path for VNF output.
             version: Target VNF version (default: V9.12).
             validate_on_migration_failure: Run validators and include diagnostics
-                in the error message when version migration fails (default: True).
+                in the error message when the native loader rejects the network
+                (default: True).
+            native_check: Check the written file with the native loader and raise
+                if it rejects the network (default: True).
 
         Raises:
             IOError: If output file cannot be written.
-            RuntimeError: If version migration fails.
+            RuntimeError: If the native loader rejects the network or version
+                migration fails. No output file is left behind.
 
         Example:
             >>> network.save("output.vnf")  # Saves as V9.12
@@ -253,4 +260,5 @@ class NetworkMV:
             str(path),
             version,
             validate_on_migration_failure=validate_on_migration_failure,
+            native_check=native_check,
         )

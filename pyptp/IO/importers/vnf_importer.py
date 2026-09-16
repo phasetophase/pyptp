@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
-from pyptp.convert.version_migrator import migrate_and_read
+from pyptp.convert.version_migrator import migrate_and_read, native_library_available, validate_file
 from pyptp.IO.importers._vnf_handlers.async_generator_handler import AsyncGeneratorHandler
 from pyptp.IO.importers._vnf_handlers.async_motor_handler import AsyncMotorHandler
 from pyptp.IO.importers._vnf_handlers.battery_handler import BatteryHandler
@@ -149,17 +149,20 @@ class VnfImporter:
 
     _SECTION_PATTERNS: ClassVar[dict[str, Pattern[str]]] = {name: make_section_pattern(name) for name in _HANDLERS}
 
-    def _get_and_migrate_vnf_content(self, path: Path) -> str:
+    def _get_and_migrate_vnf_content(self, path: Path, *, native_check: bool = True) -> str:
         """Load VNF file content with automatic version migration for legacy files.
 
         Args:
             path: Path to VNF file for import.
 
+            native_check: Check a current-version file with the native loader and
+                raise if it rejects the network (default: True).
+
         Returns:
             File content as string, either original or migrated to supported version.
 
         Raises:
-            RuntimeError: If version migration fails after retries.
+            RuntimeError: If the native loader rejects the file or migration fails.
 
         """
         with Path.open(path, encoding="utf-8", errors="ignore") as f:
@@ -173,6 +176,12 @@ class VnfImporter:
                 file_version,
             )
             return migrate_and_read(path, version="V9.12", encoding="utf-8")
+
+        if native_check and native_library_available("VNF"):
+            result = validate_file(path, normalize_encoding=True)
+            if not result.ok:
+                msg = f"Failed to load '{path.name}': {result.describe()}"
+                raise RuntimeError(msg)
 
         return path.read_text(encoding="utf-8", errors="ignore")
 
@@ -190,11 +199,13 @@ class VnfImporter:
                 chunk = match.group(0).rstrip() + "\n#END"
                 handler.handle(network, chunk)
 
-    def import_vnf(self, path: str | Path) -> NetworkMV:
+    def import_vnf(self, path: str | Path, *, native_check: bool = True) -> NetworkMV:
         """Import VNF file into a populated MV network with automatic version migration.
 
         Args:
             path: Path to VNF file for import.
+            native_check: Check a current-version file with the native loader and
+                raise if it rejects the network (default: True).
 
         Returns:
             Populated TNetworkMS with all components registered from file sections.
@@ -203,7 +214,7 @@ class VnfImporter:
             RuntimeError: If file migration fails or content is invalid.
 
         """
-        raw_text = self._get_and_migrate_vnf_content(Path(path))
+        raw_text = self._get_and_migrate_vnf_content(Path(path), native_check=native_check)
         network = NetworkMV()
         self._dispatch_to_handlers(network, raw_text)
         return network

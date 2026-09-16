@@ -1,19 +1,21 @@
 """Version migrator utilities.
 
-Convert `.GNF` and `.VNF` network files to a target version via bundled native
-libraries (DLL on Windows, SO on Linux). Used internally by importers; may also
-be called directly.
+Convert and validate `.GNF` and `.VNF` network files via the bundled native
+libraries (DLL on Windows, SO on Linux), which contain the Gaia and Vision file
+loaders. Used by the importers, exporters and the native loader validator.
 """
 
 from __future__ import annotations
 
 import ctypes
+import functools
 import shutil
 import stat
 import sys
 import tempfile
 import time
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from pyptp.ptp_log import logger
@@ -22,6 +24,7 @@ ERR_SUCCESS: int = 0
 ERR_LOAD_FAILURE: int = 1
 ERR_SAVE_FAILURE: int = 2
 ERR_INVALID_VERSION: int = 3
+ERR_NETWORK_INVALID: int = 4
 
 # Human-readable messages mapped to native return codes
 MESSAGES: dict[int, str] = {
@@ -29,11 +32,72 @@ MESSAGES: dict[int, str] = {
     ERR_LOAD_FAILURE: "Failed to load the input file.",
     ERR_SAVE_FAILURE: "Failed to save the output file.",
     ERR_INVALID_VERSION: "Invalid version string provided.",
+    ERR_NETWORK_INVALID: "The network file contains errors.",
 }
 
-__all__ = ["migrate_and_read", "save_as"]
+# Timing-related failures; version and content errors are deterministic.
+_RETRYABLE_CODES: frozenset[int] = frozenset({ERR_LOAD_FAILURE, ERR_SAVE_FAILURE})
+
+_MSG_ERROR: int = 0
+_MSG_WARNING: int = 1
+
+__all__ = ["NativeResult", "convert_file", "migrate_and_read", "native_library_available", "save_as", "validate_file"]
 
 LoaderType = Callable[[str], ctypes.CDLL]
+
+_FUNCTYPE = ctypes.WINFUNCTYPE if sys.platform == "win32" else ctypes.CFUNCTYPE
+_MessageProc = _FUNCTYPE(None, ctypes.c_int, ctypes.c_char_p)
+
+
+@dataclass
+class NativeResult:
+    """Outcome of a native conversion or validation call.
+
+    Attributes:
+        code: Native return code, one of the ``ERR_*`` constants.
+        errors: Loader errors.
+        warnings: Loader warnings.
+
+    """
+
+    code: int
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def ok(self) -> bool:
+        """Whether the native call succeeded."""
+        return self.code == ERR_SUCCESS
+
+    @property
+    def summary(self) -> str:
+        """Human-readable meaning of the return code."""
+        return MESSAGES.get(self.code, f"Unknown error occurred. Error code: {self.code}")
+
+    def describe(self) -> str:
+        """Return the summary followed by every loader error and warning, one per line."""
+        lines = [self.summary]
+        lines.extend(f"  error: {text}" for text in self.errors)
+        lines.extend(f"  warning: {text}" for text in self.warnings)
+        return "\n".join(lines)
+
+
+class _MessageCollector:
+    """Receive loader messages from the native library through a ctypes callback."""
+
+    def __init__(self) -> None:
+        self.errors: list[str] = []
+        self.warnings: list[str] = []
+        # ctypes callbacks must stay referenced while the native call runs
+        self.callback = _MessageProc(self._receive)
+
+    def _receive(self, kind: int, text: bytes | None) -> None:
+        decoded = (text or b"").decode("utf-8", errors="replace").strip()
+        target = {_MSG_ERROR: self.errors, _MSG_WARNING: self.warnings}.get(kind, self.errors)
+        target.append(decoded)
+
+    def result(self, code: int) -> NativeResult:
+        return NativeResult(code=code, errors=self.errors, warnings=self.warnings)
 
 
 def _resolve_library(file_type: str) -> tuple[str, LoaderType]:
@@ -57,6 +121,158 @@ def _resolve_library(file_type: str) -> tuple[str, LoaderType]:
     return names[file_type], loader
 
 
+def _file_type_for(path: str | Path) -> str:
+    """Return "GNF" or "VNF" based on the file extension."""
+    suffix = Path(path).suffix.lower()
+    if suffix == ".gnf":
+        return "GNF"
+    if suffix == ".vnf":
+        return "VNF"
+    msg = f"Input file '{path}' is not a .gnf or .vnf file."
+    raise ValueError(msg)
+
+
+@functools.lru_cache(maxsize=2)
+def _load_library(file_type: str) -> ctypes.CDLL:
+    """Load the native library for the file type and declare its exports.
+
+    Raises:
+        ValueError: If the file type is not GNF or VNF.
+        RuntimeError: If the platform has no native library.
+        FileNotFoundError: If the library is missing from the package.
+        OSError: If the library cannot be loaded.
+
+    """
+    library_name, loader = _resolve_library(file_type)
+    library_path = Path(__file__).with_name(library_name)
+    if not library_path.exists():
+        msg = f"{library_name} not found at {library_path}"
+        raise FileNotFoundError(msg)
+
+    native_lib = loader(str(library_path))
+    native_lib.ConvertNetworkFile.argtypes = [
+        ctypes.c_char_p,
+        ctypes.c_char_p,
+        ctypes.c_char_p,
+        ctypes.c_char_p,
+        _MessageProc,
+    ]
+    native_lib.ConvertNetworkFile.restype = ctypes.c_int
+    native_lib.ValidateNetworkFile.argtypes = [ctypes.c_char_p, _MessageProc]
+    native_lib.ValidateNetworkFile.restype = ctypes.c_int
+    return native_lib
+
+
+def native_library_available(file_type: str) -> bool:
+    """Return whether the native library for "GNF" or "VNF" files can be loaded on this platform."""
+    try:
+        _load_library(file_type)
+    except (ValueError, RuntimeError, OSError):
+        return False
+    return True
+
+
+def _log_result(action: str, result: NativeResult) -> None:
+    """Log the outcome of a native call, one line per loader message."""
+    if result.ok:
+        logger.debug("%s finished successfully.", action)
+    else:
+        logger.error("%s failed: %s", action, result.summary)
+    for text in result.errors:
+        logger.error("  %s", text)
+    for text in result.warnings:
+        logger.warning("  %s", text)
+
+
+def convert_file(
+    input_path: str | Path,
+    output_dir: str | Path,
+    output_file: str,
+    version: str = "Latest",
+) -> NativeResult:
+    """Convert a GNF or VNF file to another version using the native migrator.
+
+    Args:
+        input_path: Path to the input `.gnf` or `.vnf` file.
+        output_dir: Directory where the converted file should be written.
+        output_file: File name for the converted file in the output directory.
+        version: Target version (e.g., "G8.9" or "V9.9"). Use "Latest" to pick the
+            highest supported version for the file type.
+
+    Returns:
+        The native return code together with every loader error and warning.
+        A failed conversion leaves no output file.
+
+    """
+    logger.debug(
+        "Starting migration: input='%s', output_dir='%s', output_file='%s', version='%s'",
+        input_path,
+        output_dir,
+        output_file,
+        version,
+    )
+
+    try:
+        file_type = _file_type_for(input_path)
+        native_lib = _load_library(file_type)
+    except (ValueError, RuntimeError, OSError) as exc:
+        logger.error("Migration failed: %s", exc)
+        return NativeResult(code=ERR_LOAD_FAILURE, errors=[str(exc)])
+
+    target_version = version
+    if target_version == "Latest":
+        target_version = "V9.9" if file_type == "VNF" else "G8.9"
+
+    logger.debug("Using %s library for target version '%s'", file_type, target_version)
+
+    collector = _MessageCollector()
+    code = native_lib.ConvertNetworkFile(
+        str(input_path).encode("utf-8"),
+        str(output_dir).encode("utf-8"),
+        output_file.encode("utf-8"),
+        target_version.encode("utf-8"),
+        collector.callback,
+    )
+    result = collector.result(code)
+    _log_result("Migration", result)
+    return result
+
+
+def validate_file(path: str | Path, *, normalize_encoding: bool = False) -> NativeResult:
+    """Load a GNF or VNF file with the Gaia or Vision loader without converting it.
+
+    Args:
+        path: Path to the `.gnf` or `.vnf` file.
+        normalize_encoding: Validate a UTF-8 copy of the file instead of the file itself.
+
+    Returns:
+        The native return code together with every loader error and warning.
+        ``ERR_LOAD_FAILURE`` means the file itself could not be read (missing,
+        locked, unknown version); ``ERR_NETWORK_INVALID`` means the file was read
+        but the loader rejected part of its content.
+
+    """
+    logger.debug("Validating network file '%s'", path)
+
+    try:
+        file_type = _file_type_for(path)
+        native_lib = _load_library(file_type)
+    except (ValueError, RuntimeError, OSError) as exc:
+        logger.error("Validation failed: %s", exc)
+        return NativeResult(code=ERR_LOAD_FAILURE, errors=[str(exc)])
+
+    collector = _MessageCollector()
+    if normalize_encoding:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            normalized = _write_utf8_copy(Path(path), Path(temp_dir))
+            code = native_lib.ValidateNetworkFile(str(normalized).encode("utf-8"), collector.callback)
+    else:
+        code = native_lib.ValidateNetworkFile(str(path).encode("utf-8"), collector.callback)
+    result = collector.result(code)
+    _log_result("Validation", result)
+    return result
+
+
 def save_as(
     input_path: str,
     output_path: str,
@@ -64,6 +280,8 @@ def save_as(
     version: str = "Latest",
 ) -> str:
     """Convert a GNF or VNF file to another version using the native migrator.
+
+    Thin wrapper around :func:`convert_file` that reports the outcome as text.
 
     Args:
         input_path: Path to the input `.gnf` or `.vnf` file.
@@ -74,100 +292,10 @@ def save_as(
 
     Returns:
         Message describing the result. On success: "Conversion successful"; otherwise
-        an error description.
+        an error description followed by the loader errors and warnings.
 
     """
-    logger.debug(
-        "Starting migration: input='%s', output_dir='%s', output_file='%s', version='%s'",
-        input_path,
-        output_path,
-        output_file,
-        version,
-    )
-
-    # Determine file type and select appropriate native library
-    input_lower = input_path.lower()
-    if input_lower.endswith(".gnf"):
-        file_type = "GNF"
-    elif input_lower.endswith(".vnf"):
-        file_type = "VNF"
-    else:
-        logger.error("Migration failed: Input file '%s' is not a .gnf or .vnf file.", input_path)
-        return MESSAGES[ERR_LOAD_FAILURE]
-
-    try:
-        library_name, loader = _resolve_library(file_type)
-    except (ValueError, RuntimeError):
-        logger.exception("Migration failed while resolving library")
-        return MESSAGES[ERR_LOAD_FAILURE]
-
-    library_path = Path(__file__).with_name(library_name)
-
-    if not library_path.exists():
-        logger.error("Migration failed: %s not found at %s", library_name, library_path)
-        return MESSAGES[ERR_LOAD_FAILURE]
-
-    # Set target version based on file type
-    target_version = version
-    if target_version == "Latest":
-        if file_type == "VNF":
-            target_version = "V9.9"
-        elif file_type == "GNF":
-            target_version = "G8.9"
-        else:
-            logger.error("Migration failed: Could not determine target version for file type '%s'", file_type)
-            return MESSAGES[ERR_LOAD_FAILURE]
-
-    logger.debug("Using %s for %s file, resolved target version to: '%s'", library_name, file_type, target_version)
-
-    try:
-        native_lib = loader(str(library_path))
-    except OSError:
-        logger.exception("Failed to load library at '%s'", library_path)
-        return MESSAGES[ERR_LOAD_FAILURE]
-
-    native_lib.ConvertNetworkFile.argtypes = [
-        ctypes.c_char_p,
-        ctypes.c_char_p,
-        ctypes.c_char_p,
-        ctypes.c_char_p,
-    ]
-    native_lib.ConvertNetworkFile.restype = ctypes.c_int
-
-    # Use encoding that matches the file type's importer/exporter
-    encoding = "utf-8"
-
-    input_path_arg = ctypes.create_string_buffer(input_path.encode(encoding))
-    output_path_arg = ctypes.create_string_buffer(output_path.encode(encoding))
-    output_file_arg = ctypes.create_string_buffer(output_file.encode(encoding))
-    version_target_arg = ctypes.create_string_buffer(target_version.encode(encoding))
-
-    logger.debug("Calling ConvertNetworkFile with final arguments")
-    logger.debug("  -> Library: %s", library_name)
-    logger.debug("  -> File Type: %s", file_type)
-    logger.debug("  -> Input Path: %s", input_path_arg.value)
-    logger.debug("  -> Output Dir: %s", output_path_arg.value)
-    logger.debug("  -> Output File: %s", output_file_arg.value)
-    logger.debug("  -> Target Version: %s", version_target_arg.value)
-
-    result_code = native_lib.ConvertNetworkFile(
-        input_path_arg,
-        output_path_arg,
-        output_file_arg,
-        version_target_arg,
-    )
-
-    logger.debug("Library returned result code: %d", result_code)
-
-    return_message = MESSAGES.get(result_code, f"Unknown error occurred. Error code: {result_code}")
-
-    if result_code == ERR_SUCCESS:
-        logger.debug("Migration finished successfully.")
-    else:
-        # Errors are already logged by the native library; we log a concise summary
-        logger.error("Migration failed: %s", return_message)
-
-    return return_message
+    return convert_file(input_path, output_path, output_file, version).describe()
 
 
 def _wait_for_file(
@@ -222,7 +350,7 @@ def _diagnose_migration_input(original: Path, normalized: Path) -> None:
     logger.warning("  [diagnostic] Normalized file: %d bytes, permissions: %s", norm_size, mode)
 
     if norm_size == 0:
-        logger.warning("  [diagnostic] Normalized file is EMPTY — input may be corrupt")
+        logger.warning("  [diagnostic] Normalized file is EMPTY, input may be corrupt")
         return
 
     # Read first 2 lines to check version and NETWORK marker
@@ -255,6 +383,39 @@ def _diagnose_migration_input(original: Path, normalized: Path) -> None:
         pass
 
 
+def _write_utf8_copy(input_path: Path, target_dir: Path) -> Path:
+    """Write a UTF-8 copy of a network file that may use a legacy encoding.
+
+    Args:
+        input_path: Network file in UTF-8 (with or without BOM), cp1252 or latin-1.
+        target_dir: Directory for the copy.
+
+    Returns:
+        Path of the UTF-8 copy.
+
+    """
+    content = None
+    detected_encoding = None
+    for enc in ("utf-8-sig", "cp1252", "latin-1"):
+        try:
+            content = input_path.read_text(encoding=enc, errors="strict")
+            detected_encoding = enc
+            break
+        except UnicodeDecodeError:
+            continue
+
+    if content is None:
+        # Should not happen since latin-1 accepts all bytes
+        content = input_path.read_text(encoding="latin-1", errors="replace")
+        detected_encoding = "latin-1"
+
+    logger.debug("Read input file '%s' with encoding '%s'", input_path.name, detected_encoding)
+
+    normalized_input = target_dir / f"_utf8_{input_path.name}"
+    normalized_input.write_text(content, encoding="utf-8")
+    return normalized_input
+
+
 def migrate_and_read(
     input_path: Path,
     version: str,
@@ -267,7 +428,7 @@ def migrate_and_read(
 
     Handles potential race conditions with antivirus software or file system
     delays by waiting for the output file to become available and retrying
-    the migration if needed.
+    the migration if needed. Version and content errors are not retried.
 
     Args:
         input_path: Path to the input .gnf or .vnf file.
@@ -280,7 +441,7 @@ def migrate_and_read(
         Content of the migrated file as a string.
 
     Raises:
-        RuntimeError: If migration fails after all retries.
+        RuntimeError: If migration fails. The message includes the loader errors.
 
     """
     last_error = ""
@@ -291,45 +452,25 @@ def migrate_and_read(
             output_file = output_dir / input_path.name
 
             # Normalize input to UTF-8 for DLL compatibility with legacy encodings
-            content = None
-            detected_encoding = None
-            for enc in ("utf-8-sig", "cp1252", "latin-1"):
-                try:
-                    content = input_path.read_text(encoding=enc, errors="strict")
-                    detected_encoding = enc
-                    break
-                except UnicodeDecodeError:
-                    continue
+            normalized_input = _write_utf8_copy(input_path, output_dir)
 
-            if content is None:
-                # Should not happen since latin-1 accepts all bytes
-                content = input_path.read_text(encoding="latin-1", errors="replace")
-                detected_encoding = "latin-1"
-
-            logger.debug(
-                "Read input file '%s' with encoding '%s'",
-                input_path.name,
-                detected_encoding,
-            )
-
-            normalized_input = output_dir / f"_utf8_{input_path.name}"
-            normalized_input.write_text(content, encoding="utf-8")
-
-            result = save_as(
-                input_path=str(normalized_input),
-                output_path=str(output_dir),
+            result = convert_file(
+                input_path=normalized_input,
+                output_dir=output_dir,
                 output_file=input_path.name,
                 version=version,
             )
 
-            if "successful" not in str(result).lower():
-                last_error = result
+            if not result.ok:
+                last_error = result.describe()
+                if result.code not in _RETRYABLE_CODES:
+                    break
                 logger.warning(
                     "Migration attempt %d/%d failed for '%s': %s",
                     attempt,
                     max_retries,
                     input_path.name,
-                    result,
+                    result.summary,
                 )
                 if attempt == 1:
                     _diagnose_migration_input(input_path, normalized_input)
@@ -353,5 +494,5 @@ def migrate_and_read(
             logger.debug("Migration successful on attempt %d.", attempt)
             return output_file.read_text(encoding=encoding, errors="ignore")
 
-    msg = f"Failed to migrate '{input_path.name}' after {max_retries} attempts. Last error: {last_error}"
+    msg = f"Failed to migrate '{input_path.name}': {last_error}"
     raise RuntimeError(msg)

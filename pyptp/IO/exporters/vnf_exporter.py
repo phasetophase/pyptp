@@ -3,12 +3,13 @@
 Exports NetworkMV instances to VNF format with version migration support.
 """
 
+import shutil
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
 from typing import TextIO
 
-from pyptp.convert.version_migrator import save_as
+from pyptp.convert.version_migrator import NativeResult, convert_file, native_library_available, validate_file
 from pyptp.elements.element_utils import Guid
 from pyptp.elements.enums import VnfVersion
 from pyptp.network_mv import NetworkMV
@@ -289,6 +290,7 @@ class VnfExporter:
         version: VnfVersion = VnfVersion.V9_12,
         *,
         validate_on_migration_failure: bool = True,
+        native_check: bool = True,
     ) -> None:
         """Export MV network to VNF format with version migration.
 
@@ -297,45 +299,65 @@ class VnfExporter:
             output_path: Target file path for VNF output.
             version: Target VNF version (default: V9.12).
             validate_on_migration_failure: Run validators and include diagnostics
-                in the error message when version migration fails (default: True).
+                in the error message when the native loader rejects the network
+                (default: True).
+            native_check: Check the written file with the native loader and raise
+                if it rejects the network (default: True).
 
         Raises:
             IOError: If output file cannot be written.
-            RuntimeError: If version migration fails.
+            RuntimeError: If the native loader rejects the network or version
+                migration fails. No output file is left behind.
 
         """
         out_path = Path(output_path)
 
-        if version == VnfVersion.V9_12:
-            with out_path.open("w", encoding="utf-8") as fh:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_file = Path(temp_dir) / out_path.name
+            with temp_file.open("w", encoding="utf-8") as fh:
                 VnfExporter._write_vnf(network, fh)
-        else:
-            with tempfile.TemporaryDirectory() as temp_dir:
-                temp_file = Path(temp_dir) / out_path.name
-                with temp_file.open("w", encoding="utf-8") as fh:
-                    VnfExporter._write_vnf(network, fh)
 
-                result = save_as(
-                    input_path=str(temp_file),
-                    output_path=str(out_path.parent),
+            if version == VnfVersion.V9_12:
+                if native_check and native_library_available("VNF"):
+                    VnfExporter._raise_if_rejected(
+                        network,
+                        validate_file(temp_file),
+                        f"Failed to save as {version}",
+                        diagnostics=validate_on_migration_failure,
+                    )
+                shutil.copyfile(temp_file, out_path)
+            else:
+                result = convert_file(
+                    input_path=temp_file,
+                    output_dir=out_path.parent,
                     output_file=out_path.name,
                     version=version,
                 )
+                VnfExporter._raise_if_rejected(
+                    network,
+                    result,
+                    f"Failed to convert to {version}",
+                    diagnostics=validate_on_migration_failure,
+                )
 
-                if "successful" not in result.lower():
-                    msg = f"Failed to convert to {version}: {result}"
-                    if validate_on_migration_failure:
-                        msg = VnfExporter._append_validation_diagnostics(network, msg)
-                    raise RuntimeError(msg)
+    @staticmethod
+    def _raise_if_rejected(network: NetworkMV, result: NativeResult, what: str, *, diagnostics: bool) -> None:
+        """Raise RuntimeError with the loader messages when a native call failed."""
+        if result.ok:
+            return
+        msg = f"{what}: {result.describe()}"
+        if diagnostics:
+            msg = VnfExporter._append_validation_diagnostics(network, msg)
+        raise RuntimeError(msg)
 
     @staticmethod
     def _append_validation_diagnostics(network: NetworkMV, msg: str) -> str:
         """Run validators and append ERROR-level issues to the error message."""
-        from pyptp.validator.base import Severity
+        from pyptp.validator.base import Severity, ValidatorCategory
         from pyptp.validator.runner import CheckRunner
 
         try:
-            report = CheckRunner(network).run()
+            report = CheckRunner(network).run(categories=ValidatorCategory.CORE)
             errors = [i for i in report.issues if i.severity == Severity.ERROR]
             if errors:
                 lines = [

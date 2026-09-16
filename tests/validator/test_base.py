@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import unittest
 
+from pyptp.elements.element_utils import Guid
 from pyptp.validator import Issue, Report, Severity
 
 
@@ -28,6 +29,21 @@ class TestValidatorBase(unittest.TestCase):
         serialized_json = report.to_json()
         parsed_json = json.loads(serialized_json)
         self.assertEqual(parsed_json["issues"][0]["validator"], "cable_node_reference")
+
+    def test_report_json_writes_guid_object_id_as_string(self) -> None:
+        guid = Guid("2A421727-0EA3-4544-9C58-ADB67DCEE36A")
+        issue = Issue(
+            code="native_load_error",
+            message="rejected",
+            severity=Severity.ERROR,
+            object_type="Meetveld",
+            object_id=guid,
+            validator="native_loader",
+        )
+
+        parsed_json = json.loads(Report(issues=[issue]).to_json())
+
+        self.assertEqual(parsed_json["issues"][0]["object_id"], str(guid))
 
     def test_report_summary_no_issues(self) -> None:
         """Report with no issues shows 'No issues found'."""
