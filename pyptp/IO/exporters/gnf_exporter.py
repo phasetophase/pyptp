@@ -5,11 +5,12 @@ Exports NetworkLV instances to GNF format with version migration support.
 
 from __future__ import annotations
 
+import shutil
 import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, TextIO
 
-from pyptp.convert.version_migrator import save_as
+from pyptp.convert.version_migrator import NativeResult, convert_file, native_library_available, validate_file
 from pyptp.elements.element_utils import Guid, guid_to_string
 from pyptp.elements.enums import GnfVersion
 from pyptp.ptp_log import logger
@@ -252,6 +253,7 @@ class GnfExporter:
         version: GnfVersion = GnfVersion.G8_12,
         *,
         validate_on_migration_failure: bool = True,
+        native_check: bool = True,
     ) -> None:
         """Export LV network to GNF format with version migration.
 
@@ -264,45 +266,65 @@ class GnfExporter:
             output_path: Target file path for GNF output.
             version: Target GNF version (default: G8.12).
             validate_on_migration_failure: Run validators and include diagnostics
-                in the error message when version migration fails (default: True).
+                in the error message when the native loader rejects the network
+                (default: True).
+            native_check: Check the written file with the native loader and raise
+                if it rejects the network (default: True).
 
         Raises:
             IOError: If output file cannot be written.
-            RuntimeError: If version migration fails.
+            RuntimeError: If the native loader rejects the network or version
+                migration fails. No output file is left behind.
 
         """
-        out_path: Path = Path(output_path)
+        out_path = Path(output_path)
 
-        if version == GnfVersion.G8_12:
-            with out_path.open("w", encoding="utf-8") as fh:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_file = Path(temp_dir) / out_path.name
+            with temp_file.open("w", encoding="utf-8") as fh:
                 GnfExporter._write_gnf(network, fh)
-        else:
-            with tempfile.TemporaryDirectory() as temp_dir:
-                temp_file = Path(temp_dir) / out_path.name
-                with temp_file.open("w", encoding="utf-8") as fh:
-                    GnfExporter._write_gnf(network, fh)
 
-                result = save_as(
-                    input_path=str(temp_file),
-                    output_path=str(out_path.parent),
+            if version == GnfVersion.G8_12:
+                if native_check and native_library_available("GNF"):
+                    GnfExporter._raise_if_rejected(
+                        network,
+                        validate_file(temp_file),
+                        f"Failed to save as {version}",
+                        diagnostics=validate_on_migration_failure,
+                    )
+                shutil.copyfile(temp_file, out_path)
+            else:
+                result = convert_file(
+                    input_path=temp_file,
+                    output_dir=out_path.parent,
                     output_file=out_path.name,
                     version=version,
                 )
+                GnfExporter._raise_if_rejected(
+                    network,
+                    result,
+                    f"Failed to convert to {version}",
+                    diagnostics=validate_on_migration_failure,
+                )
 
-                if "successful" not in result.lower():
-                    msg = f"Failed to convert to {version}: {result}"
-                    if validate_on_migration_failure:
-                        msg = GnfExporter._append_validation_diagnostics(network, msg)
-                    raise RuntimeError(msg)
+    @staticmethod
+    def _raise_if_rejected(network: NetworkLV, result: NativeResult, what: str, *, diagnostics: bool) -> None:
+        """Raise RuntimeError with the loader messages when a native call failed."""
+        if result.ok:
+            return
+        msg = f"{what}: {result.describe()}"
+        if diagnostics:
+            msg = GnfExporter._append_validation_diagnostics(network, msg)
+        raise RuntimeError(msg)
 
     @staticmethod
     def _append_validation_diagnostics(network: NetworkLV, msg: str) -> str:
         """Run validators and append ERROR-level issues to the error message."""
-        from pyptp.validator.base import Severity
+        from pyptp.validator.base import Severity, ValidatorCategory
         from pyptp.validator.runner import CheckRunner
 
         try:
-            report = CheckRunner(network).run()
+            report = CheckRunner(network).run(categories=ValidatorCategory.CORE)
             errors = [i for i in report.issues if i.severity == Severity.ERROR]
             if errors:
                 lines = [

@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
-from pyptp.convert.version_migrator import migrate_and_read
+from pyptp.convert.version_migrator import migrate_and_read, native_library_available, validate_file
 from pyptp.IO.importers._gnf_handlers.async_generator_handler import AsyncGeneratorHandler
 from pyptp.IO.importers._gnf_handlers.async_motor_handler import AsyncMotorHandler
 from pyptp.IO.importers._gnf_handlers.battery_handler import BatteryHandler
@@ -117,17 +117,20 @@ class GnfImporter:
 
     _SECTION_PATTERNS: ClassVar[dict[str, Pattern[str]]] = {name: make_section_pattern(name) for name in _HANDLERS}
 
-    def _get_and_migrate_gnf_content(self, path: Path) -> str:
+    def _get_and_migrate_gnf_content(self, path: Path, *, native_check: bool = True) -> str:
         """Load GNF file content with automatic version migration for legacy files.
 
         Args:
             path: Path to GNF file for import.
 
+            native_check: Check a current-version file with the native loader and
+                raise if it rejects the network (default: True).
+
         Returns:
             File content as string, either original or migrated to supported version.
 
         Raises:
-            RuntimeError: If version migration fails after retries.
+            RuntimeError: If the native loader rejects the file or migration fails.
 
         """
         with Path.open(path, encoding="utf-8-sig", errors="ignore") as f:
@@ -141,6 +144,12 @@ class GnfImporter:
                 file_version,
             )
             return migrate_and_read(path, version="G8.12", encoding="utf-8-sig")
+
+        if native_check and native_library_available("GNF"):
+            result = validate_file(path, normalize_encoding=True)
+            if not result.ok:
+                msg = f"Failed to load '{path.name}': {result.describe()}"
+                raise RuntimeError(msg)
 
         return path.read_text(encoding="utf-8-sig", errors="ignore")
 
@@ -158,11 +167,13 @@ class GnfImporter:
                 chunk = match.group(0).rstrip() + "\n#END"
                 handler.handle(network, chunk)
 
-    def import_gnf(self, path: str | Path) -> NetworkLV:
+    def import_gnf(self, path: str | Path, *, native_check: bool = True) -> NetworkLV:
         """Import GNF file into a populated LV network with automatic version migration.
 
         Args:
             path: Path to GNF file for import.
+            native_check: Check a current-version file with the native loader and
+                raise if it rejects the network (default: True).
 
         Returns:
             Populated TNetworkLS with all components registered from file sections.
@@ -171,7 +182,7 @@ class GnfImporter:
             RuntimeError: If file migration fails or content is invalid.
 
         """
-        raw_text = self._get_and_migrate_gnf_content(Path(path))
+        raw_text = self._get_and_migrate_gnf_content(Path(path), native_check=native_check)
         network = NetworkLV()
         self._dispatch_to_handlers(network, raw_text)
         return network

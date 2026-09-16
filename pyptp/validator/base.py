@@ -30,6 +30,7 @@ class ValidatorCategory(Flag):
 
     Attributes:
         CORE: Essential validators that should run in most scenarios.
+        NATIVE: Validators that run the Gaia or Vision file loader on the network.
         ALL: Combination of all available categories (used as default).
 
     Example:
@@ -41,7 +42,8 @@ class ValidatorCategory(Flag):
     """
 
     CORE = auto()
-    ALL = CORE  # Currently CORE is all we have
+    NATIVE = auto()
+    ALL = CORE | NATIVE
 
 
 class Severity(str, Enum):
@@ -99,10 +101,10 @@ class Report:
         return {"issues": [i.to_dict() for i in self.issues]}
 
     def to_json(self) -> str:
-        """Serialize this report to formatted JSON for logging or file output."""
+        """Serialize this report to formatted JSON; non-JSON object ids such as ``Guid`` become strings."""
         import json
 
-        return json.dumps(self.to_dict(), indent=2)
+        return json.dumps(self.to_dict(), indent=2, default=str)
 
     def summary(self) -> str:
         """Return high-level summary of validation results.

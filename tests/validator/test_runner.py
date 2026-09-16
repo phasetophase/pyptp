@@ -145,8 +145,7 @@ class TestRunner(unittest.TestCase):
 
     def test_category_filtering_core_only(self) -> None:
         """CheckRunner can filter validators by category."""
-        # Note: Currently CORE == ALL, so this test verifies the filtering mechanism works
-        # When more categories are added, this test will need adjustment
+        # The patched validator is CORE, so it must run when CORE is requested
         low_voltage_network = NetworkLV()
 
         with patch(

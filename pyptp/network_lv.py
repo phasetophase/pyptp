@@ -215,11 +215,13 @@ class NetworkLV:
         return None
 
     @classmethod
-    def from_file(cls, path: str | Path) -> NetworkLV:
+    def from_file(cls, path: str | Path, *, native_check: bool = True) -> NetworkLV:
         """Create LV network from GNF file.
 
         Args:
             path: Path to GNF file for import.
+            native_check: Check a current-version file with the native loader and
+                raise if it rejects the network (default: True).
 
         Returns:
             Populated NetworkLV instance with all components from file.
@@ -242,7 +244,7 @@ class NetworkLV:
             msg = f"Input file {path} is not a .gnf file.{hint}"
             raise ValueError(msg)
 
-        return GnfImporter().import_gnf(path)
+        return GnfImporter().import_gnf(path, native_check=native_check)
 
     def save(
         self,
@@ -250,6 +252,7 @@ class NetworkLV:
         version: GnfVersion = GnfVersion.G8_12,
         *,
         validate_on_migration_failure: bool = True,
+        native_check: bool = True,
     ) -> None:
         """Save network to GNF file.
 
@@ -257,11 +260,15 @@ class NetworkLV:
             path: Target file path for GNF output.
             version: Target GNF version (default: G8.12).
             validate_on_migration_failure: Run validators and include diagnostics
-                in the error message when version migration fails (default: True).
+                in the error message when the native loader rejects the network
+                (default: True).
+            native_check: Check the written file with the native loader and raise
+                if it rejects the network (default: True).
 
         Raises:
             IOError: If output file cannot be written.
-            RuntimeError: If version migration fails.
+            RuntimeError: If the native loader rejects the network or version
+                migration fails. No output file is left behind.
 
         Example:
             >>> network.save("output.gnf")  # Saves as G8.12
@@ -275,4 +282,5 @@ class NetworkLV:
             str(path),
             version,
             validate_on_migration_failure=validate_on_migration_failure,
+            native_check=native_check,
         )
