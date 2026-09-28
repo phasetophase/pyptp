@@ -98,8 +98,6 @@ class TestColumnRenames(unittest.TestCase):
 
     def test_mv_cable_default_renames(self) -> None:
         # Headers differing from the VNF property name by more than case.
-        # Vision reads VOP into Loopsnelheid, which it serializes as
-        # PulseVelocity (leestypen.pas, loadV9xx.pas).
         with TemporaryDirectory() as td:
             path = Path(td) / "wb.xlsx"
             _write_cable_sheet(
@@ -114,8 +112,8 @@ class TestColumnRenames(unittest.TestCase):
             self.assertEqual(mv_cable.pulse_velocity, 150)
 
     def test_lv_cable_t_suffix_default_renames(self) -> None:
-        # Vision accepts both a _T and a _O suffix for these columns; the GNF
-        # property name uses _o (leestypen.pas).
+        # These columns carry either a _T or a _O suffix; the GNF property
+        # name uses _o.
         with TemporaryDirectory() as td:
             path = Path(td) / "wb.xlsx"
             _write_cable_sheet(

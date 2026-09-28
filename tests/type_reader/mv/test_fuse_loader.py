@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 import pandas as pd
 
-from pyptp.type_reader import Types
+from pyptp.type_reader import Types, UnknownTypeError
 
 
 class TestMVFuseLoader(unittest.TestCase):
@@ -35,9 +35,12 @@ class TestMVFuseLoader(unittest.TestCase):
 
             types = Types(str(path))
             # ShortName should not resolve under name-only policy
-            self.assertIsNone(types.get_mv_fuse("MF1"))
-            self.assertIsNotNone(types.get_mv_fuse("MV Fuse"))
-            self.assertIsNotNone(types.get_mv_fuse("MV_FUSE_ALIAS"))
+            with self.assertRaises(UnknownTypeError):
+                types.get_mv_fuse("MF1")
+            fuse = types.get_mv_fuse("MV Fuse")
+            self.assertEqual(fuse.short_name, "MF1")
+            by_alias = types.get_mv_fuse("MV_FUSE_ALIAS")
+            self.assertEqual(by_alias, fuse)
 
 
 if __name__ == "__main__":

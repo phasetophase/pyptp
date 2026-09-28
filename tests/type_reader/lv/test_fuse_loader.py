@@ -3,12 +3,10 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import cast
 
 import pandas as pd
 
-from pyptp.elements.lv.shared import FuseType
-from pyptp.type_reader import Types
+from pyptp.type_reader import Types, UnknownTypeError
 
 
 class TestLVFuseLoader(unittest.TestCase):
@@ -40,19 +38,16 @@ class TestLVFuseLoader(unittest.TestCase):
                 aliases.to_excel(writer, sheet_name="Fuse alias")
 
             types = Types(str(path))
-            fuse_by_short = types.get_lv_fuse("F1")
             fuse_by_name = types.get_lv_fuse("Fuse One")
             fuse_by_alias = types.get_lv_fuse("FUSE_ALIAS")
 
-            # Under name-only policy, shortname resolution should fail; alias and name should succeed
-            self.assertIsNotNone(fuse_by_name)
-            self.assertIsNotNone(fuse_by_alias)
-            self.assertIsNone(fuse_by_short)
-            # Verify I/T lists formed with at least first items
-            if fuse_by_short:
-                fuse_typed = cast("FuseType", fuse_by_short)
-                self.assertGreaterEqual(len(fuse_typed.I), 3)
-                self.assertEqual(fuse_typed.I[0], 52)
+            self.assertEqual(fuse_by_alias, fuse_by_name)
+            # Under name-only policy, a ShortName does not resolve
+            with self.assertRaises(UnknownTypeError):
+                types.get_lv_fuse("F1")
+
+            # the I1..I3 columns become one list
+            self.assertEqual((fuse_by_name.I or [])[:3], [52, 52, 53])
 
 
 if __name__ == "__main__":

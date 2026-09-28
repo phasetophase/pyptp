@@ -65,9 +65,13 @@ class SourceLV(ExtrasNotesMixin, HasPresentationsMixin):
         s_N: bool = True  # noqa: N815
         field_name: str = string_field()
         umin: float | int = 0.4
+        """Minimum voltage, line to line, in kV."""
         umax: float | int = 0.4
+        """Maximum voltage, line to line, in kV."""
         uref: float | int = 0.4
+        """Reference voltage, line to line, in kV."""
         sk2nom: int | float = 40
+        """Nominal short-circuit power in MVA."""
         is_sk2_used_for_loadflow: bool = False
         failure_frequency: float | int | None = optional_field(0)
 

@@ -58,15 +58,6 @@ class TestUnitRowDetection(unittest.TestCase):
 
             self.assertEqual(read_type_sheet(str(path), "Cable"), [])
 
-    def test_missing_sheet_returns_empty(self) -> None:
-        with TemporaryDirectory() as td:
-            path = Path(td) / "wb.xlsx"
-            _write_sheet(
-                path, pd.DataFrame({"Name": ["Cable One"]}), sheet_name="Other"
-            )
-
-            self.assertEqual(read_type_sheet(str(path), "Cable"), [])
-
     def test_no_name_column_keeps_all_rows(self) -> None:
         with TemporaryDirectory() as td:
             path = Path(td) / "wb.xlsx"

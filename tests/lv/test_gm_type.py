@@ -32,6 +32,19 @@ class TestTGMTypeLS(unittest.TestCase):
         self.assertEqual(len(self.network.gmtypes), 1)
         self.assertEqual(self.network.gmtypes[1], gm_type)
 
+    def test_register_numbers_a_gm_type_without_number(self) -> None:
+        """register() gives number 0 the number after the highest one in use."""
+        self.network.gmtypes[4] = GMTypeLV(
+            general=GMTypeLV.General(number=4, type="sjv1000")
+        )
+        gm_type = GMTypeLV(general=GMTypeLV.General(type="sjv3000"))
+
+        gm_type.register(self.network)
+
+        self.assertEqual(gm_type.general.number, 5)
+        self.assertIs(self.network.gmtypes[5], gm_type)
+        self.assertNotIn(0, self.network.gmtypes)
+
     def test_gm_type_with_minimal_properties_serializes_correctly(self) -> None:
         """Test serialization with minimal properties."""
         general = GMTypeLV.General(number=1, type="Residential", indicator="RES")
@@ -234,22 +247,20 @@ class TestTGMTypeLS(unittest.TestCase):
         self.assertEqual(gm_type.trend.weekend_days, [])
         self.assertEqual(gm_type.trend.months, [])
 
-    def test_duplicate_gm_type_registration_overwrites(self) -> None:
-        """Test Number collision handling with proper logging verification."""
-        general1 = GMTypeLV.General(number=1, type="Type 1", indicator="T1")
-        general2 = GMTypeLV.General(number=1, type="Type 2", indicator="T2")
-
-        gm_type1 = GMTypeLV(general=general1)
-        gm_type2 = GMTypeLV(general=general2)
-
-        # Register first GM type
+    def test_register_refuses_a_number_in_use(self) -> None:
+        """A second GM type with the same number is refused and the first one stays."""
+        gm_type1 = GMTypeLV(
+            general=GMTypeLV.General(number=1, type="Type 1", indicator="T1")
+        )
+        gm_type2 = GMTypeLV(
+            general=GMTypeLV.General(number=1, type="Type 2", indicator="T2")
+        )
         gm_type1.register(self.network)
-        self.assertEqual(self.network.gmtypes[1].general.type, "Type 1")
 
-        # Register second GM type with same Number should overwrite
-        gm_type2.register(self.network)
-        # Verify GM type was overwritten
-        self.assertEqual(self.network.gmtypes[1].general.type, "Type 2")
+        with self.assertRaises(ValueError):
+            gm_type2.register(self.network)
+
+        self.assertIs(self.network.gmtypes[1], gm_type1)
 
     def test_gm_type_general_serialize_with_defaults(self) -> None:
         """Test General class serialization with default values."""

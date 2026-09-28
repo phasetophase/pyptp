@@ -54,7 +54,7 @@ link.general.switch_state2 = True
 link.register(network)
 
 load = LoadMV(
-    LoadMV.General(node=load_node.general.guid, P=100.0, Q=50.0),
+    LoadMV.General(node=load_node.general.guid, P=0.1, Q=0.05),
     presentations=[ElementPresentation(sheet=sheet_guid, x=450, y=350)],
 )
 load.register(network)

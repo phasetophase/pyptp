@@ -112,6 +112,34 @@ NIL_GUID = Guid(0)
 SIDE_NODE1 = 1
 SIDE_NODE2 = 2
 
+BRANCH_SIDE_SWITCHES: dict[int, tuple[str, ...]] = {
+    1: (
+        "switch_state1",
+        "switch_state1_L1",
+        "switch_state1_L2",
+        "switch_state1_L3",
+        "switch_state1_h1",
+        "switch_state1_h2",
+        "switch_state1_h3",
+        "switch_state1_h4",
+    ),
+    2: (
+        "switch_state2",
+        "switch_state2_L1",
+        "switch_state2_L2",
+        "switch_state2_L3",
+        "switch_state2_h1",
+        "switch_state2_h2",
+        "switch_state2_h3",
+        "switch_state2_h4",
+    ),
+    3: ("switch_state3",),
+}
+"""Switch-state fields per branch side, without the neutral and PE switches.
+
+LV branches use the per-conductor fields, MV branches the single one.
+"""
+
 
 class LineStyle(StrEnum):
     """Line drawing styles for visual elements."""

@@ -38,6 +38,7 @@ from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
+    from pyptp.type_reader import Types
 
     from .presentations import SecondaryPresentation
 
@@ -225,6 +226,17 @@ class FuseMV(ExtrasNotesMixin, HasPresentationsMixin):
     general: General
     type: FuseType
     presentations: list[SecondaryPresentation]
+
+    def set_type(self, types: Types, name: str) -> None:
+        """Set the fuse type from the type library, by name or alias.
+
+        Raises:
+            UnknownTypeError: If the type library has no MV fuse type under that name.
+
+        """
+        fuse_type = types.get_mv_fuse(name)
+        self.general.type = types.type_name("mv_fuse", name)
+        self.type = fuse_type
 
     def register(self, network: NetworkMV) -> None:
         """Will add fuse to the network."""

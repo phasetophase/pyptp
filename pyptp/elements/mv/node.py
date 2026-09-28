@@ -70,6 +70,7 @@ class NodeMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         short_name: str = string_field()
         id: str = string_field()
         unom: float | int = 0.4
+        """Nominal voltage in kV."""
         simultaneity_factor: float = 1.0
         function: str = string_field()
         railtype: str = string_field()

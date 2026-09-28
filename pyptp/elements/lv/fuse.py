@@ -106,11 +106,16 @@ class FuseLV(ExtrasNotesMixin, HasPresentationsMixin):
         ExtrasNotesMixin.__post_init__(self)
         HasPresentationsMixin.__post_init__(self)
 
-    def set_fuse_type(self, default_types: Types, fusetype: str) -> None:
-        """Set `fuse_type` from the Excel-backed types provider by name."""
-        obj = default_types.get_lv_fuse(fusetype)
-        if isinstance(obj, FuseType):
-            self.type = obj
+    def set_type(self, types: Types, name: str) -> None:
+        """Set the fuse type from the type library, by name or alias.
+
+        Raises:
+            UnknownTypeError: If the type library has no LV fuse type under that name.
+
+        """
+        fuse_type = types.get_lv_fuse(name)
+        self.general.type = types.type_name("lv_fuse", name)
+        self.type = fuse_type
 
     def register(self, network: NetworkLV) -> None:
         """Will add fuse to the network."""

@@ -6,14 +6,21 @@ presentation coordinates across both LV and MV network types.
 
 from __future__ import annotations
 
+import math
+from itertools import pairwise
 from typing import TYPE_CHECKING, Protocol
 
-from pyptp.elements.enums import NodePresentationSymbol
+from pyptp.elements.element_utils import name_or_guid
+from pyptp.elements.enums import NodePresentationSymbol, SymbolSegment
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pyptp.elements.element_utils import Guid
+    from pyptp.elements.element_utils import Guid, IntCoords
+    from pyptp.elements.lv.node import NodeLV
+    from pyptp.elements.lv.presentations import NodePresentation as NodePresentationLV
+    from pyptp.elements.mv.node import NodeMV
+    from pyptp.elements.mv.presentations import NodePresentation as NodePresentationMV
 
 
 COORDINATE_GRID_SIZE: int = 20
@@ -148,6 +155,122 @@ def clamp_point_to_node(
         return (clamped_x, node_y)
 
     return (node_x, node_y)
+
+
+def node_presentations_on_sheet(
+    node1: NodeLV | NodeMV,
+    node2: NodeLV | NodeMV,
+    sheet_guid: Guid,
+) -> tuple[NodePresentationLV | NodePresentationMV, NodePresentationLV | NodePresentationMV]:
+    """Return the presentation of each node on one sheet.
+
+    Raises:
+        ValueError: If either node has no presentation on that sheet.
+
+    """
+    presentation1 = _node_presentation_on_sheet(node1, 1, sheet_guid)
+    presentation2 = _node_presentation_on_sheet(node2, 2, sheet_guid)
+    return presentation1, presentation2
+
+
+def _node_presentation_on_sheet(
+    node: NodeLV | NodeMV,
+    number: int,
+    sheet_guid: Guid,
+) -> NodePresentationLV | NodePresentationMV:
+    presentation = node.get_presentation_on_sheet(sheet_guid)
+    if presentation is None:
+        msg = f"Node {number} ({name_or_guid(node.general)}) has no presentation on sheet {sheet_guid}"
+        raise ValueError(msg)
+    return presentation
+
+
+def _segment_lengths(route: IntCoords) -> list[float]:
+    return [math.hypot(x2 - x1, y2 - y1) for (x1, y1), (x2, y2) in pairwise(route)]
+
+
+def _symbol_segment_index(route: IntCoords, symbol_segment: SymbolSegment | int) -> int:
+    """Return the index of the segment that gets the branch symbol.
+
+    Raises:
+        TypeError: If ``symbol_segment`` is neither a :class:`SymbolSegment` nor an int.
+        ValueError: If ``symbol_segment`` is an index outside the route.
+
+    """
+    lengths = _segment_lengths(route)
+    if isinstance(symbol_segment, SymbolSegment):
+        return _named_segment_index(lengths, symbol_segment)
+    if isinstance(symbol_segment, bool) or not isinstance(symbol_segment, int):
+        msg = f"symbol_segment must be a SymbolSegment or a segment index, got {symbol_segment!r}"
+        raise TypeError(msg)
+    return _counted_segment_index(lengths, symbol_segment)
+
+
+def _named_segment_index(lengths: list[float], symbol_segment: SymbolSegment) -> int:
+    if symbol_segment is SymbolSegment.LONGEST:
+        return lengths.index(max(lengths))
+    return _middle_segment_index(lengths)
+
+
+def _middle_segment_index(lengths: list[float]) -> int:
+    total = sum(lengths)
+    if total == 0.0:
+        return 0
+    covered = 0.0
+    for index, length in enumerate(lengths):
+        covered += length
+        if covered >= total / 2:
+            return index
+    return len(lengths) - 1
+
+
+def _counted_segment_index(lengths: list[float], symbol_segment: int) -> int:
+    count = len(lengths)
+    if not -count <= symbol_segment < count:
+        msg = f"symbol_segment {symbol_segment} is out of range for a route of {count} segments"
+        raise ValueError(msg)
+    return symbol_segment % count
+
+
+def route_corners(
+    presentation1: NodePresentationLV | NodePresentationMV,
+    presentation2: NodePresentationLV | NodePresentationMV,
+    via: Sequence[tuple[int, int]] = (),
+    symbol_segment: SymbolSegment | int = SymbolSegment.MIDDLE,
+) -> tuple[IntCoords, IntCoords]:
+    """Return ``first_corners`` and ``second_corners`` for a route between two node presentations.
+
+    ``via`` gives the corners from node 1 to node 2. ``symbol_segment`` is a
+    :class:`SymbolSegment` or the index of a segment counted from node 1. A
+    negative index counts from node 2.
+
+    Raises:
+        TypeError: If ``symbol_segment`` is neither a :class:`SymbolSegment` nor an int.
+        ValueError: If ``symbol_segment`` is an index outside the route.
+
+    """
+    points: IntCoords = [(int(x), int(y)) for x, y in via]
+    if points:
+        toward_start = points[0]
+        toward_end = points[-1]
+    else:
+        toward_start = (presentation2.x, presentation2.y)
+        toward_end = (presentation1.x, presentation1.y)
+    start = presentation1.clamp_point(toward_start)
+    end = presentation2.clamp_point(toward_end)
+
+    if points and points[0] == start:
+        points = points[1:]
+    if points and points[-1] == end:
+        points = points[:-1]
+
+    index = _symbol_segment_index([start, *points, end], symbol_segment)
+    return [start, *points[:index]], [end, *reversed(points[index:])]
+
+
+def branch_polyline(first_corners: IntCoords, second_corners: IntCoords) -> IntCoords:
+    """Return the drawn route of a branch as one list, from node 1 to node 2."""
+    return [*first_corners, *reversed(second_corners)]
 
 
 class HasPresentation(Protocol):

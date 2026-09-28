@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from pyptp.elements.lv.shared import CurrentType, EfficiencyType, FuseType
 if TYPE_CHECKING:
     from pyptp.network_lv import NetworkLV
+    from pyptp.type_reader import Types
 
     from .presentations import ElementPresentation
 
@@ -90,19 +91,27 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         k_L2: int = 2  # noqa: N815
         k_L3: int = 3  # noqa: N815
         length: float | int = optional_field(0.0)
+        """Length of the service cable in metres."""
         cable_type: str = string_field()
         earthing_configuration: str = string_field()
         s_Nh_PEh: bool = False  # noqa: N815
         s_PEh_PEh: bool = True  # noqa: N815
         s_PEh_e: bool = False  # noqa: N815
         re: float | int = optional_field(0.0)
+        """Earthing resistance in ohm."""
         s_Hh: bool = True  # noqa: N815
         protection_type: str = string_field()
         s_h1_h3: bool = False
         s_h2_h4: bool = False
         phases: int = 4
+        """0 single-phase on any phase, 1 to 3 single-phase on L1 to L3, 4 three-phase."""
         sort: str = string_field()
+        """See :class:`~pyptp.elements.enums.ConnectionSort`. Empty means ``COMBI``."""
         connection_value: str = string_field()
+        """Number of phases and current rating as text, for example ``3 x 25 A``.
+
+        Its phase count matches :attr:`phases`: ``1 x`` for single-phase, ``3 x`` for three-phase.
+        """
         i_earthleak: int | float = optional_field(0.0)
         risk: bool = False
         geo_x_coord: float | int = optional_field(0.0)
@@ -196,24 +205,44 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class Load(DataClassJsonMixin):
-        """Load of a home/connection."""
+        """Load of a connection.
+
+        Powers in MW and Mvar. ``p1`` and ``q1`` apply to a single-phase connection,
+        the other fields to a three-phase connection.
+        """
 
         p1: float = 0.0
+        """Active power of a single-phase connection in MW."""
         q1: float = 0.0
+        """Reactive power of a single-phase connection in Mvar."""
         pa: float = 0.0
+        """Active power between L1 and neutral in MW."""
         qa: float = 0.0
+        """Reactive power between L1 and neutral in Mvar."""
         pb: float = 0.0
+        """Active power between L2 and neutral in MW."""
         qb: float = 0.0
+        """Reactive power between L2 and neutral in Mvar."""
         pc: float = 0.0
+        """Active power between L3 and neutral in MW."""
         qc: float = 0.0
+        """Reactive power between L3 and neutral in Mvar."""
         pab: float = 0.0
+        """Active power between L1 and L2 in MW."""
         qab: float = 0.0
+        """Reactive power between L1 and L2 in Mvar."""
         pac: float = 0.0
+        """Active power between L1 and L3 in MW."""
         qac: float = 0.0
+        """Reactive power between L1 and L3 in Mvar."""
         pbc: float = 0.0
+        """Active power between L2 and L3 in MW."""
         qbc: float = 0.0
+        """Reactive power between L2 and L3 in Mvar."""
         behaviour_sort: str = string_field()
+        """See :class:`~pyptp.elements.enums.BehaviourSort`. Empty means ``CONSTANT_CURRENT``."""
         switch_on_frequency: float = 0.0
+        """Switch-on events per minute."""
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
 
         def serialize(self) -> str:
@@ -290,6 +319,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
         gm_type_number: int = 0
         p: float = 0.0
+        """Active power in MW."""
         cos: float = 1.0
         small_appliance_phases: int = 0
         net_aware_charging: bool = False
@@ -370,14 +400,14 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class Heatpump(DataClassJsonMixin):
-        """Heatpump properties of a home/connection."""
+        """Heatpump properties of a connection."""
 
         number_of: int = 0
-        sort: str = HeatpumpSort.GROUND
+        sort: str = HeatpumpSort.AIR
         house_type: str = HouseType.UNKNOWN
         house_area: float = 125.0
         house_year: int = 0
-        cosnom: float = 0.9
+        cosnom: float = 1.0
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
 
         def serialize(self) -> str:
@@ -397,17 +427,17 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
             """Deserialize Heatpump properties from GNF format."""
             return cls(
                 number_of=data.get("NumberOf", 0),
-                sort=data.get("Sort", HeatpumpSort.GROUND),
+                sort=data.get("Sort", HeatpumpSort.AIR),
                 house_type=data.get("HouseType", HouseType.UNKNOWN),
                 house_area=data.get("HouseArea", 125.0),
                 house_year=data.get("HouseYear", 0),
-                cosnom=data.get("Cosnom", 0.9),
+                cosnom=data.get("Cosnom", 1.0),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
             )
 
     @dataclass
     class PV(DataClassJsonMixin):
-        """PV properties of a home/connection."""
+        """PV properties of a connection."""
 
         scaling: float = 1000
         panel1_pnom: float = 0
@@ -546,7 +576,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class Generation(DataClassJsonMixin):
-        """Generating properties of a home/connection."""
+        """Generating properties of a connection."""
 
         p1: float = 0.0
         q1: float = 0.0
@@ -610,7 +640,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class WindTurbine(DataClassJsonMixin):
-        """Windturbine of a home/connection."""
+        """Windturbine of a connection."""
 
         windspeed: float = 11
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
@@ -695,7 +725,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass
     class Battery(DataClassJsonMixin):
-        """Battery of a home/connections."""
+        """Battery of a connection."""
 
         pref: float = 0.0
         state_of_charge: float = 50
@@ -792,14 +822,36 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
         ExtrasNotesMixin.__post_init__(self)
         HasPresentationsMixin.__post_init__(self)
 
+    def set_cable_type(self, types: Types, name: str) -> None:
+        """Set the service cable type from the type library, by name or alias.
+
+        Raises:
+            UnknownTypeError: If the type library has no LV cable type under that name.
+
+        """
+        connection_cable = types.get_lv_cable(name)
+        self.general.cable_type = types.type_name("lv_cable", name)
+        self.connection_cable = connection_cable
+
+    def set_fuse_type(self, types: Types, name: str) -> None:
+        """Set the protection type from the type library, by name or alias.
+
+        Raises:
+            UnknownTypeError: If the type library has no LV fuse type under that name.
+
+        """
+        fuse_type = types.get_lv_fuse(name)
+        self.general.protection_type = types.type_name("lv_fuse", name)
+        self.fuse_type = fuse_type
+
     def register(self, network: NetworkLV) -> None:
-        """Register this home/connection in the given network, overwriting if GUID already exists."""
+        """Register this connection in the given network, overwriting if GUID already exists."""
         if self.general.guid in network.homes:
-            logger.critical("Connection/Home %s already exists, overwriting", self.general.guid)
+            logger.critical("Connection %s already exists, overwriting", self.general.guid)
         network.homes[self.general.guid] = self
 
     def serialize(self) -> str:
-        """Serialize the home/connection and all its subcomponents to a string."""
+        """Serialize the connection and all its subcomponents to a string."""
         lines = []
 
         # Add ProtectionType to General serialization if available
@@ -848,7 +900,7 @@ class ConnectionLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @classmethod
     def deserialize(cls, data: dict) -> ConnectionLV:
-        """Deserialize a home/connection and all its subcomponents from a dictionary."""
+        """Deserialize a connection and all its subcomponents from a dictionary."""
         general_data = data.get("general", [{}])[0] if data.get("general") else {}
         general = cls.General.deserialize(general_data)
         # For all optional/nested fields, check and use their deserialize if present

@@ -7,13 +7,14 @@ positive/negative/zero sequence analysis, and traditional power system calculati
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 from pyptp.elements.enums import VnfVersion
 from pyptp.elements.mv.properties import PropertiesMV
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
+    from pyptp._network_objects import Registrable
     from pyptp.elements.element_utils import Guid
     from pyptp.elements.mv.async_generator import AsynchronousGeneratorMV
     from pyptp.elements.mv.async_motor import AsynchronousMotorMV
@@ -66,6 +67,9 @@ if TYPE_CHECKING:
 
 class NetworkModelError(Exception):
     """Custom exception for network model errors."""
+
+
+_ElementT = TypeVar("_ElementT", bound="Registrable[NetworkMV]")
 
 
 class NetworkMV:
@@ -131,6 +135,11 @@ class NetworkMV:
         self.windturbines: dict[Guid, WindTurbineMV] = {}
         self.generators: dict[Guid, GeneratorMV] = {}
         self.dynamic_cases: list[DynamicCaseMV] = []
+
+    def add(self, element: _ElementT) -> _ElementT:
+        """Register an element in this network and return it."""
+        element.register(self)
+        return element
 
     def get_sheet_guid_by_name(self, name: str) -> str:
         """Find sheet GUID by name.

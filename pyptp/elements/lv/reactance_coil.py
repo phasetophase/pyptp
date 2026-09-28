@@ -22,7 +22,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import serialize_notes
 from pyptp.ptp_log import logger
 
@@ -44,7 +44,7 @@ class ReactanceCoilLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """Core electrical and operational properties for LV reactance coils.
 
         Encompasses connection nodes, per-conductor switch states, and type
@@ -75,19 +75,6 @@ class ReactanceCoilLV(ExtrasNotesMixin, HasPresentationsMixin):
         field_name1: str = string_field()
         field_name2: str = string_field()
         type: str = field(default="", metadata=config(encoder=encode_string))
-
-        def switches_open(self) -> bool:
-            """Return True when every L switch on both sides is open (N/PE deliberately excluded)."""
-            return not any(
-                (
-                    self.switch_state1_L1,
-                    self.switch_state1_L2,
-                    self.switch_state1_L3,
-                    self.switch_state2_L1,
-                    self.switch_state2_L2,
-                    self.switch_state2_L3,
-                )
-            )
 
         def serialize(self) -> str:
             """Serialize General properties."""

@@ -20,7 +20,7 @@ def graph_as_text(graph: Graph, filepath=None) -> str:
         lines.append(f"  {node} [{attr_str}]")
 
     lines.append("EDGES:")
-    for u, v in sorted(graph.edges()):
+    for u, v in sorted(tuple(sorted(edge)) for edge in graph.edges()):
         lines.append(f"  {u} -- {v}")
 
     if filepath:

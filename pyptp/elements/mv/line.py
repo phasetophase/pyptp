@@ -23,7 +23,7 @@ from pyptp.elements.element_utils import (
     encode_guid,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -51,7 +51,7 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """General properties for a line."""
 
         guid: Guid = field(
@@ -82,10 +82,6 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         resistance_symbol: bool = False
-
-        def switches_open(self) -> bool:
-            """Return True when both side switches are open."""
-            return not any((self.switch_state1, self.switch_state2))
 
         def serialize(self) -> str:
             """Serialize General properties following exact Delphi order."""
@@ -166,10 +162,6 @@ class LineMV(ExtrasNotesMixin, HasPresentationsMixin):
         TIk1s: float = 0
         length: float = 0
         description: str = string_field()
-
-        def __post_init__(self) -> None:
-            """Make sure the length of the line is at least 1 meter."""
-            self.length = max(self.length, 1)
 
         def serialize(self) -> str:
             """Serialize LinePart properties following exact Delphi order."""

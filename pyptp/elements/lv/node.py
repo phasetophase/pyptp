@@ -76,6 +76,7 @@ class NodeLV(ExtrasNotesMixin, HasPresentationsMixin):
         short_name: str = field(default="", metadata=config(encoder=encode_string, exclude=lambda x: x == ""))
         id: str = field(default="", metadata=config(encoder=encode_string, exclude=lambda x: x == ""))
         unom: float | int = 0.4
+        """Nominal voltage in kV."""
         function: str = field(default="", metadata=config(encoder=encode_string, exclude=lambda x: x == ""))
         earthing_configuration: str = field(
             default="",

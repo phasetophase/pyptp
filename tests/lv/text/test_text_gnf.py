@@ -47,7 +47,7 @@ class TestTextAndHyperlinkGnf(unittest.TestCase):
         )
         text.register(self.network)
 
-        HyperlinkLV(url="C:\data\Data.txt").register(self.network)
+        HyperlinkLV(url="C:\\data\\Data.txt").register(self.network)
         HyperlinkLV(url="https://example.org/x y").register(self.network)
 
     def _export_to_temp(self) -> Path:
@@ -66,7 +66,7 @@ class TestTextAndHyperlinkGnf(unittest.TestCase):
         finally:
             tmp_path.unlink(missing_ok=True)
 
-        self.assertIn("[HYPERLINKS]\n#Hyperlink URL:'C:\data\Data.txt'", content)
+        self.assertIn("[HYPERLINKS]\n#Hyperlink URL:'C:\\data\\Data.txt'", content)
         self.assertIn("#Hyperlink URL:'https://example.org/x y'", content)
         self.assertIn(
             "[TEXT]\n#General GUID:'{11111111-2222-3333-4444-555555555555}'", content
@@ -107,7 +107,7 @@ class TestTextAndHyperlinkGnf(unittest.TestCase):
 
         self.assertEqual(
             [h.url for h in imported.hyperlinks],
-            ["C:\data\Data.txt", "https://example.org/x y"],
+            ["C:\\data\\Data.txt", "https://example.org/x y"],
         )
 
         self.assertEqual(list(imported.texts), [TEXT_GUID])

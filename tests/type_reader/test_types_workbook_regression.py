@@ -65,25 +65,23 @@ class TestTypesWorkbookRegression(unittest.TestCase):
         self.assertIsNone(cable.cable_type)
         self.assertEqual(cable.cable_part.type, "")
 
-        cable.set_cable(types, cable_key)
+        cable.set_cable_type(types, cable_key)
         self.assertIsNotNone(cable.cable_type)
         expected_cable = types.get_lv_cable(cable_key)
-        self.assertIsNotNone(expected_cable)
-        self.assertIs(cable.cable_type, expected_cable)
+        self.assertEqual(cable.cable_type, expected_cable)
         if cable.cable_type:
             ct_typed = cast("LVCableType", cable.cable_type)
-            self.assertEqual(cable.cable_part.type, ct_typed.short_name)
+            self.assertEqual(cable.cable_part.type, cable_key)
             self._assert_lv_cable_type_filled(ct_typed)
 
         # Fuse: starts without type, then apply (use Name-only)
         fuse = FuseLV(general=FuseLV.General(name="F", type=str(fuse_key)))
         self.assertIsNone(fuse.type)
 
-        fuse.set_fuse_type(types, str(fuse_key))
+        fuse.set_type(types, str(fuse_key))
         self.assertIsNotNone(fuse.type)
         expected_fuse = types.get_lv_fuse(str(fuse_key))
-        self.assertIsNotNone(expected_fuse)
-        self.assertIs(fuse.type, expected_fuse)
+        self.assertEqual(fuse.type, expected_fuse)
         if fuse.type:
             ft_typed = cast("LVFuseType", fuse.type)
             self._assert_lv_fuse_type_filled(ft_typed)

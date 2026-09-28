@@ -20,7 +20,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -53,7 +53,7 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """Core electrical and operational properties for MV links."""
 
         guid: Guid = field(
@@ -85,10 +85,6 @@ class LinkMV(ExtrasNotesMixin, HasPresentationsMixin):
         limited: bool = False
         inom: float = 0.0
         ik1s: float = 0.0
-
-        def switches_open(self) -> bool:
-            """Return True when both side switches are open."""
-            return not any((self.switch_state1, self.switch_state2))
 
         def serialize(self) -> str:
             """Serialize link properties to VNF format.

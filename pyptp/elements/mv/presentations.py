@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
@@ -19,8 +20,14 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.enums import NodePresentationSymbol
-from pyptp.elements.presentation_helpers import clamp_point_to_node, point_in_node_bounds
+from pyptp.elements.enums import NodePresentationSymbol, SymbolSegment
+from pyptp.elements.presentation_helpers import (
+    branch_polyline,
+    clamp_point_to_node,
+    node_presentations_on_sheet,
+    point_in_node_bounds,
+    route_corners,
+)
 from pyptp.elements.serialization_helpers import (
     serialize_properties,
     write_boolean,
@@ -30,6 +37,11 @@ from pyptp.elements.serialization_helpers import (
     write_integer_no_skip,
     write_quote_string,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pyptp.elements.mv.node import NodeMV
 
 
 @dataclass_json
@@ -208,6 +220,35 @@ class BranchPresentation(DataClassJsonMixin):
         default_factory=list,
         metadata=config(encoder=encode_int_coords, decoder=decode_int_coords),
     )
+
+    @classmethod
+    def between(
+        cls,
+        node1: NodeMV,
+        node2: NodeMV,
+        sheet_guid: Guid,
+        via: Sequence[tuple[int, int]] = (),
+        *,
+        symbol_segment: SymbolSegment | int = SymbolSegment.MIDDLE,
+    ) -> BranchPresentation:
+        """Build the presentation of a branch between two nodes on a sheet.
+
+        The ends are placed on the node symbols. ``via`` gives the corners of the route,
+        from node 1 to node 2. ``symbol_segment`` picks the segment that gets the branch
+        symbol and the middle text, as an index from node 1 (``-1`` is the last segment).
+
+        Raises:
+            ValueError: If a node is not on the sheet, or ``symbol_segment`` is outside
+                the route.
+
+        """
+        presentation1, presentation2 = node_presentations_on_sheet(node1, node2, sheet_guid)
+        first_corners, second_corners = route_corners(presentation1, presentation2, via, symbol_segment)
+        return cls(sheet=sheet_guid, first_corners=first_corners, second_corners=second_corners)
+
+    def polyline(self) -> IntCoords:
+        """Return the drawn route as one ordered list, from node 1 to node 2."""
+        return branch_polyline(self.first_corners, self.second_corners)
 
     def serialize(self) -> str:
         """Serialize BranchPresentation properties."""

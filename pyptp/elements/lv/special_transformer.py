@@ -17,7 +17,7 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.enums import SpecialTransformerSort
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -45,7 +45,7 @@ class SpecialTransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """General properties for a special transformer."""
 
         guid: Guid = field(

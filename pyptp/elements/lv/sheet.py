@@ -13,7 +13,7 @@ from uuid import uuid4
 
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
-from pyptp.elements.color_utils import DelphiColor
+from pyptp.elements.color_utils import CL_SILVER, DelphiColor
 from pyptp.elements.element_utils import (
     Guid,
     decode_guid,
@@ -60,7 +60,7 @@ class SheetLV:
             metadata=config(encoder=encode_guid, decoder=decode_guid),
         )
         name: str = string_field()
-        color: DelphiColor = field(default=DelphiColor("$ff00ff"))
+        color: DelphiColor = field(default=CL_SILVER)
 
         coarse_grid_width: int = optional_field(0)
         coarse_grid_height: int = optional_field(0)

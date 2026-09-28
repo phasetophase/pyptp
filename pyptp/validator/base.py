@@ -3,8 +3,8 @@
 Typical workflow for custom rules:
 
 1. Subclass :class:`Validator`.
-2. Set a unique ``name`` and the ``applies_to`` network types (``{"LS"}``,
-   ``{"MS"}``, or both).
+2. Set a unique ``name`` and the ``applies_to`` network types (``("LV",)``,
+   ``("MV",)``, or ``("LV", "MV")``).
 3. Inspect the provided network in :meth:`Validator.validate` and return a list
    of :class:`Issue` instances describing any problems you found.
 4. Wrap the returned issues in a :class:`Report` if you need to serialise or
@@ -19,8 +19,12 @@ from enum import Enum, Flag, auto
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from pyptp._network_objects import NetworkObject
     from pyptp.network_lv import NetworkLV
     from pyptp.network_mv import NetworkMV
+
+_LIMIT_TOLERANCE = 1e-8
+"""Relative margin by which a value may pass a limit and still load."""
 
 
 class ValidatorCategory(Flag):
@@ -179,6 +183,30 @@ class Validator(ABC):
         if not hasattr(cls, "categories"):
             msg = f"{cls.__name__} must define 'categories' class attribute"
             raise TypeError(msg)
+
+    def issue(
+        self,
+        element: NetworkObject,
+        code: str,
+        message: str,
+        *,
+        severity: Severity = Severity.ERROR,
+        **details: object,
+    ) -> Issue:
+        """Return an issue about ``element``, raised by this validator.
+
+        ``object_type`` is the element's class name without ``LV`` or ``MV``, ``object_id`` its GUID.
+        Other keyword arguments become the issue's ``details``.
+        """
+        return Issue(
+            code=code,
+            message=message,
+            severity=severity,
+            object_type=type(element).__name__.removesuffix("LV").removesuffix("MV"),
+            object_id=element.general.guid,
+            validator=self.name,
+            details=details or None,
+        )
 
     @abstractmethod
     def validate(self, network: NetworkLV | NetworkMV) -> list[Issue]:

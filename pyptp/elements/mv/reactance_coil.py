@@ -14,7 +14,7 @@ from uuid import uuid4
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
 from pyptp.elements.element_utils import NIL_GUID, Guid, decode_guid, encode_guid, string_field
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -46,7 +46,7 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """Core electrical and operational properties for MV reactance coils.
 
         Encompasses connection nodes, switch states, subnet border designation,
@@ -77,10 +77,6 @@ class ReactanceCoilMV(ExtrasNotesMixin, HasPresentationsMixin):
         maintenance_duration: float = 0.0
         maintenance_cancel_duration: float = 0.0
         type: str = string_field()
-
-        def switches_open(self) -> bool:
-            """Return True when both side switches are open."""
-            return not any((self.switch_state1, self.switch_state2))
 
         def serialize(self) -> str:
             """Serialize General properties."""
