@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from openpyxl import load_workbook
 
-from pyptp.ptp_log import logger
+from .exceptions import MissingSheetError
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -74,13 +74,18 @@ def read_sheet(
     *,
     skiprows: Iterable[int] | None = (),
 ) -> list[dict[str, object]]:
-    """Read a sheet into a list of header->value row dicts; on failure returns an empty list."""
+    """Read a sheet into a list of header->value row dicts.
+
+    Raises:
+        MissingSheetError: If the workbook has no sheet by that name.
+
+    """
     skip = set(skiprows or ())
-    wb = None
+    wb = load_workbook(path, read_only=True, data_only=True)
     try:
-        wb = load_workbook(path, read_only=True, data_only=True)
         if sheet_name not in wb.sheetnames:
-            return []
+            msg = f"Workbook {path} has no sheet named {sheet_name!r}"
+            raise MissingSheetError(msg)
         ws = wb[sheet_name]
         header: list[object] | None = None
         rows: list[dict[str, object]] = []
@@ -92,12 +97,8 @@ def read_sheet(
                 continue
             rows.append({str(col): val for col, val in zip(header, values, strict=False) if col is not None})
         return rows
-    except Exception as exc:  # noqa: BLE001
-        logger.debug("Failed reading sheet %s from %s: %s", sheet_name, path, exc)
-        return []
     finally:
-        if wb is not None:
-            wb.close()
+        wb.close()
 
 
 def normalize_rows(
@@ -149,12 +150,16 @@ def read_type_sheet(
     A unit row (``kV``, ``MVA``, ...) is detected by content (an empty
     ``Name``/``ShortName`` cell in the first row), not by position, so sheets
     without one keep their first data row.
+
+    Raises:
+        MissingSheetError: If the workbook has no sheet by that name.
+
     """
     rows = normalize_rows(read_sheet(path, sheet_name=sheet_name, skiprows=()), rename=rename)
     return _drop_leading_unit_row(rows)
 
 
-def clean_row_dict(row: dict[str, object]) -> dict[str, object]:
+def clean_row_dict(row: dict[str, object]) -> TypeRow:
     """Return a row dict with None values filtered out and keys coerced to str.
 
     Lookups on the result ignore case, so ``R_C`` in the workbook satisfies a

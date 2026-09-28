@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 
 import pandas as pd
 
-from pyptp.type_reader import Types
+from pyptp.type_reader import Types, UnknownTypeError
 
 
 class TestLVCableLoader(unittest.TestCase):
@@ -33,14 +33,12 @@ class TestLVCableLoader(unittest.TestCase):
                 aliases.to_excel(writer, sheet_name="Cable alias")
 
             types = Types(str(path))
-            cable_by_short = types.get_lv_cable("C1")
-            cable_by_name = types.get_lv_cable("Cable One")
-            cable_by_alias = types.get_lv_cable("CABLE_ALIAS")
 
-            # Name should resolve, alias should resolve, shortname should NOT (name-only policy)
-            self.assertIsNotNone(cable_by_name)
-            self.assertIsNotNone(cable_by_alias)
-            self.assertIsNone(cable_by_short)
+            # Name and alias resolve; a ShortName does not (name-only policy)
+            self.assertEqual(types.get_lv_cable("Cable One").short_name, "C1")
+            self.assertEqual(types.get_lv_cable("CABLE_ALIAS").short_name, "C1")
+            with self.assertRaises(UnknownTypeError):
+                types.get_lv_cable("C1")
 
     def test_lv_cable_workbook_without_unit_row_keeps_first_row(self) -> None:
         # Regression: with no unit row and multiple data rows, the first cable
@@ -59,8 +57,8 @@ class TestLVCableLoader(unittest.TestCase):
                 cable.to_excel(writer, sheet_name="Cable", index=False)
 
             types = Types(str(path))
-            self.assertIsNotNone(types.get_lv_cable("Cable One"))
-            self.assertIsNotNone(types.get_lv_cable("Cable Two"))
+            self.assertEqual(types.get_lv_cable("Cable One").short_name, "C1")
+            self.assertEqual(types.get_lv_cable("Cable Two").short_name, "C2")
 
 
 if __name__ == "__main__":

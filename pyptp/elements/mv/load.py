@@ -80,7 +80,9 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         maintenance_cancel_duration: float = 0.0
         not_preferred: bool = False
         P: float = 0.0
+        """Active power in MW."""
         Q: float = 0.0
+        """Reactive power in Mvar."""
         unbalanced: bool = False
         delta: bool = False
         fp1: float = 0.0

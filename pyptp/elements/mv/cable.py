@@ -21,10 +21,11 @@ from pyptp.elements.element_utils import (
     decode_guid,
     encode_float_coords,
     encode_guid,
+    name_or_guid,
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -45,8 +46,12 @@ if TYPE_CHECKING:
     from pyptp.elements.mv.shared import CableType, GeoCablePart
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
+    from pyptp.type_reader import Types
 
     from .presentations import BranchPresentation
+
+MIN_PART_LENGTH_M = 1.0
+"""Shortest cable part length, in metres."""
 
 
 @dataclass_json
@@ -56,7 +61,7 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """General properties for a cable."""
 
         guid: Guid = field(
@@ -95,10 +100,6 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
         dyn_neglect_capacitance: bool = False
         node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
-
-        def switches_open(self) -> bool:
-            """Return True when both side switches are open."""
-            return not any((self.switch_state1, self.switch_state2))
 
         def serialize(self) -> str:
             """Serialize General properties."""
@@ -195,6 +196,7 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Properties for a part of the cable."""
 
         length: float = 1.0
+        """Length in metres."""
         cable_type: str = string_field()
         year: str = string_field()
         parallel_cable_count: int = 1
@@ -223,10 +225,6 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
                 ampacity_factor=data.get("AmpacityFactor", 1),
                 year=data.get("Year", ""),
             )
-
-        def __post_init__(self) -> None:
-            """Make sure length is always at least 1."""
-            self.length = max(self.length, 1.0)
 
     @dataclass_json
     @dataclass
@@ -284,9 +282,9 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
             )
 
     general: General
-    cable_parts: list[CablePart]
-    cable_types: list[CableType]
-    presentations: list[BranchPresentation]
+    cable_parts: list[CablePart] = field(default_factory=list)
+    cable_types: list[CableType] = field(default_factory=list)
+    presentations: list[BranchPresentation] = field(default_factory=list)
     geo_cable_parts: list[GeoCablePart] = field(default_factory=list)
     joints: list[Joint] = field(default_factory=list)
     geo: list[Geo] = field(default_factory=list)
@@ -296,6 +294,39 @@ class CableMV(ExtrasNotesMixin, HasPresentationsMixin):
         Use ``geo_cable_parts`` for per-cable-part geography instead.
         This field will be removed in a future version.
     """
+
+    def __post_init__(self) -> None:
+        """Initialize mixins and lengthen cable parts that are too short."""
+        ExtrasNotesMixin.__post_init__(self)
+        HasPresentationsMixin.__post_init__(self)
+        for number, part in enumerate(self.cable_parts, start=1):
+            self._lengthen_short_part(part, number)
+
+    def add_part(self, types: Types, name: str, length: float) -> CableMV.CablePart:
+        """Append a cable part of ``length`` metres with the named type, and its type data.
+
+        Raises:
+            UnknownTypeError: If the type library has no MV cable type under that name.
+
+        """
+        cable_type = types.get_mv_cable(name)
+        part = self.CablePart(length=length, cable_type=types.type_name("mv_cable", name))
+        self.cable_parts.append(part)
+        self.cable_types.append(cable_type)
+        self._lengthen_short_part(part, len(self.cable_parts))
+        return part
+
+    def _lengthen_short_part(self, part: CableMV.CablePart, number: int) -> None:
+        if part.length >= MIN_PART_LENGTH_M:
+            return
+        logger.warning(
+            "Cable %s part %d is %s m, lengthened to %s m",
+            name_or_guid(self.general),
+            number,
+            part.length,
+            MIN_PART_LENGTH_M,
+        )
+        part.length = MIN_PART_LENGTH_M
 
     def register(self, network: NetworkMV) -> None:
         """Will add cable to the network."""

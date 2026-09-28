@@ -1,6 +1,8 @@
 """Tests for TSourceLS behavior using the new registration system."""
 
+import tempfile
 import unittest
+from pathlib import Path
 from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
@@ -269,6 +271,42 @@ class TestSourceRegistration(unittest.TestCase):
 
         # Verify failure frequency is serialized
         self.assertIn("FailureFrequency:0.01", serialized)
+
+
+class TestSourceVoltageSettings(unittest.TestCase):
+    def test_voltage_settings_survive_a_round_trip(self) -> None:
+        network = NetworkLV()
+        sheet = network.add(SheetLV(SheetLV.General(name="Blad")))
+        node = network.add(
+            NodeLV(
+                NodeLV.General(name="Rail", unom=10.0),
+                [NodePresentation(sheet=sheet.general.guid, x=100, y=100)],
+            )
+        )
+        source = network.add(
+            SourceLV(
+                general=SourceLV.General(
+                    name="Voeding",
+                    node=node.general.guid,
+                    umin=9.8,
+                    umax=10.4,
+                    uref=10.2,
+                    sk2nom=250,
+                ),
+                presentations=[],
+            )
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "source.gnf"
+            network.save(path)
+            reloaded = NetworkLV.from_file(path)
+
+        loaded = reloaded.sources[source.general.guid]
+        self.assertEqual(loaded.general.umin, 9.8)
+        self.assertEqual(loaded.general.umax, 10.4)
+        self.assertEqual(loaded.general.uref, 10.2)
+        self.assertEqual(loaded.general.sk2nom, 250)
 
 
 if __name__ == "__main__":

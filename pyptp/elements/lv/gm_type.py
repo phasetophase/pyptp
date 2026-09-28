@@ -19,7 +19,6 @@ from pyptp.elements.serialization_helpers import (
     write_integer,
     write_quote_string,
 )
-from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from pyptp.network_lv import NetworkLV
@@ -234,10 +233,23 @@ class GMTypeLV:
         )
 
     def register(self, network: NetworkLV) -> None:
-        """Register GM type in network by profile number."""
-        if self.general.number in network.gmtypes:
-            logger.critical("GM type %s already exists, overwriting", self.general.number)
-        network.gmtypes[self.general.number] = self
+        """Register this GM type in the network under its number.
+
+        A GM type with number 0 gets the number after the highest one in use.
+
+        Raises:
+            ValueError: If the number is already in use.
+
+        """
+        number = self.general.number
+        if number == 0:
+            number = max(network.gmtypes, default=0) + 1
+            self.general.number = number
+        elif number in network.gmtypes:
+            msg = f"GM type number {number} is already in use"
+            raise ValueError(msg)
+
+        network.gmtypes[number] = self
 
     def serialize(self) -> str:
         """Serialize GM type to GNF format."""

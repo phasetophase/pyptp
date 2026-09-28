@@ -1,7 +1,6 @@
-"""Presentations are required for all elements.
+"""Every node, branch and element gets a presentation on a sheet.
 
-Networks must be valid both topologically and schematically to open in Gaia/Vision.
-Presentations don't affect calculations but are mandatory for file validity.
+pyptp does not add one for you yet, so give each object one when you create it.
 """
 
 from pyptp import NetworkMV, configure_logging
@@ -57,7 +56,7 @@ source = SourceMV(
 source.register(network)
 
 load = LoadMV(
-    LoadMV.General(node=node2.general.guid, P=50.0, Q=25.0),
+    LoadMV.General(node=node2.general.guid, P=0.05, Q=0.025),
     presentations=[ElementPresentation(sheet=sheet_guid, x=300, y=50)],
 )
 load.register(network)

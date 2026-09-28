@@ -12,6 +12,7 @@ from pyptp.elements.mv.presentations import BranchPresentation, NodePresentation
 from pyptp.elements.mv.shared import CableType
 from pyptp.elements.mv.sheet import SheetMV
 from pyptp.network_mv import NetworkMV
+from pyptp.type_reader import Types
 
 
 class TestCableRegistration(unittest.TestCase):
@@ -282,6 +283,19 @@ class TestCableRegistration(unittest.TestCase):
             self.network.cables[self.cable_guid].general.name, "SecondCable"
         )
 
+    def test_new_cable_starts_without_parts_or_drawings(self) -> None:
+        """A cable needs only its general data, parts are added afterwards."""
+        cable = CableMV(CableMV.General(name="Kerkplein - Molenweg"))
+
+        self.assertEqual(cable.cable_parts, [])
+        self.assertEqual(cable.cable_types, [])
+        self.assertEqual(cable.presentations, [])
+
+    def test_presentations_none_becomes_an_empty_list(self) -> None:
+        cable = CableMV(CableMV.General(), presentations=None)  # type: ignore[arg-type]
+
+        self.assertEqual(cable.presentations, [])
+
     def test_minimal_cable_serialization(self) -> None:
         """Test that minimal cables serialize correctly with only required fields."""
         general = CableMV.General(
@@ -325,28 +339,50 @@ class TestCableRegistration(unittest.TestCase):
         self.assertNotIn("#Extra", serialized)
         self.assertNotIn("#Note", serialized)
 
-    def test_cable_length_validation(self) -> None:
-        """Test that cable part length is validated to be at least 1 meter."""
-        general = CableMV.General(
-            guid=self.cable_guid,
-            name="LengthTestCable",
-            node1=self.node1_guid,
-            node2=self.node2_guid,
-        )
-        cable_part = CableMV.CablePart(
-            length=0.5, cable_type="TestType"
-        )  # Length less than 1
+    def test_a_part_under_one_metre_is_raised_with_a_warning(self) -> None:
+        general = CableMV.General(guid=self.cable_guid, name="LengthTestCable")
+        cable_part = CableMV.CablePart(length=0.4, cable_type="TestType")
         cable_type = CableType(short_name="TestType", unom=10.0)
-        presentation = BranchPresentation(sheet=self.sheet_guid)
 
-        cable = CableMV(general, [cable_part], [cable_type], [presentation])
-        cable.register(self.network)
+        with self.assertLogs("pyptp", level="WARNING") as logs:
+            cable = CableMV(general, [cable_part], [cable_type])
 
-        # Length should be adjusted to 1
         self.assertEqual(cable.cable_parts[0].length, 1.0)
+        self.assertIn("LengthTestCable", logs.output[0])
+        self.assertIn("0.4", logs.output[0])
+        self.assertIn("Length:1", cable.serialize())
 
-        serialized = cable.serialize()
-        self.assertIn("Length:1", serialized)
+    def test_a_short_part_read_from_a_file_is_raised_with_a_warning(self) -> None:
+        data = {
+            "general": [{"GUID": str(self.cable_guid), "Name": "Kort"}],
+            "cable_parts": [{"Length": 0.25, "CableType": "TestType"}],
+        }
+
+        with self.assertLogs("pyptp", level="WARNING") as logs:
+            cable = CableMV.deserialize(data)
+
+        self.assertEqual(cable.cable_parts[0].length, 1.0)
+        self.assertIn("Kort", logs.output[0])
+        self.assertIn("0.25", logs.output[0])
+
+    def test_add_part_raises_a_short_part_with_a_warning(self) -> None:
+        types = Types()
+        cable = CableMV(general=CableMV.General(name="Aftakking"))
+
+        with self.assertLogs("pyptp", level="WARNING") as logs:
+            part = cable.add_part(types, "3*150 AL Kudi 6/10", 0.4)
+
+        self.assertEqual(part.length, 1.0)
+        self.assertIn("Aftakking", logs.output[0])
+        self.assertIn("0.4", logs.output[0])
+
+    def test_a_part_of_one_metre_or_more_is_kept(self) -> None:
+        cable_part = CableMV.CablePart(length=1.5, cable_type="TestType")
+
+        with self.assertNoLogs("pyptp", level="WARNING"):
+            cable = CableMV(CableMV.General(), [cable_part], [CableType()])
+
+        self.assertEqual(cable.cable_parts[0].length, 1.5)
 
     def test_cable_with_multiple_cable_parts_serializes_correctly(self) -> None:
         """Test that cables with multiple cable parts serialize correctly."""

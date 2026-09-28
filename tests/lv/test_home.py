@@ -727,6 +727,28 @@ class TestTHomeLS(unittest.TestCase):
         loaded = reloaded.homes[home_guid]
         self.assertEqual([note.text for note in loaded.notes], ["line1", "line2"])
 
+    def test_an_empty_heatpump_section_is_air_at_unit_power_factor(self) -> None:
+        heatpump = ConnectionLV.Heatpump.deserialize({})
+
+        self.assertEqual(heatpump.sort, "Air")
+        self.assertEqual(heatpump.cosnom, 1.0)
+
+    def test_heatpump_sort_and_cosnom_survive_saving_and_loading(self) -> None:
+        network, connection_guid = self._build_saveable_network([])
+        network.homes[connection_guid].heat_pump = ConnectionLV.Heatpump(
+            number_of=1, sort="Ground", cosnom=0.9
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "heatpump.gnf"
+            network.save(str(path))
+            reloaded = NetworkLV.from_file(str(path))
+
+        heat_pump = reloaded.homes[connection_guid].heat_pump
+        assert heat_pump is not None
+        self.assertEqual(heat_pump.sort, "Ground")
+        self.assertEqual(heat_pump.cosnom, 0.9)
+
 
 if __name__ == "__main__":
     unittest.main()

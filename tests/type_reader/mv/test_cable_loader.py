@@ -3,12 +3,10 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import cast
 
 import pandas as pd
 
-from pyptp.elements.mv.shared import CableType as MVCableType
-from pyptp.type_reader import Types
+from pyptp.type_reader import Types, UnknownTypeError
 
 
 class TestMVCableLoader(unittest.TestCase):
@@ -35,15 +33,13 @@ class TestMVCableLoader(unittest.TestCase):
 
             types = Types(str(path))
             # ShortName should not resolve under name-only policy
-            mv_cable = types.get_mv_cable("MC1")
-            self.assertIsNone(mv_cable)
+            with self.assertRaises(UnknownTypeError):
+                types.get_mv_cable("MC1")
             # Name should resolve and set info to Name
             mv_cable_by_name = types.get_mv_cable("MV Cable")
-            self.assertIsNotNone(mv_cable_by_name)
-            if mv_cable_by_name:
-                mv_cable_typed = cast("MVCableType", mv_cable_by_name)
-                self.assertEqual(mv_cable_typed.info, "MV Cable")
-            self.assertIsNotNone(types.get_mv_cable("MV_CABLE_ALIAS"))
+            self.assertEqual(mv_cable_by_name.info, "MV Cable")
+            by_alias = types.get_mv_cable("MV_CABLE_ALIAS")
+            self.assertEqual(by_alias, mv_cable_by_name)
 
 
 if __name__ == "__main__":

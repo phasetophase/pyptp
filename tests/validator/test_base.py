@@ -4,7 +4,9 @@ import json
 import unittest
 
 from pyptp.elements.element_utils import Guid
-from pyptp.validator import Issue, Report, Severity
+from pyptp.elements.lv.node import NodeLV
+from pyptp.elements.mv.node import NodeMV
+from pyptp.validator import Issue, Report, Severity, Validator, ValidatorCategory
 
 
 class TestValidatorBase(unittest.TestCase):
@@ -116,6 +118,46 @@ class TestValidatorBase(unittest.TestCase):
         ]
         report = Report(issues=issues)
         self.assertEqual(report.summary(), "Found 3 issues: 2 error, 1 warning")
+
+
+class _Example(Validator):
+    name = "example"
+    description = "Example validator"
+    applies_to = ("LV", "MV")
+    categories = ValidatorCategory.CORE
+
+    def validate(self, network: object) -> list[Issue]:  # noqa: ARG002
+        return []
+
+
+class TestValidatorIssue(unittest.TestCase):
+    """Validator.issue() fills the fields that follow from the validator and the element."""
+
+    def test_fields_from_validator_and_element(self) -> None:
+        node = NodeLV(general=NodeLV.General(name="Rail"), presentations=[])
+
+        issue = _Example().issue(node, "no_voltage", "Node has no voltage", unom=0)
+
+        self.assertEqual(issue.validator, "example")
+        self.assertEqual(issue.object_type, "Node")
+        self.assertEqual(issue.object_id, node.general.guid)
+        self.assertEqual(issue.severity, Severity.ERROR)
+        self.assertEqual(issue.details, {"unom": 0})
+
+    def test_object_type_is_the_same_for_lv_and_mv(self) -> None:
+        node = NodeMV(general=NodeMV.General(), presentations=[])
+
+        issue = _Example().issue(node, "code", "message")
+
+        self.assertEqual(issue.object_type, "Node")
+
+    def test_severity_and_no_details(self) -> None:
+        node = NodeLV(general=NodeLV.General(), presentations=[])
+
+        issue = _Example().issue(node, "code", "message", severity=Severity.WARNING)
+
+        self.assertEqual(issue.severity, Severity.WARNING)
+        self.assertIsNone(issue.details)
 
 
 if __name__ == "__main__":

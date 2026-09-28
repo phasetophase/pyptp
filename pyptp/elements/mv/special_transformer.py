@@ -10,7 +10,7 @@ from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
 from pyptp.elements.element_utils import NIL_GUID, Guid, decode_guid, encode_guid, string_field
 from pyptp.elements.enums import SpecialTransformerSort, SpecialVoltageControlSort, SpecialVoltageControlStatus
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -41,7 +41,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """General properties for a special transformer."""
 
         guid: Guid = field(

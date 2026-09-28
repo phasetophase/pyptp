@@ -8,7 +8,7 @@ for accurate unbalanced load flow analysis in LV networks.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from dataclasses_json import DataClassJsonMixin, config
@@ -21,7 +21,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -46,6 +46,9 @@ if TYPE_CHECKING:
     from .presentations import BranchPresentation
     from .shared import CableType, CurrentType, EfficiencyType, Fields, FuseType, GeoCablePart
 
+MIN_PART_LENGTH_M = 0.5
+"""Shortest cable part length, in metres."""
+
 
 @dataclass
 class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
@@ -57,7 +60,7 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
     """
 
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """Core electrical and operational properties for LV cables.
 
         Encompasses all essential cable characteristics including connection
@@ -125,27 +128,6 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
         protection_type2_h2: str = string_field()
         protection_type2_h3: str = string_field()
         protection_type2_h4: str = string_field()
-
-        def switches_open(self) -> bool:
-            """Return True when every L and h switch on both sides is open (N/PE deliberately excluded)."""
-            return not any(
-                (
-                    self.switch_state1_L1,
-                    self.switch_state1_L2,
-                    self.switch_state1_L3,
-                    self.switch_state1_h1,
-                    self.switch_state1_h2,
-                    self.switch_state1_h3,
-                    self.switch_state1_h4,
-                    self.switch_state2_L1,
-                    self.switch_state2_L2,
-                    self.switch_state2_L3,
-                    self.switch_state2_h1,
-                    self.switch_state2_h2,
-                    self.switch_state2_h3,
-                    self.switch_state2_h4,
-                )
-            )
 
         def serialize(self) -> str:
             """Serialize cable general properties to GNF format.
@@ -284,6 +266,7 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
         """
 
         length: float | int = 0.5
+        """Length in metres."""
         type: str = string_field()
 
         def serialize(self) -> str:
@@ -542,25 +525,16 @@ class CableLV(ExtrasNotesMixin, HasPresentationsMixin):
         ExtrasNotesMixin.__post_init__(self)
         HasPresentationsMixin.__post_init__(self)
 
-    def set_cable(self, default_types: Types, cable_type: str) -> None:
-        """Set `cable_type` from the Excel-backed types provider by name.
+    def set_cable_type(self, types: Types, name: str) -> None:
+        """Set the cable type from the type library, by name or alias.
 
-        Args:
-            default_types: Type library containing cable specifications.
-            cable_type: Cable type identifier to apply to this cable.
-
-        Warns:
-            Logs critical warning if specified cable type not found in library.
+        Raises:
+            UnknownTypeError: If the type library has no LV cable type under that name.
 
         """
-        obj = default_types.get_lv_cable(cable_type)
-        if obj is None:
-            logger.critical("Cabletype %s not found", cable_type)
-            return
-
-        typed = cast("CableType", obj)
-        self.cable_part.type = typed.short_name or cable_type
-        self.cable_type = typed
+        cable_type = types.get_lv_cable(name)
+        self.cable_part.type = types.type_name("lv_cable", name)
+        self.cable_type = cable_type
 
     def register(self, network: NetworkLV) -> None:
         """Register cable in LV network with GUID-based indexing.

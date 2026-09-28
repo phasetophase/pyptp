@@ -4,8 +4,9 @@ Demonstrates how to convert electrical networks to NetworkX graphs
 for analysis and visualization.
 
 Graph Structure:
-- All network elements (nodes, branches, elements) become graph NODES
-- Edges represent connections between elements
+- Every network object (nodes, branches, elements, secondaries) becomes a graph NODE
+- Edges follow the connection path: node - secondaries - branch/element
+- An open side has no edge towards its node (pass respect_switch_states=False to ignore this)
 - Each graph node has a 'type' attribute with the element class name
 """
 

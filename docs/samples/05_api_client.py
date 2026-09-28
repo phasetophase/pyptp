@@ -22,7 +22,3 @@ client = Client.for_environment(
     client_id="your-client-id",
     client_secret="your-secret",
 )
-
-# Using the client (future implementation)
-# token = client.get_token()
-# networks = client.list_networks()

@@ -1,6 +1,8 @@
 """Tests for TLineMS behavior using the new registration system."""
 
+import tempfile
 import unittest
+from pathlib import Path
 from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
@@ -373,29 +375,26 @@ class TestLineRegistration(unittest.TestCase):
         self.assertIn("Color:$FF0000", serialized)
         self.assertIn("Color:$00FF00", serialized)
 
-    def test_linepart_length_validation(self) -> None:
-        """Test that line part length is validated to be at least 1 meter."""
+    def test_a_line_part_under_1_m_keeps_its_length(self) -> None:
         general = LineMV.General(
             guid=self.line_guid,
             name="LengthTestLine",
             node1=self.node1_guid,
             node2=self.node2_guid,
         )
-
-        # Test with length less than 1
-        linepart = LineMV.LinePart(length=0.5, description="Short Part")
-        presentation = BranchPresentation(sheet=self.sheet_guid)
-
-        line = LineMV(
-            general, [linepart], joints=[], geo=[], presentations=[presentation]
+        linepart = LineMV.LinePart(
+            X=0.01, inom=200, length=0.4, description="Short Part"
         )
+        presentation = BranchPresentation(sheet=self.sheet_guid)
+        line = LineMV(general, [linepart], presentations=[presentation])
         line.register(self.network)
 
-        # Length should be adjusted to 1
-        self.assertEqual(line.lineparts[0].length, 1.0)
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "short_line.vnf"
+            self.network.save(str(path))
+            reloaded = NetworkMV.from_file(str(path))
 
-        serialized = line.serialize()
-        self.assertIn("Length:1", serialized)
+        self.assertEqual(reloaded.lines[self.line_guid].lineparts[0].length, 0.4)
 
     def test_line_with_corner_coordinates_serializes_correctly(self) -> None:
         """Test that lines with corner coordinates serialize correctly."""

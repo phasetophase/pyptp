@@ -7,13 +7,14 @@ complex impedance modeling, and unbalanced load flow analysis.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 from pyptp.elements.enums import GnfVersion
 from pyptp.elements.lv.properties import PropertiesLV
 from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
+    from pyptp._network_objects import Registrable
     from pyptp.elements.element_utils import Guid
     from pyptp.elements.lv.async_generator import AsynchronousGeneratorLV
     from pyptp.elements.lv.async_motor import AsynchronousMotorLV
@@ -50,6 +51,9 @@ if TYPE_CHECKING:
 
 class NetworkModelError(Exception):
     """Custom exception for network model errors."""
+
+
+_ElementT = TypeVar("_ElementT", bound="Registrable[NetworkLV]")
 
 
 class NetworkLV:
@@ -94,6 +98,11 @@ class NetworkLV:
         self.profile_files: list[ProfileFileLV] = []
         self.measurement_files: list[MeasurementFileLV] = []
         self.selections: list[SelectionLV] = []
+
+    def add(self, element: _ElementT) -> _ElementT:
+        """Register an element in this network and return it."""
+        element.register(self)
+        return element
 
     def get_transformer(self, guid: str) -> TransformerLV | None:
         """Find transformer by GUID string.

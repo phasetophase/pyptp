@@ -39,12 +39,12 @@ class TestApplyTypesOnElements(unittest.TestCase):
             types = Types(str(path))
 
             # Apply by Name (name-only resolution)
-            cable.set_cable(types, "XPLE 4x150")
+            cable.set_cable_type(types, "XPLE 4x150")
 
         self.assertIsNotNone(cable.cable_type)
         if cable.cable_type:
             self.assertEqual(cable.cable_type.short_name, "XPLE150")
-        self.assertEqual(cable.cable_part.type, "XPLE150")
+        self.assertEqual(cable.cable_part.type, "XPLE 4x150")
 
     def test_lv_fuse_no_type_then_apply(self) -> None:
         # Start with a fuse that has no FuseType object
@@ -69,7 +69,7 @@ class TestApplyTypesOnElements(unittest.TestCase):
             types = Types(str(path))
 
             # Apply by name
-            fuse.set_fuse_type(types, "16A")
+            fuse.set_type(types, "16A")
 
         self.assertIsNotNone(fuse.type)
         if fuse.type:

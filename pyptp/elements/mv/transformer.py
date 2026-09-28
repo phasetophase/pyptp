@@ -21,7 +21,7 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.enums import EnclosureType, InsulationCondition, VoltageControlSort, VoltageControlStatus
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -41,6 +41,7 @@ from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
+    from pyptp.type_reader import Types
 
     from .presentations import BranchPresentation
 
@@ -57,7 +58,7 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """Core electrical and operational properties for MV transformers."""
 
         guid: Guid = field(
@@ -539,6 +540,17 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Initialize mixins for extras, notes, and presentations."""
         ExtrasNotesMixin.__post_init__(self)
         HasPresentationsMixin.__post_init__(self)
+
+    def set_type(self, types: Types, name: str) -> None:
+        """Set the transformer type from the type library, by name or alias.
+
+        Raises:
+            UnknownTypeError: If the type library has no MV transformer type under that name.
+
+        """
+        transformer_type = types.get_mv_transformer(name)
+        self.general.type = types.type_name("mv_transformer", name)
+        self.type = transformer_type
 
     def register(self, network: NetworkMV) -> None:
         """Register transformer in MV network with GUID-based indexing.

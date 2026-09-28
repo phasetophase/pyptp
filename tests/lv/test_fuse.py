@@ -3,12 +3,8 @@
 from __future__ import annotations
 
 import unittest
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from unittest.mock import Mock  # noqa: F401 - kept for legacy reference in docstrings
 from uuid import uuid4
-
-import pandas as pd
 
 from pyptp.elements.element_utils import Guid
 from pyptp.elements.lv.fuse import FuseLV
@@ -232,51 +228,18 @@ class TestTFuseLS(unittest.TestCase):
         # Should include InObject when not NIL_GUID
         self.assertIn(f"InObject:'{{{str(self.in_object_guid).upper()}}}'", result)
 
-    def test_fuse_set_fuse_type_method(self) -> None:
-        """Test set_fuse_type method with Types provider."""
+    def test_fuse_set_type_method_unknown_type(self) -> None:
+        """An unknown name raises and leaves the fuse untouched."""
         general = FuseLV.General(guid=self.test_guid, name="Test Fuse", type="16A")
         fuse = FuseLV(general=general)
 
-        # Build a tiny Excel with a single fuse type
-        with TemporaryDirectory() as td:
-            path = Path(td) / "wb.xlsx"
-            fuse_df = pd.DataFrame(
-                {
-                    "Name": ["16A"],
-                    "Shortname": ["16A"],
-                    "Unom": [230],
-                    "Inom": [16.0],
-                }
-            )
-            with pd.ExcelWriter(path) as writer:
-                fuse_df.to_excel(writer, sheet_name="Fuse", index=False)
-            from pyptp.type_reader import Types
+        from pyptp.type_reader import Types, UnknownTypeError
 
-            types = Types(str(path))
+        types = Types()  # default workbook does not contain 'UnknownType'
 
-            # Set fuse type
-            fuse.set_fuse_type(types, "16A")
+        with self.assertRaises(UnknownTypeError):
+            fuse.set_type(types, "UnknownType")
 
-        # Verify fuse type was set
-        self.assertIsNotNone(fuse.type)
-        if fuse.type:
-            self.assertEqual(fuse.type.short_name, "16A")
-            self.assertEqual(fuse.type.unom, 230)
-            self.assertEqual(fuse.type.inom, 16.0)
-
-    def test_fuse_set_fuse_type_method_unknown_type(self) -> None:
-        """Test set_fuse_type method with unknown type using Types provider."""
-        general = FuseLV.General(guid=self.test_guid, name="Test Fuse", type="16A")
-        fuse = FuseLV(general=general)
-
-        from pyptp.type_reader import Types
-
-        types = Types()  # default workbook likely doesn't contain 'UnknownType'
-
-        # Set unknown fuse type
-        fuse.set_fuse_type(types, "UnknownType")
-
-        # Verify fuse type remains None
         self.assertIsNone(fuse.type)
 
     def test_fuse_round_trip_serialization(self) -> None:

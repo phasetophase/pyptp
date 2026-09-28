@@ -22,7 +22,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
+from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -39,6 +39,7 @@ from pyptp.ptp_log import logger
 
 if TYPE_CHECKING:
     from pyptp.network_lv import NetworkLV
+    from pyptp.type_reader import Types
 
     from .presentations import BranchPresentation
 
@@ -55,7 +56,7 @@ class TransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
 
     @dataclass_json
     @dataclass
-    class General(DataClassJsonMixin):
+    class General(BranchSwitchesMixin, DataClassJsonMixin):
         """Core electrical and operational properties for LV transformers.
 
         Encompasses all essential transformer characteristics including
@@ -362,6 +363,17 @@ class TransformerLV(ExtrasNotesMixin, HasPresentationsMixin):
         """
         ExtrasNotesMixin.__post_init__(self)
         HasPresentationsMixin.__post_init__(self)
+
+    def set_type(self, types: Types, name: str) -> None:
+        """Set the transformer type from the type library, by name or alias.
+
+        Raises:
+            UnknownTypeError: If the type library has no LV transformer type under that name.
+
+        """
+        transformer_type = types.get_lv_transformer(name)
+        self.general.type = types.type_name("lv_transformer", name)
+        self.type = transformer_type
 
     def register(self, network: NetworkLV) -> None:
         """Register transformer in LV network with GUID-based indexing.

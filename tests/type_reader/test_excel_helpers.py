@@ -6,21 +6,22 @@ from tempfile import TemporaryDirectory
 
 import pandas as pd
 
+from pyptp.type_reader import MissingSheetError
 from pyptp.type_reader._excel import normalize_rows, read_sheet
 
 
 class TestExcelHelpers(unittest.TestCase):
-    def test_read_sheet_missing_returns_empty(self) -> None:
+    def test_read_sheet_missing_raises(self) -> None:
         with TemporaryDirectory() as td:
             path = Path(td) / "wb.xlsx"
-            # Create a workbook with a different sheet
             with pd.ExcelWriter(path) as writer:
                 pd.DataFrame({"A": [1]}).to_excel(
                     writer, sheet_name="Other", index=False
                 )
 
-            rows = read_sheet(str(path), sheet_name="Unknown", skiprows=())
-            self.assertEqual(rows, [])
+            with self.assertRaises(MissingSheetError) as ctx:
+                read_sheet(str(path), sheet_name="Unknown")
+            self.assertIn("'Unknown'", str(ctx.exception))
 
     def test_normalize_rows_rename_and_drop(self) -> None:
         rows = [

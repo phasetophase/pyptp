@@ -14,6 +14,9 @@ from dataclasses_json import DataClassJsonMixin, config, dataclass_json  # type:
 
 from pyptp.elements.color_utils import CL_BLACK, DelphiColor
 from pyptp.elements.element_utils import (
+    BRANCH_SIDE_SWITCHES,
+    SIDE_NODE1,
+    SIDE_NODE2,
     FloatCoords,
     decode_float_coords,
     encode_float_coords,
@@ -284,6 +287,54 @@ class IconMixin:
     """
 
     icon: Icon | None = None
+
+
+class BranchSwitchesMixin:
+    """Mixin for opening, closing and reading the switches of a branch.
+
+    Covers the phase and auxiliary conductor switches. Neutral and PE switches do not count
+    and are left as they are.
+    """
+
+    def _side_switches(self, side: int) -> list[str]:
+        return [name for name in BRANCH_SIDE_SWITCHES[side] if hasattr(self, name)]
+
+    def side_closed(self, side: int) -> bool:
+        """Return True when at least one phase or auxiliary conductor switch on one side is closed.
+
+        ``side`` is ``SIDE_NODE1`` or ``SIDE_NODE2``.
+
+        Raises:
+            ValueError: If ``side`` is neither of the two branch sides.
+
+        """
+        _check_branch_side(side)
+        return any(getattr(self, name) for name in self._side_switches(side))
+
+    def switches_open(self) -> bool:
+        """Return True when no phase or auxiliary conductor switch is closed on either side."""
+        side1_closed = self.side_closed(SIDE_NODE1)
+        side2_closed = self.side_closed(SIDE_NODE2)
+        return not side1_closed and not side2_closed
+
+    def set_switches(self, side: int, *, closed: bool) -> None:
+        """Open or close the phase and auxiliary conductor switches on one side of the branch.
+
+        ``side`` is ``SIDE_NODE1`` or ``SIDE_NODE2``.
+
+        Raises:
+            ValueError: If ``side`` is neither of the two branch sides.
+
+        """
+        _check_branch_side(side)
+        for name in self._side_switches(side):
+            setattr(self, name, closed)
+
+
+def _check_branch_side(side: int) -> None:
+    if side not in (SIDE_NODE1, SIDE_NODE2):
+        msg = f"Branch side must be {SIDE_NODE1} or {SIDE_NODE2}, got {side}"
+        raise ValueError(msg)
 
 
 class HasPresentationsMixin:

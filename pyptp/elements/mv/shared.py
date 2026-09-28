@@ -147,51 +147,6 @@ class Text(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class FuseType(DataClassJsonMixin):
-    """Fuse Type."""
-
-    short_name: str = string_field()
-    unom: int | float = 0
-    inom: int | float = 0
-    I: list[int] | None = field(default_factory=lambda: [0] * 16)  # noqa: E741
-    T: list[int] | None = field(default_factory=lambda: [0] * 16)
-
-    def serialize(self) -> str:
-        """Serialize FuseType properties."""
-        props = [
-            write_quote_string_no_skip("ShortName", self.short_name),
-            write_double_no_skip("Unom", self.unom),
-            write_double_no_skip("Inom", self.inom),
-        ]
-        if self.I:
-            props.extend([write_double_no_skip(f"I{i + 1}", val) for i, val in enumerate(self.I)])
-        if self.T:
-            props.extend([write_double_no_skip(f"T{i + 1}", val) for i, val in enumerate(self.T)])
-        return serialize_properties(*props)
-
-    @classmethod
-    def deserialize(cls, data: dict) -> FuseType:
-        """Deserialize FuseType properties."""
-        i_values = []
-        t_values = []
-
-        for i in range(1, 17):
-            if f"I{i}" in data:
-                i_values.append(data[f"I{i}"])
-            if f"T{i}" in data:
-                t_values.append(data[f"T{i}"])
-
-        return cls(
-            short_name=data.get("ShortName", ""),
-            unom=data.get("Unom", 0),
-            inom=data.get("Inom", 0),
-            I=i_values if i_values else None,
-            T=t_values if t_values else None,
-        )
-
-
-@dataclass_json
-@dataclass
 class CurrentType(DataClassJsonMixin):
     """Current type."""
 

@@ -1,8 +1,8 @@
-"""Clamp branch corners to node connection points.
+"""Attach a branch to nodes along a route whose points are not exact.
 
-Use NodePresentation.clamp_point() to snap imprecise coordinates to valid
-connection points. This is useful when importing data with slightly off
-coordinates or programmatically generating layouts.
+BranchPresentation.between() places both ends on the node symbols, so the
+branch connects even when the route's own end points are a few pixels off.
+NodePresentation.clamp_point() snaps a single point onto a node symbol.
 """
 
 from pyptp import NetworkLV, configure_logging
@@ -16,52 +16,38 @@ configure_logging(level="INFO")
 
 network = NetworkLV()
 
-sheet = SheetLV(SheetLV.General(name="Clamp Example"))
-sheet.register(network)
+sheet = network.add(SheetLV(SheetLV.General(name="Clamp Example")))
 sheet_guid = sheet.general.guid
 
-# Two nodes we want to connect
-substation = NodeLV(
-    NodeLV.General(name="Substation"),
-    presentations=[NodePresentation(sheet=sheet_guid, x=100, y=100)],
+substation = network.add(
+    NodeLV(
+        NodeLV.General(name="Substation"),
+        presentations=[NodePresentation(sheet=sheet_guid, x=100, y=100)],
+    )
 )
-substation.register(network)
-
-load = NodeLV(
-    NodeLV.General(name="Load"),
-    presentations=[NodePresentation(sheet=sheet_guid, x=300, y=100)],
+load = network.add(
+    NodeLV(
+        NodeLV.General(name="Load"),
+        presentations=[NodePresentation(sheet=sheet_guid, x=300, y=100)],
+    )
 )
-load.register(network)
 
-# Imagine these coordinates came from an external source with slight errors
-# They should connect at (100, 100) and (300, 100) but are a few pixels off
-imported_first_corners = [(105, 98), (200, 100)]
-imported_second_corners = [(295, 102)]
+# ends a few pixels off the nodes
+imported_route = [(105, 98), (200, 100), (295, 102)]
 
-# Clamp the first point of each corner list to the node's connection point
-substation_pres = substation.presentations[0]
-load_pres = load.presentations[0]
+via = imported_route[1:-1]
 
-first_corners = [
-    substation_pres.clamp_point(imported_first_corners[0]),
-    *imported_first_corners,
-]
-second_corners = [
-    load_pres.clamp_point(imported_second_corners[0]),
-    *imported_second_corners,
-]
-
-feeder = LinkLV(
-    LinkLV.General(name="Feeder", node1=substation.general.guid, node2=load.general.guid),
-    presentations=[
-        BranchPresentation(
-            sheet=sheet_guid,
-            first_corners=first_corners,
-            second_corners=second_corners,
-        )
-    ],
+feeder = network.add(
+    LinkLV(
+        LinkLV.General(name="Feeder", node1=substation.general.guid, node2=load.general.guid),
+        presentations=[BranchPresentation.between(substation, load, sheet_guid, via=via)],
+    )
 )
-feeder.register(network)
+
+logger.info("route: %s", feeder.presentations[0].polyline())
+
+# Clamp a single point
+logger.info("clamped: %s", substation.presentations[0].clamp_point((105, 98)))
 
 network.save("clamp_corners_example.gnf")
 logger.info("Saved clamp_corners_example.gnf")

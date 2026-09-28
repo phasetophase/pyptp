@@ -85,6 +85,16 @@ class NodePresentationSymbol(IntEnum):
     HALF_OPEN_RECTANGLE = 53
 
 
+class SymbolSegment(StrEnum):
+    """Segment of a branch route that gets the branch symbol and the middle text."""
+
+    MIDDLE = "middle"
+    """The segment at the halfway point of the route."""
+
+    LONGEST = "longest"
+    """The longest segment, or the first of them on a tie."""
+
+
 class GnfVersion(StrEnum):
     """GNF (Gaia/LV) file format versions supported for saving.
 
@@ -151,6 +161,14 @@ class ConnectionSort(StrEnum):
     CHARGE = "Charge"
     PV = "PV"
     WIND = "Wind"
+
+
+class BehaviourSort(StrEnum):
+    """Voltage dependence of a load."""
+
+    CONSTANT_CURRENT = "I"
+    CONSTANT_POWER = "S"
+    CONSTANT_IMPEDANCE = "Y"
 
 
 class HeatpumpSort(StrEnum):
