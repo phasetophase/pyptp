@@ -21,6 +21,7 @@ from pyptp.elements.element_utils import (
     encode_guid_optional,
     string_field,
 )
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -32,6 +33,7 @@ from pyptp.elements.serialization_helpers import (
     write_guid,
     write_guid_no_skip,
     write_integer,
+    write_integer_no_skip,
     write_quote_string,
 )
 from pyptp.ptp_log import logger
@@ -80,7 +82,8 @@ class EarthingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         maintenance_cancel_duration: float = 0.0
         not_preferred: bool = False
         pref: float = 0.0
-        earthing: bool = False
+        earthing: Earthing = Earthing.OWN
+        """Earthing of the neutral point."""
         re: float = 0.0
         xe: float = 0.0
         earthing_node: Guid | None = field(
@@ -111,7 +114,7 @@ class EarthingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 write_double("MaintenanceCancelDuration", self.maintenance_cancel_duration),
                 write_boolean("NotPreferred", value=self.not_preferred),
                 write_double("Pref", self.pref),
-                write_boolean("Earthing", value=self.earthing),
+                write_integer_no_skip("Earthing", self.earthing),
                 write_double("Re", self.re),
                 write_double("Xe", self.xe),
                 write_guid("EarthingNode", self.earthing_node) if self.earthing_node is not None else "",
@@ -138,7 +141,7 @@ class EarthingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 maintenance_cancel_duration=data.get("MaintenanceCancelDuration", 0.0),
                 not_preferred=data.get("NotPreferred", False),
                 pref=data.get("Pref", 0.0),
-                earthing=data.get("Earthing", False),
+                earthing=Earthing(data.get("Earthing", Earthing.OWN)),
                 re=data.get("Re", 0.0),
                 xe=data.get("Xe", 0.0),
                 earthing_node=decode_guid(data["EarthingNode"]) if data.get("EarthingNode") is not None else None,

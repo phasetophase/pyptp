@@ -20,7 +20,13 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.enums import EnclosureType, InsulationCondition, VoltageControlSort, VoltageControlStatus
+from pyptp.elements.enums import (
+    Earthing,
+    EnclosureType,
+    InsulationCondition,
+    VoltageControlSort,
+    VoltageControlStatus,
+)
 from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -93,11 +99,13 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         step_up: bool = False
         clock_number: int = 0
         phase_shift: float = 0.0
-        earthing1: int = 0
+        earthing1: Earthing = Earthing.NONE
+        """Earthing of the neutral point on side 1."""
         re1: float = 0.0
         xe1: float = 0.0
         earthing_node1: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
-        earthing2: int = 0
+        earthing2: Earthing = Earthing.NONE
+        """Earthing of the neutral point on side 2."""
         re2: float = 0.0
         xe2: float = 0.0
         earthing_node2: Guid = field(default=NIL_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
@@ -192,11 +200,11 @@ class TransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 step_up=data.get("StepUp", False),
                 clock_number=data.get("ClockNumber", 0),
                 phase_shift=data.get("PhaseShift", 0.0),
-                earthing1=data.get("Earthing1", 0),
+                earthing1=Earthing(data.get("Earthing1", Earthing.NONE)),
                 re1=data.get("Re1", 0.0),
                 xe1=data.get("Xe1", 0.0),
                 earthing_node1=decode_guid(data.get("EarthingNode1", str(NIL_GUID))),
-                earthing2=data.get("Earthing2", 0),
+                earthing2=Earthing(data.get("Earthing2", Earthing.NONE)),
                 re2=data.get("Re2", 0.0),
                 xe2=data.get("Xe2", 0.0),
                 earthing_node2=decode_guid(data.get("EarthingNode2", str(NIL_GUID))),

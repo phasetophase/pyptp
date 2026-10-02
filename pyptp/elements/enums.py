@@ -190,6 +190,39 @@ class HouseType(StrEnum):
     APARTMENT = "Apartment"
 
 
+class Earthing(IntEnum):
+    """Neutral point earthing of an MV element."""
+
+    NONE = 0
+    """Neutral point is not earthed."""
+
+    OWN = 1
+    """Neutral point is earthed through the element's own Re and Xe."""
+
+    EXTERNAL = 2
+    """Neutral point is earthed through an external earthing node."""
+
+
+class ThreewindingEarthing(IntEnum):
+    """Neutral point earthing of a three-winding transformer winding."""
+
+    NONE = 0
+    """Neutral point is not earthed."""
+
+    OWN = 1
+    """Neutral point is earthed through the winding's own Re and Xe."""
+
+
+class SpecialTransformerEarthing(IntEnum):
+    """Neutral point earthing of a special transformer."""
+
+    NONE = 0
+    """Neutral point is not earthed."""
+
+    OWN = 1
+    """Neutral point is earthed through the transformer's own Re and Xe."""
+
+
 class VoltageControlStatus(IntEnum):
     """Operating status of the voltage control."""
 

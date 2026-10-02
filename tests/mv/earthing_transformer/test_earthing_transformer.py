@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.earthing_transformer import EarthingTransformerMV
 from pyptp.elements.mv.node import NodeMV
@@ -90,7 +91,7 @@ class TestEarthingTransformerRegistration(unittest.TestCase):
             maintenance_cancel_duration=1.0,
             not_preferred=True,
             pref=50.0,
-            earthing=True,
+            earthing=Earthing.EXTERNAL,
             re=1.5,
             xe=2.0,
             earthing_node=self.earthing_node_guid,
@@ -151,7 +152,7 @@ class TestEarthingTransformerRegistration(unittest.TestCase):
         self.assertIn("MaintenanceDuration:4.0", serialized)
         self.assertIn("MaintenanceCancelDuration:1.0", serialized)
         self.assertIn("Pref:50", serialized)
-        self.assertIn("Earthing:True", serialized)
+        self.assertIn("Earthing:2", serialized)
         self.assertIn("Re:1.5", serialized)
         self.assertIn("Xe:2", serialized)
         self.assertIn("EarthingTransformerType:'TestType'", serialized)
@@ -243,7 +244,7 @@ class TestEarthingTransformerRegistration(unittest.TestCase):
             guid=self.transformer_guid,
             name="EarthingTransformer",
             node=self.node_guid,
-            earthing=True,
+            earthing=Earthing.EXTERNAL,
             re=1.5,
             xe=2.0,
             earthing_node=self.earthing_node_guid,
@@ -254,7 +255,7 @@ class TestEarthingTransformerRegistration(unittest.TestCase):
         transformer.register(self.network)
 
         serialized = transformer.serialize()
-        self.assertIn("Earthing:True", serialized)
+        self.assertIn("Earthing:2", serialized)
         self.assertIn("Re:1.5", serialized)
         self.assertIn("Xe:2", serialized)
         self.assertIn(
