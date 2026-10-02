@@ -9,7 +9,12 @@ from uuid import uuid4
 from dataclasses_json import DataClassJsonMixin, config, dataclass_json
 
 from pyptp.elements.element_utils import NIL_GUID, Guid, decode_guid, encode_guid, string_field
-from pyptp.elements.enums import SpecialTransformerSort, SpecialVoltageControlSort, SpecialVoltageControlStatus
+from pyptp.elements.enums import (
+    SpecialTransformerEarthing,
+    SpecialTransformerSort,
+    SpecialVoltageControlSort,
+    SpecialVoltageControlStatus,
+)
 from pyptp.elements.mixins import BranchSwitchesMixin, ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -94,8 +99,8 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         """Maximum apparent power in MVA."""
         phase_shift: float | int = 0
         """Phase shift of the transformer windings in degrees."""
-        earthing: int = 0
-        """Earthing of the neutral point (0=no, 1=own)."""
+        earthing: SpecialTransformerEarthing = SpecialTransformerEarthing.NONE
+        """Earthing of the neutral point."""
         re: float | int = 0
         """Earthing resistance with earthed neutral point in Ohm."""
         xe: float | int = 0
@@ -179,7 +184,7 @@ class SpecialTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 type=data.get("SpecialTransformerType", ""),
                 snom=data.get("Snom", 0),
                 phase_shift=data.get("PhaseShift", 0),
-                earthing=data.get("Earthing", 0),
+                earthing=SpecialTransformerEarthing(data.get("Earthing", SpecialTransformerEarthing.NONE)),
                 re=data.get("Re", 0),
                 xe=data.get("Xe", 0),
                 at_motorstart=data.get("AtMotorstart", False),

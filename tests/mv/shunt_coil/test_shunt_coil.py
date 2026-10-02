@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import DEFAULT_PROFILE_GUID, Guid
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import ElementPresentation, NodePresentation
@@ -82,7 +83,7 @@ class TestShuntCoilRegistration(unittest.TestCase):
             Q=50.0,
             unom=20.0,
             profile=profile_guid,
-            earthing=1,
+            earthing=Earthing.OWN,
             re=0.1,
             xe=0.2,
             earthing_node=earthing_node_guid,
@@ -241,7 +242,7 @@ class TestShuntCoilRegistration(unittest.TestCase):
             guid=self.shunt_coil_guid,
             name="EarthingShuntCoil",
             node=self.node_guid,
-            earthing=1,
+            earthing=Earthing.OWN,
             re=0.1,
             xe=0.2,
             earthing_node=earthing_node_guid,

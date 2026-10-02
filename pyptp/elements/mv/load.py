@@ -21,6 +21,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -91,7 +92,13 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         fq2: float = 0.0
         fp3: float = 0.0
         fq3: float = 0.0
-        earthing: int = 0
+        earthing: Earthing = Earthing.NONE
+        """Earthing of the neutral point."""
+        earthing_node: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
+        """GUID of the external earthing node."""
         re: float = 0.0
         xe: float = 0.0
         load_behaviour: Guid | None = field(
@@ -156,6 +163,7 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 write_guid("Profile", self.profile) if self.profile is not None else "",
                 write_guid("Qprofile", self.q_profile) if self.q_profile is not None else "",
                 write_integer_no_skip("Earthing", self.earthing),
+                write_guid("EarthingNode", self.earthing_node) if self.earthing_node else "",
                 write_quote_string("HarmonicsType", self.harmonics_type, skip=""),
                 write_integer("LargeConsumers", self.large_consumers, skip=0),
                 write_integer("GenerousConsumers", self.generous_consumers, skip=0),
@@ -180,6 +188,7 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
             load_growth = data.get("LoadGrowth")
             profile = data.get("Profile")
             q_profile = data.get("Qprofile")
+            earthing_node = data.get("EarthingNode")
             mutation_date = data.get("MutationDate")
             revision_date = data.get("RevisionDate")
 
@@ -209,7 +218,8 @@ class LoadMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 fq2=data.get("Fq2", 0.0),
                 fp3=data.get("Fp3", 0.0),
                 fq3=data.get("Fq3", 0.0),
-                earthing=data.get("Earthing", 0),
+                earthing=Earthing(data.get("Earthing", Earthing.NONE)),
+                earthing_node=decode_guid(earthing_node) if earthing_node else None,
                 re=data.get("Re", 0.0),
                 xe=data.get("Xe", 0.0),
                 load_behaviour=decode_guid(load_behaviour) if load_behaviour else None,

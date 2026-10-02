@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import DEFAULT_PROFILE_GUID, Guid
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import ElementPresentation, NodePresentation
@@ -84,7 +85,7 @@ class TestShuntCapacitorRegistration(unittest.TestCase):
             Q=50.0,
             unom=20.0,
             profile=profile_guid,
-            earthing=True,
+            earthing=Earthing.OWN,
             re=0.1,
             xe=0.2,
             earthing_node=earthing_node_guid,
@@ -148,7 +149,7 @@ class TestShuntCapacitorRegistration(unittest.TestCase):
         self.assertIn("NotPreferred:True", serialized)
         self.assertIn("Q:50", serialized)
         self.assertIn("Unom:20", serialized)
-        self.assertIn("Earthing:True", serialized)
+        self.assertIn("Earthing:1", serialized)
         self.assertIn("Re:0.1", serialized)
         self.assertIn("Xe:0.2", serialized)
         self.assertIn("VoltageControl:True", serialized)
@@ -247,7 +248,7 @@ class TestShuntCapacitorRegistration(unittest.TestCase):
         self.assertIn("NotPreferred:False", serialized)
         self.assertIn("Q:0", serialized)
         self.assertIn("Unom:0", serialized)
-        self.assertIn("Earthing:False", serialized)
+        self.assertIn("Earthing:0", serialized)
         self.assertIn("Re:0", serialized)
         self.assertIn("Xe:0", serialized)
         self.assertIn("VoltageControl:False", serialized)
@@ -311,7 +312,7 @@ class TestShuntCapacitorRegistration(unittest.TestCase):
             guid=self.shunt_capacitor_guid,
             name="EarthingShuntCapacitor",
             node=self.node_guid,
-            earthing=True,
+            earthing=Earthing.OWN,
             re=0.1,
             xe=0.2,
             earthing_node=earthing_node_guid,
@@ -322,7 +323,7 @@ class TestShuntCapacitorRegistration(unittest.TestCase):
         shunt_capacitor.register(self.network)
 
         serialized = shunt_capacitor.serialize()
-        self.assertIn("Earthing:True", serialized)
+        self.assertIn("Earthing:1", serialized)
         self.assertIn("Re:0.1", serialized)
         self.assertIn("Xe:0.2", serialized)
         self.assertIn(

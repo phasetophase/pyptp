@@ -21,7 +21,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.enums import VoltageControlSort, VoltageControlStatus
+from pyptp.elements.enums import ThreewindingEarthing, VoltageControlSort, VoltageControlStatus
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -99,13 +99,16 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
         snom3: float = 0
         phase_shift12: float = 0
         phase_shift13: float = 0
-        earthing1: int = 0
+        earthing1: ThreewindingEarthing = ThreewindingEarthing.NONE
+        """Earthing of the neutral point on side 1."""
         re1: float = 0
         xe1: float = 0
-        earthing2: int = 0
+        earthing2: ThreewindingEarthing = ThreewindingEarthing.NONE
+        """Earthing of the neutral point on side 2."""
         re2: float = 0
         xe2: float = 0
-        earthing3: int = 0
+        earthing3: ThreewindingEarthing = ThreewindingEarthing.NONE
+        """Earthing of the neutral point on side 3."""
         re3: float = 0
         xe3: float = 0
         tap_controlled: float = 0
@@ -191,13 +194,13 @@ class ThreewindingTransformerMV(ExtrasNotesMixin, HasPresentationsMixin):
                 snom3=data.get("Snom3", 0),
                 phase_shift12=data.get("PhaseShift12", 0),
                 phase_shift13=data.get("PhaseShift13", 0),
-                earthing1=data.get("Earthing1", 0),
+                earthing1=ThreewindingEarthing(data.get("Earthing1", ThreewindingEarthing.NONE)),
                 re1=data.get("Re1", 0),
                 xe1=data.get("Xe1", 0),
-                earthing2=data.get("Earthing2", 0),
+                earthing2=ThreewindingEarthing(data.get("Earthing2", ThreewindingEarthing.NONE)),
                 re2=data.get("Re2", 0),
                 xe2=data.get("Xe2", 0),
-                earthing3=data.get("Earthing3", 0),
+                earthing3=ThreewindingEarthing(data.get("Earthing3", ThreewindingEarthing.NONE)),
                 re3=data.get("Re3", 0),
                 xe3=data.get("Xe3", 0),
                 tap_controlled=data.get("TapControlled", 0),

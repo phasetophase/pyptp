@@ -6,6 +6,7 @@ from uuid import UUID
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid
 from pyptp.elements.enums import (
+    Earthing,
     EnclosureType,
     InsulationCondition,
     VoltageControlSort,
@@ -111,10 +112,10 @@ class TestTransformerRegistration(unittest.TestCase):
             step_up=True,
             clock_number=11,
             phase_shift=30.0,
-            earthing1=1,
+            earthing1=Earthing.OWN,
             re1=0.1,
             xe1=0.2,
-            earthing2=2,
+            earthing2=Earthing.EXTERNAL,
             re2=0.15,
             xe2=0.25,
             tap_position=3.5,

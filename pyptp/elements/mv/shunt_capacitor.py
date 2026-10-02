@@ -22,6 +22,7 @@ from pyptp.elements.element_utils import (
     encode_guid_optional,
     string_field,
 )
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -33,6 +34,7 @@ from pyptp.elements.serialization_helpers import (
     write_guid,
     write_guid_no_skip,
     write_integer,
+    write_integer_no_skip,
     write_quote_string_no_skip,
 )
 from pyptp.ptp_log import logger
@@ -119,8 +121,8 @@ class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         """GUID of the load profile for time-varying behavior."""
 
-        earthing: bool = False
-        """Indicates if the capacitor neutral point is earthed."""
+        earthing: Earthing = Earthing.NONE
+        """Earthing of the neutral point."""
 
         re: float = 0.0
         """Earthing resistance in Ohm (with earthed star point)."""
@@ -173,7 +175,7 @@ class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 write_double_no_skip("Q", self.Q),
                 write_double_no_skip("Unom", self.unom),
                 write_guid("Profile", self.profile, skip=DEFAULT_PROFILE_GUID),
-                write_boolean_no_skip("Earthing", value=self.earthing),
+                write_integer_no_skip("Earthing", self.earthing),
                 write_double_no_skip("Re", self.re),
                 write_double_no_skip("Xe", self.xe),
                 write_guid("EarthingNode", self.earthing_node) if self.earthing_node else "",
@@ -209,7 +211,7 @@ class ShuntCapacitorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 Q=data.get("Q", 0.0),
                 unom=data.get("Unom", 0.0),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
-                earthing=data.get("Earthing", False),
+                earthing=Earthing(data.get("Earthing", Earthing.NONE)),
                 re=data.get("Re", 0.0),
                 xe=data.get("Xe", 0.0),
                 earthing_node=decode_guid(earthing_node) if earthing_node else None,

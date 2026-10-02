@@ -5,6 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import Extra, Note
 from pyptp.elements.mv.load import LoadMV
 from pyptp.elements.mv.node import NodeMV
@@ -58,6 +59,8 @@ class TestLoadRegistration(unittest.TestCase):
 
     def test_load_with_full_properties_serializes_correctly(self) -> None:
         """Test that loads with all properties serialize correctly."""
+        earthing_node_guid = Guid(UUID("8b7d4c3e-2f1a-4e5d-9c8b-7a6f5e4d3c2b"))
+
         general = LoadMV.General(
             guid=self.load_guid,
             node=self.node_guid,
@@ -84,9 +87,10 @@ class TestLoadRegistration(unittest.TestCase):
             fq2=0.75,
             fp3=0.88,
             fq3=0.78,
-            earthing=1,
+            earthing=Earthing.EXTERNAL,
             re=0.5,
             xe=0.8,
+            earthing_node=earthing_node_guid,
             harmonics_type="TestHarmonics",
             large_consumers=5,
             generous_consumers=3,
@@ -151,9 +155,12 @@ class TestLoadRegistration(unittest.TestCase):
         self.assertIn("Fq2:0.75", serialized)
         self.assertIn("Fp3:0.88", serialized)
         self.assertIn("Fq3:0.78", serialized)
-        self.assertIn("Earthing:1", serialized)
+        self.assertIn("Earthing:2", serialized)
         self.assertIn("Re:0.5", serialized)
         self.assertIn("Xe:0.8", serialized)
+        self.assertIn(
+            f"EarthingNode:'{{{str(earthing_node_guid).upper()}}}'", serialized
+        )
         self.assertIn("HarmonicsType:'TestHarmonics'", serialized)
         self.assertIn("LargeConsumers:5", serialized)
         self.assertIn("GenerousConsumers:3", serialized)
@@ -228,6 +235,7 @@ class TestLoadRegistration(unittest.TestCase):
         # Should not have optional sections
         self.assertNotIn("#Extra", serialized)
         self.assertNotIn("#Note", serialized)
+        self.assertNotIn("EarthingNode", serialized)
 
     def test_multiple_presentations_serialize_correctly(self) -> None:
         """Test that loads with multiple presentations serialize correctly."""
@@ -326,7 +334,7 @@ class TestLoadRegistration(unittest.TestCase):
             guid=self.load_guid,
             name="EarthingLoad",
             node=self.node_guid,
-            earthing=1,
+            earthing=Earthing.OWN,
             re=0.5,
             xe=0.8,
         )
@@ -339,6 +347,50 @@ class TestLoadRegistration(unittest.TestCase):
         self.assertIn("Earthing:1", serialized)
         self.assertIn("Re:0.5", serialized)
         self.assertIn("Xe:0.8", serialized)
+        self.assertNotIn("EarthingNode", serialized)
+
+    def test_load_with_external_earthing_node_serializes_correctly(self) -> None:
+        """Test that loads earthed through an external node serialize the node reference."""
+        earthing_node_guid = Guid(UUID("8b7d4c3e-2f1a-4e5d-9c8b-7a6f5e4d3c2b"))
+
+        general = LoadMV.General(
+            guid=self.load_guid,
+            name="ExternalEarthingLoad",
+            node=self.node_guid,
+            earthing=Earthing.EXTERNAL,
+            earthing_node=earthing_node_guid,
+        )
+        presentation = ElementPresentation(sheet=self.sheet_guid)
+
+        load = LoadMV(general, [presentation])
+        load.register(self.network)
+
+        serialized = load.serialize()
+        self.assertIn("Earthing:2", serialized)
+        self.assertIn(
+            f"EarthingNode:'{{{str(earthing_node_guid).upper()}}}'", serialized
+        )
+
+    def test_load_earthing_node_deserializes_correctly(self) -> None:
+        """Test that an EarthingNode reference is parsed and an absent one becomes None."""
+        earthing_node_guid = Guid(UUID("8b7d4c3e-2f1a-4e5d-9c8b-7a6f5e4d3c2b"))
+
+        with_node = LoadMV.General.deserialize(
+            {
+                "GUID": str(self.load_guid),
+                "Node": str(self.node_guid),
+                "Earthing": 2,
+                "EarthingNode": f"{{{str(earthing_node_guid).upper()}}}",
+            }
+        )
+        self.assertEqual(with_node.earthing, Earthing.EXTERNAL)
+        self.assertEqual(with_node.earthing_node, earthing_node_guid)
+
+        without_node = LoadMV.General.deserialize(
+            {"GUID": str(self.load_guid), "Node": str(self.node_guid)}
+        )
+        self.assertEqual(without_node.earthing, Earthing.NONE)
+        self.assertIsNone(without_node.earthing_node)
 
     def test_load_with_consumer_counts_serializes_correctly(self) -> None:
         """Test that loads with consumer counts serialize correctly."""

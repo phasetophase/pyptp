@@ -22,6 +22,7 @@ from pyptp.elements.element_utils import (
     encode_guid_optional,
     string_field,
 )
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -93,8 +94,8 @@ class ShuntCoilMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         """Nominal voltage in kV."""
         profile: Guid = field(default=DEFAULT_PROFILE_GUID, metadata=config(encoder=encode_guid, decoder=decode_guid))
         """Name of the coil power profile."""
-        earthing: int = 0
-        """Star point earthing setting (0=no, 1=yes)."""
+        earthing: Earthing = Earthing.NONE
+        """Earthing of the neutral point."""
         re: float = 0.0
         """Earthing resistance with earthed star point in Ohm."""
         xe: float = 0.0
@@ -165,7 +166,7 @@ class ShuntCoilMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 Q=data.get("Q", 0.0),
                 unom=data.get("Unom", 0.0),
                 profile=decode_guid(data.get("Profile", str(DEFAULT_PROFILE_GUID))),
-                earthing=data.get("Earthing", 0),
+                earthing=Earthing(data.get("Earthing", Earthing.NONE)),
                 re=data.get("Re", 0.0),
                 xe=data.get("Xe", 0.0),
                 earthing_node=decode_guid(earthing_node) if earthing_node else None,

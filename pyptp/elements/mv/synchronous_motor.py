@@ -21,6 +21,7 @@ from pyptp.elements.element_utils import (
     encode_guid_optional,
     string_field,
 )
+from pyptp.elements.enums import Earthing
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
@@ -88,10 +89,15 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         capacitive: bool = False
         control_measure_field: Guid | None = None
         is_contributing_to_short_circuit: bool = False
-        earthing: int = 0
+        earthing: Earthing = Earthing.NONE
+        """Earthing of the neutral point."""
         re: float | int = 0
         xe: float | int = 0
-        earthing_node: Guid | None = None
+        earthing_node: Guid | None = field(
+            default=None,
+            metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
+        )
+        """GUID of the external earthing node."""
         profile: Guid | None = field(
             default=None,
             metadata=config(encoder=encode_guid_optional, exclude=lambda x: x is None),
@@ -161,7 +167,7 @@ class SynchronousMotorMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 capacitive=data.get("Capacitive", data.get("SuppliesQ", False)),
                 control_measure_field=decode_guid(control_measure_field) if control_measure_field else None,
                 is_contributing_to_short_circuit=data.get("NoShortCircuitContribution", False),
-                earthing=data.get("Earthing", 0),
+                earthing=Earthing(data.get("Earthing", Earthing.NONE)),
                 re=data.get("Re", 0),
                 xe=data.get("Xe", 0),
                 earthing_node=decode_guid(earthing_node) if earthing_node else None,
