@@ -218,6 +218,9 @@ class TestBatteryRegistration(unittest.TestCase):
         # Should have basic sections
         self.assertEqual(serialized.count("#General"), 1)
         self.assertEqual(serialized.count("#Inverter"), 1)
+        self.assertIn("#QControl", serialized)
+        self.assertIn("#ChargeEfficiencyType", serialized)
+        self.assertIn("#DischargeEfficiencyType", serialized)
         self.assertIn("#Presentation", serialized)
 
         # Should have basic properties with updated defaults
@@ -229,9 +232,6 @@ class TestBatteryRegistration(unittest.TestCase):
         # Should not have optional sections
         self.assertNotIn("#P(U)Control", serialized)
         self.assertNotIn("#P(I)Control", serialized)
-        self.assertNotIn("#QControl", serialized)
-        self.assertNotIn("#ChargeEfficiencyType", serialized)
-        self.assertNotIn("#DischargeEfficiencyType", serialized)
 
     def test_battery_with_capacity_properties_serializes_correctly(self) -> None:
         """Test that batteries with capacity properties serialize correctly."""

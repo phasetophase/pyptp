@@ -23,6 +23,7 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
+from pyptp.elements.mv.shared import EfficiencyType, QControl
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -40,8 +41,6 @@ from pyptp.ptp_log import logger
 if TYPE_CHECKING:
     from pyptp.elements.lv.shared import HarmonicsType
     from pyptp.elements.mv.presentations import ElementPresentation
-    from pyptp.elements.mv.shared import EfficiencyType, QControl
-if TYPE_CHECKING:
     from pyptp.network_mv import NetworkMV
 
 
@@ -177,7 +176,7 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         k: float = 0.0
         cosk: float = 0.01
         capacitivek: bool = False
-        efficiency_type: str = string_field()
+        efficiency_type: str = string_field("0,1 pu: 93 %; 1 pu: 97 %")
         u_off: float = 0.0
 
         def serialize(self) -> str:
@@ -203,7 +202,7 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 k=data.get("k", 0.0),
                 cosk=data.get("Cosk", 0.01),
                 capacitivek=data.get("Capacitivek", False),
-                efficiency_type=data.get("EfficiencyType", ""),
+                efficiency_type=data.get("EfficiencyType", "0,1 pu: 93 %; 1 pu: 97 %"),
                 u_off=data.get("Uoff", 0.0),
             )
 
@@ -408,9 +407,36 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     general: General
     presentations: list[ElementPresentation]
     inverter: Inverter
-    efficiency_type: EfficiencyType | None = None
+    efficiency_type: EfficiencyType = field(
+        default_factory=lambda: EfficiencyType(
+            input1=0.05,
+            output1=0,
+            input2=0.1,
+            output2=93,
+            input3=0.2,
+            output3=95,
+            input4=0.3,
+            output4=96,
+            input5=1,
+            output5=97,
+        )
+    )
     harmonics_type: HarmonicsType | None = None
-    q_control: QControl | None = None
+    q_control: QControl = field(
+        default_factory=lambda: QControl(
+            cos_ref=1,
+            input1=0.95,
+            output1=0.5,
+            input2=1,
+            output2=0,
+            input3=1,
+            output3=0,
+            input4=1.03,
+            output4=-0.5,
+            input5=1.05,
+            output5=-0.5,
+        )
+    )
     pu_control: PUControl | None = None
     pf_control: PFControl | None = None
     pi_control: PIControl | None = None
@@ -485,11 +511,7 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         inverter = cls.Inverter.deserialize(inverter_data)
 
         efficiency_type_data = data.get("efficiencyType", [{}])[0] if data.get("efficiencyType") else {}
-        efficiency_type = None
-        if efficiency_type_data:
-            from .shared import EfficiencyType
-
-            efficiency_type = EfficiencyType.deserialize(efficiency_type_data)
+        efficiency_type = EfficiencyType.deserialize(efficiency_type_data)
 
         harmonics_type_data = data.get("harmonicsType", [{}])[0] if data.get("harmonicsType") else {}
         harmonics_type = None
@@ -499,11 +521,7 @@ class PVMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
             harmonics_type = HarmonicsType.deserialize(harmonics_type_data)
 
         qcontrol_data = data.get("Qcontrol", [{}])[0] if data.get("Qcontrol") else {}
-        qcontrol = None
-        if qcontrol_data:
-            from .shared import QControl
-
-            qcontrol = QControl.deserialize(qcontrol_data)
+        qcontrol = QControl.deserialize(qcontrol_data)
 
         pucontrol_data = data.get("PUcontrol", [{}])[0] if data.get("PUcontrol") else {}
         pucontrol = None
