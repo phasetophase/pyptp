@@ -23,6 +23,7 @@ from pyptp.elements.element_utils import (
     string_field,
 )
 from pyptp.elements.mixins import ExtrasNotesMixin, HasPresentationsMixin, IconMixin
+from pyptp.elements.mv.shared import EfficiencyType
 from pyptp.elements.serialization_helpers import (
     serialize_notes,
     serialize_properties,
@@ -42,7 +43,6 @@ from pyptp.ptp_log import logger
 if TYPE_CHECKING:
     from pyptp.elements.lv.shared import HarmonicsType
     from pyptp.elements.mv.presentations import ElementPresentation
-    from pyptp.elements.mv.shared import EfficiencyType
     from pyptp.network_mv import NetworkMV
 
 
@@ -152,9 +152,9 @@ class BatteryMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         ik_inom: float = field(metadata=config(field_name="Ik/Inom"), default=1.0)
         """Relation between the short circuit current and the nominal current."""
         k: float = 0.0
-        charge_efficiency_type: str = string_field()
+        charge_efficiency_type: str = string_field(default="0,1..1 pu: 95 %")
         """Type of the charging efficiency, as function of the input power."""
-        discharge_efficiency_type: str = string_field()
+        discharge_efficiency_type: str = string_field(default="0,1..1 pu: 95 %")
         """Type of the discharging efficiency, as function of the output power."""
 
         def serialize(self) -> str:
@@ -176,8 +176,8 @@ class BatteryMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
                 unom=data.get("Unom", 0.0),
                 ik_inom=data.get("Ik/Inom", 1.0),
                 k=data.get("k", 0.0),
-                charge_efficiency_type=data.get("ChargeEfficiencyType", ""),
-                discharge_efficiency_type=data.get("DischargeEfficiencyType", ""),
+                charge_efficiency_type=data.get("ChargeEfficiencyType", "0,1..1 pu: 95 %"),
+                discharge_efficiency_type=data.get("DischargeEfficiencyType", "0,1..1 pu: 95 %"),
             )
 
     @dataclass_json
@@ -364,9 +364,13 @@ class BatteryMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
     general: General
     inverter: Inverter
     presentations: list[ElementPresentation]
-    charge_efficiency_type: EfficiencyType | None = None
-    discharge_efficiency_type: EfficiencyType | None = None
-    q_control: QControl | None = None
+    charge_efficiency_type: EfficiencyType = field(
+        default_factory=lambda: EfficiencyType(output1=10, input2=0.1, output2=95, input3=1, output3=95)
+    )
+    discharge_efficiency_type: EfficiencyType = field(
+        default_factory=lambda: EfficiencyType(output1=10, input2=0.1, output2=95, input3=1, output3=95)
+    )
+    q_control: BatteryMV.QControl = field(default_factory=lambda: BatteryMV.QControl(input1=1))
     pu_control: PUControl | None = None
     pi_control: PIControl | None = None
     harmonics_type: HarmonicsType | None = None
@@ -388,8 +392,7 @@ class BatteryMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         lines.append(f"#General {self.general.serialize()}")
         lines.append(f"#Inverter {self.inverter.serialize()}")
 
-        if self.q_control:
-            lines.append(f"#QControl {self.q_control.serialize()}")
+        lines.append(f"#QControl {self.q_control.serialize()}")
 
         if self.pu_control:
             lines.append(f"#P(U)Control {self.pu_control.serialize()}")
@@ -397,11 +400,9 @@ class BatteryMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         if self.pi_control:
             lines.append(f"#P(I)Control {self.pi_control.serialize()}")
 
-        if self.charge_efficiency_type:
-            lines.append(f"#ChargeEfficiencyType {self.charge_efficiency_type.serialize()}")
+        lines.append(f"#ChargeEfficiencyType {self.charge_efficiency_type.serialize()}")
 
-        if self.discharge_efficiency_type:
-            lines.append(f"#DischargeEfficiencyType {self.discharge_efficiency_type.serialize()}")
+        lines.append(f"#DischargeEfficiencyType {self.discharge_efficiency_type.serialize()}")
 
         if self.harmonics_type:
             lines.append(f"#HarmonicsType {self.harmonics_type.serialize()}")
@@ -433,9 +434,8 @@ class BatteryMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         inverter_data = data.get("inverter", [{}])[0] if data.get("inverter") else {}
         inverter = cls.Inverter.deserialize(inverter_data)
 
-        q_control = None
-        if data.get("qControl"):
-            q_control = cls.QControl.deserialize(data["qControl"][0])
+        q_control_data = data.get("qControl", [{}])[0] if data.get("qControl") else {}
+        q_control = cls.QControl.deserialize(q_control_data)
 
         pu_control = None
         if data.get("puControl"):
@@ -445,17 +445,11 @@ class BatteryMV(ExtrasNotesMixin, HasPresentationsMixin, IconMixin):
         if data.get("piControl"):
             pi_control = cls.PIControl.deserialize(data["piControl"][0])
 
-        charge_efficiency = None
-        if data.get("chargeEfficiencyType"):
-            from .shared import EfficiencyType
+        charge_data = data.get("chargeEfficiencyType", [{}])[0] if data.get("chargeEfficiencyType") else {}
+        charge_efficiency = EfficiencyType.deserialize(charge_data)
 
-            charge_efficiency = EfficiencyType.deserialize(data["chargeEfficiencyType"][0])
-
-        discharge_efficiency = None
-        if data.get("dischargeEfficiencyType"):
-            from .shared import EfficiencyType
-
-            discharge_efficiency = EfficiencyType.deserialize(data["dischargeEfficiencyType"][0])
+        discharge_data = data.get("dischargeEfficiencyType", [{}])[0] if data.get("dischargeEfficiencyType") else {}
+        discharge_efficiency = EfficiencyType.deserialize(discharge_data)
 
         harmonics_type = None
         if data.get("harmonicsType"):
