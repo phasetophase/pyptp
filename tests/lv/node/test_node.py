@@ -5,7 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import DelphiColor
 from pyptp.elements.element_utils import Guid, encode_guid
-from pyptp.elements.enums import NodePresentationSymbol
+from pyptp.elements.enums import NodePresentationSymbol, TextRotation
 from pyptp.elements.lv.node import NodeLV
 from pyptp.elements.lv.presentations import NodePresentation
 from pyptp.elements.lv.shared import Fields
@@ -95,7 +95,7 @@ class TestNodeRegistration(unittest.TestCase):
             text_style=1,
             no_text=True,
             upside_down_text=True,
-            text_rotation=45,
+            text_rotation=TextRotation.DEGREES_45,
             upstrings_x=5,
             upstrings_y=6,
             fault_strings_x=7,

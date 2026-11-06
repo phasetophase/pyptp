@@ -5,7 +5,7 @@ from uuid import UUID
 
 from pyptp.elements.color_utils import CL_BLACK, CL_SILVER, DelphiColor
 from pyptp.elements.element_utils import Guid
-from pyptp.elements.enums import NodePresentationSymbol
+from pyptp.elements.enums import NodePresentationSymbol, TextRotation
 from pyptp.elements.mixins import Extra, Icon, Note
 from pyptp.elements.mv.node import NodeMV
 from pyptp.elements.mv.presentations import NodePresentation
@@ -94,7 +94,7 @@ class TestNodeRegistration(unittest.TestCase):
             text_style=1,
             is_text_hidden=True,
             is_text_upside_down=True,
-            text_rotation=45,
+            text_rotation=TextRotation.DEGREES_45,
             upstrings_x=10,
             upstrings_y=20,
             fault_strings_x=30,
@@ -267,7 +267,7 @@ class TestNodeRegistration(unittest.TestCase):
         self.assertIn("TextSize:12", serialized)
         self.assertIn("NoText:True", serialized)
         self.assertIn("UpsideDownText:True", serialized)
-        self.assertIn("TextRotation:45", serialized)
+        self.assertIn("TextRotation:-1", serialized)
         self.assertIn("UpstringsX:10", serialized)
         self.assertIn("UpstringsY:20", serialized)
         self.assertIn("FaultStringsX:30", serialized)
@@ -465,6 +465,14 @@ class TestNodeRegistration(unittest.TestCase):
         self.assertIn("RippleControlFrequency:500", serialized)
         self.assertIn("RippleControlVoltage:230", serialized)
         self.assertIn("RippleControlAngle:45", serialized)
+
+    def test_text_rotation_read_from_file_is_a_text_rotation(self) -> None:
+        """Test that a parsed text rotation code becomes a TextRotation member."""
+        presentation = NodePresentation.deserialize(
+            {"Sheet": str(self.sheet_guid), "TextRotation": 1}
+        )
+
+        self.assertIs(presentation.text_rotation, TextRotation.DEGREES_315)
 
 
 if __name__ == "__main__":

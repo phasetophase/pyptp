@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from pyptp.elements.color_utils import CL_BLACK, CL_BLUE, CL_RED
 from pyptp.elements.element_utils import NIL_GUID, Guid, encode_guid
-from pyptp.elements.enums import NodePresentationSymbol
+from pyptp.elements.enums import NodePresentationSymbol, TextRotation
 from pyptp.elements.lv.presentations import (
     BranchPresentation,
     ElementPresentation,
@@ -58,7 +58,7 @@ class TestNodePresentation(unittest.TestCase):
             text_style=1,
             no_text=True,
             upside_down_text=True,
-            text_rotation=90,
+            text_rotation=TextRotation.DEGREES_90,
             upstrings_x=10,
             upstrings_y=20,
             fault_strings_x=30,
@@ -82,7 +82,7 @@ class TestNodePresentation(unittest.TestCase):
         self.assertIn("Font:'Times'", result)
         self.assertIn("NoText:True", result)
         self.assertIn("UpsideDownText:True", result)
-        self.assertIn("TextRotation:90", result)
+        self.assertIn("TextRotation:-2", result)
         self.assertIn("UpstringsX:10", result)
         self.assertIn("UpstringsY:20", result)
         self.assertIn("FaultStringsX:30", result)
@@ -106,7 +106,7 @@ class TestNodePresentation(unittest.TestCase):
             "TextStyle": 1,
             "NoText": True,
             "UpsideDownText": True,
-            "TextRotation": 90,
+            "TextRotation": -2,
             "UpstringsX": 10,
             "UpstringsY": 20,
             "FaultStringsX": 30,
@@ -133,7 +133,7 @@ class TestNodePresentation(unittest.TestCase):
         self.assertEqual(node_presentation.text_style, 1)
         self.assertEqual(node_presentation.no_text, True)
         self.assertEqual(node_presentation.upside_down_text, True)
-        self.assertEqual(node_presentation.text_rotation, 90)
+        self.assertIs(node_presentation.text_rotation, TextRotation.DEGREES_90)
         self.assertEqual(node_presentation.upstrings_x, 10)
         self.assertEqual(node_presentation.upstrings_y, 20)
         self.assertEqual(node_presentation.fault_strings_x, 30)
@@ -161,7 +161,7 @@ class TestNodePresentation(unittest.TestCase):
         self.assertEqual(node_presentation.text_style, 0)
         self.assertEqual(node_presentation.no_text, False)
         self.assertEqual(node_presentation.upside_down_text, False)
-        self.assertEqual(node_presentation.text_rotation, 0)
+        self.assertIs(node_presentation.text_rotation, TextRotation.NONE)
 
     def test_node_presentation_round_trip_serialization(self) -> None:
         """Test that serialization and deserialization are consistent."""
@@ -179,7 +179,7 @@ class TestNodePresentation(unittest.TestCase):
             text_style=1,
             no_text=True,
             upside_down_text=True,
-            text_rotation=90,
+            text_rotation=TextRotation.DEGREES_90,
         )
 
         original.serialize()
@@ -199,7 +199,7 @@ class TestNodePresentation(unittest.TestCase):
             "TextStyle": 1,
             "NoText": True,
             "UpsideDownText": True,
-            "TextRotation": 90,
+            "TextRotation": -2,
         }
 
         deserialized = NodePresentation.deserialize(data)

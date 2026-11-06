@@ -91,7 +91,8 @@ class NativeLoaderValidator(Validator):
             logger.warning("Validator '%s' skipped: no native %s library for this platform", self.name, file_type)
             return []
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        # The native loader can keep the file open after a failed load
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp_dir:
             path = Path(temp_dir) / f"{self.name}.{file_type.lower()}"
             network.save(path, native_check=False)
             result = validate_file(path)

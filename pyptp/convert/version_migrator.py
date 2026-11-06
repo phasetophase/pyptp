@@ -263,7 +263,8 @@ def validate_file(path: str | Path, *, normalize_encoding: bool = False) -> Nati
 
     collector = _MessageCollector()
     if normalize_encoding:
-        with tempfile.TemporaryDirectory() as temp_dir:
+        # The native loader can keep the file open after a failed load
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp_dir:
             normalized = _write_utf8_copy(Path(path), Path(temp_dir))
             code = native_lib.ValidateNetworkFile(str(normalized).encode("utf-8"), collector.callback)
     else:
@@ -447,7 +448,8 @@ def migrate_and_read(
     last_error = ""
 
     for attempt in range(1, max_retries + 1):
-        with tempfile.TemporaryDirectory() as temp_dir:
+        # The native loader can keep the file open after a failed load
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp_dir:
             output_dir = Path(temp_dir)
             output_file = output_dir / input_path.name
 

@@ -276,3 +276,18 @@ class SpecialVoltageControlStatus(IntEnum):
 
     ON = 1
     """Voltage control is on."""
+
+
+class TextRotation(IntEnum):
+    """Text rotation angles."""
+
+    NONE = 0
+    """No text rotation."""
+    DEGREES_45 = -1
+    """Rotate the text 45° clockwise."""
+    DEGREES_90 = -2
+    """Rotate the text 90° clockwise."""
+    DEGREES_270 = 2
+    """Rotate the text 270° clockwise."""
+    DEGREES_315 = 1
+    """Rotate the text 315° clockwise."""

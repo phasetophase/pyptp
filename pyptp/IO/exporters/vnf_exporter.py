@@ -312,7 +312,8 @@ class VnfExporter:
         """
         out_path = Path(output_path)
 
-        with tempfile.TemporaryDirectory() as temp_dir:
+        # The native loader can keep the file open after a failed load
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as temp_dir:
             temp_file = Path(temp_dir) / out_path.name
             with temp_file.open("w", encoding="utf-8") as fh:
                 VnfExporter._write_vnf(network, fh)

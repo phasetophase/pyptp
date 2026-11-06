@@ -11,6 +11,7 @@ from .node_unom_validator import NodeUnomValidator
 from .secondary_side import SecondarySideValidator
 from .special_transformer_sort import SpecialTransformerSortValidator
 from .transformer_node_reference import TransformerNodeReferenceValidator
+from .unique_guid import UniqueGuidValidator
 
 __all__ = [
     "BranchCornerCoordinatesValidator",
@@ -21,4 +22,5 @@ __all__ = [
     "SecondarySideValidator",
     "SpecialTransformerSortValidator",
     "TransformerNodeReferenceValidator",
+    "UniqueGuidValidator",
 ]
