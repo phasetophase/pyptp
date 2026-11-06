@@ -1,6 +1,6 @@
 [project]
 name = "pyptp"
-version = "0.48.0"
+version = "0.49.0"
 description = "Open-source Python SDK for electrical grid calculations and modelling"
 authors = [
     { name = "Phase to Phase", email = "pyptp@phasetophase.com" },
@@ -43,14 +43,20 @@ dependencies = [
     "networkx>=3.4.2,<4",
     "requests>=2.31.0,<3",
     "pydantic-settings>=2.0,<3",
+    "certifi>=2026.10.19",
 ]
 
 [dependency-groups]
 dev = [
     "coverage>=7.8.0,<8",
     "ruff==0.14.11",
-    "pyright",
+    "pyright[nodejs]",
     "pandas>=2.3.3,<3",
+]
+
+[tool.uv]
+constraint-dependencies = [
+    "certifi>=2026.10.19",
 ]
 
 [tool.hatch.build.targets.sdist]

@@ -20,7 +20,7 @@ from pyptp.elements.element_utils import (
     optional_field,
     string_field,
 )
-from pyptp.elements.enums import NodePresentationSymbol, SymbolSegment
+from pyptp.elements.enums import NodePresentationSymbol, SymbolSegment, TextRotation
 from pyptp.elements.presentation_helpers import (
     branch_polyline,
     clamp_point_to_node,
@@ -64,7 +64,7 @@ class NodePresentation(DataClassJsonMixin):
     text_style: int = optional_field(0)
     is_text_hidden: bool = False
     is_text_upside_down: bool = False
-    text_rotation: int = optional_field(0)
+    text_rotation: TextRotation = TextRotation.NONE
     upstrings_x: int = optional_field(0)
     upstrings_y: int = optional_field(0)
     fault_strings_x: int = optional_field(0)
@@ -154,7 +154,7 @@ class NodePresentation(DataClassJsonMixin):
             text_style=data.get("TextStyle", 0),
             is_text_hidden=data.get("NoText", False),
             is_text_upside_down=data.get("UpsideDownText", False),
-            text_rotation=data.get("TextRotation", 0),
+            text_rotation=TextRotation(data.get("TextRotation", TextRotation.NONE.value)),
             upstrings_x=data.get("UpstringsX", 0),
             upstrings_y=data.get("UpstringsY", 0),
             fault_strings_x=data.get("FaultStringsX", 0),
