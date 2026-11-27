@@ -99,7 +99,7 @@ class GnfVersion(StrEnum):
     """GNF (Gaia/LV) file format versions supported for saving.
 
     Values correspond to version strings written to the first line of GNF files.
-    G8.12 is the latest format and the one pyptp models natively; saving to any
+    G8.12 is the latest format and the one pyptp models natively. Saving to any
     older version writes a native G8.12 file and lets the migrator down-convert.
     """
 

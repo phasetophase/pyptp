@@ -26,7 +26,7 @@ class TypeRow(dict[str, object]):
     Resolving that here keeps ``column_renames`` for headers that are genuinely
     named something else.
 
-    An exact match always wins; the case-insensitive lookup only applies when
+    An exact match always wins. The case-insensitive lookup only applies when
     the exact key is absent.
     """
 

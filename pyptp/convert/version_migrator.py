@@ -1,7 +1,7 @@
 """Version migrator utilities.
 
 Convert and validate `.GNF` and `.VNF` network files via the bundled native
-libraries (DLL on Windows, SO on Linux), which contain the Gaia and Vision file
+libraries (DLL on Windows, SO on Linux, DYLIB on macOS), which contain the Gaia and Vision file
 loaders. Used by the importers, exporters and the native loader validator.
 """
 
@@ -102,8 +102,6 @@ class _MessageCollector:
 
 def _resolve_library(file_type: str) -> tuple[str, LoaderType]:
     """Return the native library filename and loader for this platform."""
-    platform = sys.platform
-
     if file_type not in {"GNF", "VNF"}:
         msg = f"Unsupported file type '{file_type}'"
         raise ValueError(msg)
@@ -114,8 +112,11 @@ def _resolve_library(file_type: str) -> tuple[str, LoaderType]:
     elif sys.platform == "linux":
         names = {"GNF": "libGaiaMigrator.so", "VNF": "libVisionMigrator.so"}
         loader = ctypes.CDLL
+    elif sys.platform == "darwin":
+        names = {"GNF": "libGaiaMigrator.dylib", "VNF": "libVisionMigrator.dylib"}
+        loader = ctypes.CDLL
     else:
-        msg = f"Unsupported platform '{platform}'"
+        msg = f"Unsupported platform '{sys.platform}'"
         raise RuntimeError(msg)
 
     return names[file_type], loader
@@ -248,7 +249,7 @@ def validate_file(path: str | Path, *, normalize_encoding: bool = False) -> Nati
     Returns:
         The native return code together with every loader error and warning.
         ``ERR_LOAD_FAILURE`` means the file itself could not be read (missing,
-        locked, unknown version); ``ERR_NETWORK_INVALID`` means the file was read
+        locked, unknown version). ``ERR_NETWORK_INVALID`` means the file was read
         but the loader rejected part of its content.
 
     """
@@ -292,7 +293,7 @@ def save_as(
             highest supported version for the file type.
 
     Returns:
-        Message describing the result. On success: "Conversion successful"; otherwise
+        Message describing the result. On success: "Conversion successful". Otherwise
         an error description followed by the loader errors and warnings.
 
     """

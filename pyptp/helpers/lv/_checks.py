@@ -9,11 +9,16 @@ if TYPE_CHECKING:
     from pyptp.network_lv import NetworkLV
 
 
-def check_cable(network: NetworkLV, cable: CableLV) -> None:
-    """Raise if ``cable`` is not in the network or has connections on the cable itself."""
+def check_registered(network: NetworkLV, cable: CableLV) -> None:
+    """Raise if ``cable`` is not in the network."""
     if network.cables.get(cable.general.guid) is not cable:
         msg = f"Cable {cable.general.name!r} is not registered in this network"
         raise ValueError(msg)
+
+
+def check_cable(network: NetworkLV, cable: CableLV) -> None:
+    """Raise if ``cable`` is not in the network or has connections on the cable itself."""
+    check_registered(network, cable)
     if cable.cable_connections or cable.cable_connection:
         msg = f"Cable {cable.general.name!r} has connections on the cable itself and cannot be split"
         raise ValueError(msg)

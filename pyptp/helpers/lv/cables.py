@@ -1,7 +1,8 @@
-"""Cut cables into sections."""
+"""Cut cables into sections, or lay a new cable beside them."""
 
 from __future__ import annotations
 
+import math
 from copy import deepcopy
 from dataclasses import dataclass, replace
 from decimal import Decimal
@@ -16,8 +17,20 @@ from pyptp.elements.lv.cable import MIN_PART_LENGTH_M, CableLV
 from pyptp.elements.lv.node import NodeLV
 from pyptp.elements.lv.presentations import BranchPresentation, NodePresentation
 from pyptp.elements.lv.shared import GeoCablePart
-from pyptp.helpers.lv._checks import check_cable
-from pyptp.helpers.lv._routes import CableRoutes, Point, cable_routes, without_repeats
+from pyptp.helpers.lv._checks import check_cable, check_registered
+from pyptp.helpers.lv._map import offset_on_map
+from pyptp.helpers.lv._routes import (
+    CableRoutes,
+    Drawing,
+    Point,
+    cable_routes,
+    join_routes,
+    map_position,
+    offset_route,
+    route_length,
+    to_the_millimetre,
+    without_repeats,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -97,6 +110,240 @@ def split_cable(
         _clear_end(section, SIDE_NODE2)
     _move_node2_secondaries(network, cable, sections[-1])
     return CableSections(sections, joints)
+
+
+def lay_parallel_cable(
+    network: NetworkLV,
+    cables: Sequence[CableLV],
+    *,
+    offset_px: int,
+    offset_m: float = 0.0,
+    name: str | None = None,
+    node1: NodeLV | None = None,
+    node2: NodeLV | None = None,
+    length: float | None = None,
+) -> CableLV:
+    """Lay a new cable beside ``cables``, from the start of the first to the end of the last.
+
+    ``cables`` is the old cable, or its sections in order, each stored either way round.
+    The new cable is as long as the sections together and has the first section's type,
+    name and drawing style. Its ends are closed, without protection or fuses.
+
+    On every sheet all sections and both its nodes are drawn on, it runs ``offset_px``
+    pixels beside the old route, and on the map ``offset_m`` metres beside it. Positive
+    is to the right, walking from the first cable to the last. Both ends stay on the nodes.
+    When a section has no route on the map, the new cable has none either.
+
+    ``node1`` and ``node2`` connect the new cable to other nodes than the start and end
+    of ``cables``. The route then runs straight from the old route's ends to these nodes.
+    When ``node1`` is the end of ``cables`` or ``node2`` its start, the new cable runs
+    from the last cable to the first, on the same side. Give ``length`` when the new
+    cable is not as long as the sections together.
+
+    Raises:
+        ValueError: If an offset is not a finite number, if ``length`` is below 0.5 m,
+            if ``cables`` is not one chain of this network's cables that passes each node
+            once, if ``node1`` or ``node2`` is not in this network, if both are the same
+            node, if the sections and both nodes share no sheet, or if a route turns back
+            on itself while its offset is not 0.
+
+    """
+    if not math.isfinite(offset_px) or not math.isfinite(offset_m):
+        msg = f"Offsets must be finite numbers, got offset_px={offset_px!r} and offset_m={offset_m!r}"
+        raise ValueError(msg)
+    if length is not None and not MIN_PART_LENGTH_M <= length < math.inf:
+        msg = f"Length must be at least {MIN_PART_LENGTH_M} m, got {length!r}"
+        raise ValueError(msg)
+    if not cables:
+        msg = "No cables given to lay a new cable beside"
+        raise ValueError(msg)
+    for cable in cables:
+        check_registered(network, cable)
+    for node in (node1, node2):
+        if node is not None and network.nodes.get(node.general.guid) is not node:
+            msg = f"Node {node.general.name!r} is not registered in this network"
+            raise ValueError(msg)
+    first = cables[0]
+    start = _chain_start(cables)
+    routes, end = _chain_routes(network, cables, start)
+    if node1 is None:
+        node1 = network.nodes[start]
+    if node2 is None:
+        node2 = network.nodes[end]
+    if node1 is node2:
+        msg = f"A new cable needs two different nodes, got {node1.general.name!r} twice"
+        raise ValueError(msg)
+    backwards = node1.general.guid == end or node2.general.guid == start
+    at_start = node1
+    at_end = node2
+    if backwards:
+        at_start = node2
+        at_end = node1
+
+    drawings_by_sheet = _shared_drawings(routes, node1, node2)
+    if not drawings_by_sheet:
+        msg = (
+            f"Cable {first.general.name!r} and the cables after it are not all drawn on one sheet"
+            f" with {node1.general.name!r} and {node2.general.name!r}, or only on a point"
+        )
+        raise ValueError(msg)
+
+    try:
+        presentations = [
+            _drawing_beside(at_start, at_end, drawings, offset_px) for drawings in drawings_by_sheet.values()
+        ]
+        cablepart_geography = _map_route_beside(at_start, at_end, routes, offset_m)
+    except ValueError as error:
+        msg = f"Cannot lay a cable beside {first.general.name!r}: {error}"
+        raise ValueError(msg) from error
+    if backwards:
+        presentations = [_turned_round(presentation) for presentation in presentations]
+        if cablepart_geography is not None:
+            cablepart_geography = GeoCablePart(cablepart_geography.coordinates[::-1])
+
+    if length is None:
+        length = round(sum(cable.cable_part.length for cable in cables), 2)
+    new_name = first.general.name if name is None else name
+    new_cable = CableLV(
+        CableLV.General(node1=node1.general.guid, node2=node2.general.guid, name=new_name),
+        presentations=presentations,
+        cable_part=CableLV.CablePart(length=length, type=first.cable_part.type),
+        cable_type=deepcopy(first.cable_type),
+        cablepart_geography=cablepart_geography,
+    )
+    return network.add(new_cable)
+
+
+def _chain_start(cables: Sequence[CableLV]) -> Guid:
+    """Return the first cable's node away from the second cable."""
+    first = cables[0]
+    if len(cables) == 1:
+        return first.general.node1
+
+    second = cables[1]
+    if first.general.node1 in (second.general.node1, second.general.node2):
+        return first.general.node2
+    return first.general.node1
+
+
+def _chain_routes(network: NetworkLV, cables: Sequence[CableLV], start: Guid) -> tuple[list[CableRoutes], Guid]:
+    """Return each cable's routes running away from ``start``, and the node the chain ends at."""
+    chain_routes = []
+    passed = {start}
+    node = start
+    for cable in cables:
+        next_node = _other_node(cable, node)
+        if next_node in passed:
+            msg = f"Cable {cable.general.name!r} comes back to a node the chain has already passed"
+            raise ValueError(msg)
+        try:
+            routes = cable_routes(network, cable)
+        except ValueError as error:
+            msg = f"Cannot lay a cable beside {cable.general.name!r}: {error}"
+            raise ValueError(msg) from error
+        if cable.general.node1 != node:
+            routes = routes.reversed()
+        chain_routes.append(routes)
+        passed.add(next_node)
+        node = next_node
+    return chain_routes, node
+
+
+def _other_node(cable: CableLV, node: Guid) -> Guid:
+    if cable.general.node1 == node:
+        return cable.general.node2
+    if cable.general.node2 == node:
+        return cable.general.node1
+    msg = f"Cable {cable.general.name!r} does not join the previous cable"
+    raise ValueError(msg)
+
+
+def _shared_drawings(routes: Sequence[CableRoutes], node1: NodeLV, node2: NodeLV) -> dict[Guid, list[Drawing]]:
+    """Return each section's first drawing, per sheet every section and both nodes are drawn on."""
+    drawings_by_sheet = {}
+    for presentation, _polyline in routes[0].drawings:
+        sheet = presentation.sheet
+        if not _drawn_on(node1, sheet) or not _drawn_on(node2, sheet):
+            continue
+        drawings = _drawings_on(routes, sheet)
+        if drawings is not None and route_length(_joined_polylines(drawings)) > 0:
+            drawings_by_sheet[sheet] = drawings
+    return drawings_by_sheet
+
+
+def _drawn_on(node: NodeLV, sheet: Guid) -> bool:
+    return any(presentation.sheet == sheet for presentation in node.presentations)
+
+
+def _drawings_on(routes: Sequence[CableRoutes], sheet: Guid) -> list[Drawing] | None:
+    """Return each section's first drawing on ``sheet``, or None when a section is not drawn there."""
+    drawings = []
+    for section_routes in routes:
+        drawing = _first_drawing_on(section_routes, sheet)
+        if drawing is None:
+            return None
+        drawings.append(drawing)
+    return drawings
+
+
+def _first_drawing_on(section_routes: CableRoutes, sheet: Guid) -> Drawing | None:
+    for drawing in section_routes.drawings:
+        presentation, _polyline = drawing
+        if presentation.sheet == sheet:
+            return drawing
+    return None
+
+
+def _joined_polylines(drawings: list[Drawing]) -> list[Point]:
+    polylines = [polyline for _presentation, polyline in drawings]
+    return join_routes(polylines)
+
+
+def _drawing_beside(node1: NodeLV, node2: NodeLV, drawings: list[Drawing], offset_px: int) -> BranchPresentation:
+    """Return one drawing ``offset_px`` beside the sections' drawings, in the first one's style."""
+    first_presentation, _first_polyline = drawings[0]
+    style = BranchPresentation(
+        sheet=first_presentation.sheet,
+        color=first_presentation.color,
+        size=first_presentation.size,
+        width=first_presentation.width,
+        text_color=first_presentation.text_color,
+        text_size=first_presentation.text_size,
+        font=first_presentation.font,
+        text_style=first_presentation.text_style,
+        no_text=first_presentation.no_text,
+        upside_down_text=first_presentation.upside_down_text,
+    )
+    old_route = _joined_polylines(drawings)
+    new_route = offset_route(old_route, offset_px)
+    return _redrawn(style, node1, node2, new_route)
+
+
+def _map_route_beside(
+    node1: NodeLV, node2: NodeLV, routes: Sequence[CableRoutes], offset_m: float
+) -> GeoCablePart | None:
+    """Return the map route ``offset_m`` beside the sections, or None when one has no map route."""
+    map_routes = []
+    for section_routes in routes:
+        map_route = section_routes.map_route
+        if map_route is None:
+            return None
+        map_routes.append(map_route)
+
+    old_route = join_routes(map_routes)
+    new_route = offset_on_map(old_route, offset_m)
+    start = map_position(node1.general)
+    end = map_position(node2.general)
+    if start is not None:
+        new_route.insert(0, start)
+    if end is not None:
+        new_route.append(end)
+    return GeoCablePart(without_repeats(to_the_millimetre(new_route)))
+
+
+def _turned_round(presentation: BranchPresentation) -> BranchPresentation:
+    """Return ``presentation`` with its nodes swapped, drawn along the same route."""
+    return replace(presentation, first_corners=presentation.second_corners, second_corners=presentation.first_corners)
 
 
 def _check_cuts(cable: CableLV, cuts: list[float]) -> None:

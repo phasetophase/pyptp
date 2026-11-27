@@ -71,5 +71,5 @@ class NetworkOptionsMV(DataClassJsonMixin):
         return "\n".join(lines)
 
     def register(self, network: NetworkMV) -> None:
-        """Register network options on the network (singleton; replaces any existing)."""
+        """Register network options on the network, replacing any existing options."""
         network.network_options = self
