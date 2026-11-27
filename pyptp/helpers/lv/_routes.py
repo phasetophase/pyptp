@@ -22,6 +22,7 @@ Drawing = tuple[BranchPresentation, Sequence[Point]]
 PointOrPixel = TypeVar("PointOrPixel", bound=Point)
 
 _MIN_ROUTE_POINTS = 2
+_MAX_CORNER_MOVE = 2.0  # times the offset
 _METRES_PER_DEGREE_LATITUDE = 111_195.0
 _MAX_LONGITUDE = 180.0
 _MAX_LATITUDE = 90.0
@@ -69,6 +70,16 @@ class CableRoutes:
             for section, section_polyline in zip(sections, polyline_by_section, strict=True):
                 section.drawings.append((presentation, section_polyline))
         return sections
+
+    def reversed(self) -> CableRoutes:
+        """Return the same routes from node 2 to node 1."""
+        drawings = [(presentation, polyline[::-1]) for presentation, polyline in self.drawings]
+        return CableRoutes(
+            _reversed_if_present(self.cablepart),
+            _reversed_if_present(self.geography),
+            _reversed_if_present(self.straight_line),
+            drawings,
+        )
 
 
 def cable_routes(network: NetworkLV, cable: CableLV) -> CableRoutes:
@@ -212,6 +223,49 @@ def to_the_millimetre(route: Sequence[Point]) -> list[Point]:
     return [(round(x, decimals), round(y, decimals)) for x, y in route]
 
 
+def join_routes(routes: Sequence[Sequence[Point]]) -> list[Point]:
+    """Return one route from consecutive routes, with the point they share only once."""
+    joined = list(routes[0])
+    for route in routes[1:]:
+        if route[0] == joined[-1]:
+            joined.extend(route[1:])
+        else:
+            joined.extend(route)
+    return joined
+
+
+def offset_route(route: Sequence[Point], distance: float) -> list[Point]:
+    """Return ``route`` moved ``distance`` sideways, with mitred corners.
+
+    Positive ``distance`` is to the right on a sheet, seen walking along the route.
+    A corner moves at most twice ``distance``, so a sharp bend gets no spike. With a
+    ``distance`` of 0 the route stays where it is, even where it turns back.
+
+    Raises:
+        ValueError: If the route has fewer than two distinct points, or turns back on
+            itself while ``distance`` is not 0.
+
+    """
+    corners = _corners_only(route)
+    if len(corners) < _MIN_ROUTE_POINTS:
+        msg = f"A route needs two distinct points, got {list(route)}"
+        raise ValueError(msg)
+    if distance == 0:
+        return corners
+
+    first_normal = _unit_normal(corners[0], corners[1])
+    moved = [_moved(corners[0], first_normal, distance)]
+    for index in range(1, len(corners) - 1):
+        before = corners[index - 1]
+        corner = corners[index]
+        after = corners[index + 1]
+        corner_normal = _corner_normal(before, corner, after)
+        moved.append(_moved(corner, corner_normal, distance))
+    last_normal = _unit_normal(corners[-2], corners[-1])
+    moved.append(_moved(corners[-1], last_normal, distance))
+    return moved
+
+
 def map_position(node: NodeLV.General) -> Point | None:
     """Return the node's position on the map, or None when it has none."""
     # A node at (0, 0) has no coordinates
@@ -232,6 +286,76 @@ def without_repeats(route: Sequence[PointOrPixel]) -> list[PointOrPixel]:
 
 def _metres_per_degree_longitude(latitude: float) -> float:
     return _METRES_PER_DEGREE_LATITUDE * math.cos(math.radians(latitude))
+
+
+def _corners_only(route: Sequence[Point]) -> list[Point]:
+    """Return ``route`` without repeated points and without points where it goes straight on."""
+    distinct = without_repeats(route)
+    if len(distinct) < _MIN_ROUTE_POINTS:
+        return distinct
+
+    corners = [distinct[0]]
+    for corner, after in pairwise(distinct[1:]):
+        before = corners[-1]
+        if not _goes_straight_on(before, corner, after):
+            corners.append(corner)
+    corners.append(distinct[-1])
+    return corners
+
+
+def _goes_straight_on(before: Point, corner: Point, after: Point) -> bool:
+    before_x, before_y = before
+    corner_x, corner_y = corner
+    after_x, after_y = after
+    in_x = corner_x - before_x
+    in_y = corner_y - before_y
+    out_x = after_x - corner_x
+    out_y = after_y - corner_y
+    sideways = in_x * out_y - in_y * out_x
+    ahead = in_x * out_x + in_y * out_y
+    return sideways == 0 and ahead > 0
+
+
+def _unit_normal(start: Point, end: Point) -> Point:
+    """Return the unit vector at right angles to the segment, to its right on a sheet."""
+    start_x, start_y = start
+    end_x, end_y = end
+    length = math.dist(start, end)
+    return (-(end_y - start_y) / length, (end_x - start_x) / length)
+
+
+def _corner_normal(before: Point, corner: Point, after: Point) -> Point:
+    """Return where ``corner`` moves per unit of offset: along the mitre, at most twice the offset.
+
+    Raises:
+        ValueError: If the route turns back on itself at ``corner``.
+
+    """
+    normal_in_x, normal_in_y = _unit_normal(before, corner)
+    normal_out_x, normal_out_y = _unit_normal(corner, after)
+    bisector_x = normal_in_x + normal_out_x
+    bisector_y = normal_in_y + normal_out_y
+    bisector_length = math.hypot(bisector_x, bisector_y)
+    if math.isclose(bisector_length, 0.0, abs_tol=1e-9):
+        msg = f"The route turns back on itself at {corner}"
+        raise ValueError(msg)
+
+    mitre_length = 2 / bisector_length
+    capped_length = min(mitre_length, _MAX_CORNER_MOVE)
+    scale = capped_length / bisector_length
+    return (bisector_x * scale, bisector_y * scale)
+
+
+def _moved(point: Point, normal: Point, distance: float) -> Point:
+    point_x, point_y = point
+    normal_x, normal_y = normal
+    return (point_x + distance * normal_x, point_y + distance * normal_y)
+
+
+def _reversed_if_present(route: list[Point] | None) -> list[Point] | None:
+    if route is None:
+        return None
+    return route[::-1]
 
 
 def _cut_if_present(route: list[Point] | None, fractions: Sequence[float], count: int) -> list[list[Point] | None]:

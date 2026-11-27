@@ -41,7 +41,7 @@ def issues_from_native_result(result: NativeResult, validator_name: str) -> list
 
     Returns:
         One issue per loader message. Messages that name an object carry its
-        type and GUID; file-level messages use object type "Network".
+        type and GUID. File-level messages use object type "Network".
 
     """
     issues: list[Issue] = []

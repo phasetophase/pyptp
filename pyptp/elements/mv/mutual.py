@@ -73,7 +73,7 @@ class MutualMV:
                 data: Dictionary with parsed #General section properties.
 
             Returns:
-                Initialized General instance;
+                Initialized General instance.
 
             """
             return cls(

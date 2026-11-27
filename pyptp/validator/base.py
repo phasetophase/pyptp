@@ -51,18 +51,12 @@ class ValidatorCategory(Flag):
 
 
 class Severity(str, Enum):
-    """Severity levels for validation issues.
-
-    Attributes:
-        ERROR: Network is invalid and cannot be safely analyzed or exported.
-            Must be fixed before proceeding.
-        WARNING: Network has issues that should be reviewed but analysis may
-            still be possible. Indicates suboptimal or suspicious conditions.
-
-    """
+    """Severity levels for validation issues."""
 
     ERROR = "error"
+    """Network is invalid and cannot be safely analyzed or exported. Must be fixed before proceeding."""
     WARNING = "warning"
+    """Network has issues that should be reviewed but analysis may still be possible."""
 
 
 @dataclass
@@ -105,7 +99,7 @@ class Report:
         return {"issues": [i.to_dict() for i in self.issues]}
 
     def to_json(self) -> str:
-        """Serialize this report to formatted JSON; non-JSON object ids such as ``Guid`` become strings."""
+        """Serialize this report to formatted JSON, with object ids such as ``Guid`` written as strings."""
         import json
 
         return json.dumps(self.to_dict(), indent=2, default=str)

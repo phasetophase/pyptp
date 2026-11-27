@@ -14,7 +14,7 @@ from pyptp.elements.lv.connection import ConnectionLV
 from pyptp.elements.lv.node import NodeLV
 from pyptp.elements.lv.presentations import BranchPresentation, ElementPresentation, NodePresentation
 from pyptp.elements.lv.sheet import SheetLV
-from pyptp.helpers.lv import move_connections_to_cable
+from pyptp.helpers.lv import lay_parallel_cable, move_connections_to_cable
 from pyptp.ptp_log import logger
 from pyptp.type_reader import Types
 
@@ -70,11 +70,13 @@ joint_4 = add_joint(760, 360)
 corner = add_joint(880, 360, Symbol.CLOSED_CIRCLE)
 
 old_type = "4* 50 VMvK/Alk"
-add_cable("Lindelaan", old_type, CL_BLUE, rail, joint_1, 10)
-add_cable("Lindelaan", old_type, CL_BLUE, joint_1, joint_2, 6)
-add_cable("Lindelaan", old_type, CL_BLUE, joint_2, joint_3, 6)
-add_cable("Lindelaan", old_type, CL_BLUE, joint_3, joint_4, 6)
-last_old_section = add_cable("Lindelaan", old_type, CL_BLUE, joint_4, corner, 6)
+old_sections = [
+    add_cable("Lindelaan", old_type, CL_BLUE, rail, joint_1, 10),
+    add_cable("Lindelaan", old_type, CL_BLUE, joint_1, joint_2, 6),
+    add_cable("Lindelaan", old_type, CL_BLUE, joint_2, joint_3, 6),
+    add_cable("Lindelaan", old_type, CL_BLUE, joint_3, joint_4, 6),
+    add_cable("Lindelaan", old_type, CL_BLUE, joint_4, corner, 6),
+]
 
 # Odd numbers on the north side, even numbers across the street on the south side
 lindelaan_1 = add_connection("Lindelaan 1", joint_1, 400, 240)
@@ -82,18 +84,12 @@ lindelaan_2 = add_connection("Lindelaan 2", joint_2, 520, 560)
 lindelaan_3 = add_connection("Lindelaan 3", joint_3, 640, 240)
 lindelaan_4 = add_connection("Lindelaan 4", joint_4, 760, 560)
 
-# The old cable is overloaded. A heavier cable is laid along the south side, from the
-# substation to the corner, and the old cable is opened at the corner.
-new_cable = CableLV(
-    CableLV.General(node1=rail.general.guid, node2=corner.general.guid, name="Lindelaan nieuw"),
-    presentations=[BranchPresentation.between(rail, corner, sheet, via=[(880, 440)])],
-    cable_part=CableLV.CablePart(length=38),
-)
-new_cable.presentations[0].color = CL_RED
+# The old cable is overloaded. A heavier cable is laid along the south side, 80 px below
+# the old one on the sheet, and the old cable is opened at the corner.
+new_cable = lay_parallel_cable(network, old_sections, offset_px=80, name="Lindelaan nieuw")
 new_cable.set_cable_type(types, "4*150 VVMvKsas/Alk")
-network.add(new_cable)
-
-last_old_section.general.set_switches(SIDE_NODE2, closed=False)
+new_cable.presentations[0].color = CL_RED
+old_sections[-1].general.set_switches(SIDE_NODE2, closed=False)
 
 # Lindelaan 2 and 4 are on the side of the new cable, so they move onto it
 result = move_connections_to_cable(network, new_cable, [lindelaan_2, lindelaan_4])

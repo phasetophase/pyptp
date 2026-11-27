@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class SpecialTransformerSortValidator(Validator):
     """Flag special transformers whose sort is still ``SpecialTransformerSort.NONE``.
 
-    The NONE sentinel exists so users must pick a sort explicitly; picking a
+    The NONE sentinel exists so users must pick a sort explicitly. Picking a
     default would be a footgun given how strongly the sort influences network
     behaviour. Saving with NONE produces a file Vision/Gaia rejects with a
     cryptic ``geen soort`` load error, so we flag it here and block it at

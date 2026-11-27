@@ -387,7 +387,7 @@ def serialize_notes(notes: Iterable[_HasText]) -> list[str]:
     """Serialize notes into a single Vision/Gaia-compatible `#Note Text:` line.
 
     Vision/Gaia store one note per element as a single string whose line breaks are
-    written as chr(20). Each list entry becomes one line; newlines inside an entry are
+    written as chr(20). Each list entry becomes one line. Newlines inside an entry are
     also encoded as chr(20). Returns [] when there is no note content (no line written).
     """
     if not notes:
